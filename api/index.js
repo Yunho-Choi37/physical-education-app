@@ -80,8 +80,7 @@ app.get('/', (req, res) => {
 });
 
 // API: 모든 데이터 가져오기
-// Vercel에서는 api/index.js가 자동으로 /api 경로로 매핑되므로 /api 접두사 제거
-app.get('/data', async (req, res) => {
+app.get('/api/data', async (req, res) => {
   try {
     const students = await getStudents();
     res.json({ students });
@@ -92,7 +91,7 @@ app.get('/data', async (req, res) => {
 });
 
 // API: 특정 반의 학생들 가져오기
-app.get('/classes/:classId/students', async (req, res) => {
+app.get('/api/classes/:classId/students', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -105,7 +104,7 @@ app.get('/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 추가
-app.post('/classes/:classId/students', async (req, res) => {
+app.post('/api/classes/:classId/students', async (req, res) => {
   try {
     const { name } = req.body;
     const classId = parseInt(req.params.classId, 10);
@@ -159,7 +158,7 @@ app.post('/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 정보 수정
-app.put('/students/:studentId', async (req, res) => {
+app.put('/api/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -178,7 +177,7 @@ app.put('/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 삭제
-app.delete('/students/:studentId', async (req, res) => {
+app.delete('/api/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -196,7 +195,7 @@ app.delete('/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 위치 저장
-app.post('/students/:studentId/position', async (req, res) => {
+app.post('/api/students/:studentId/position', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const { x, y } = req.body;
@@ -220,7 +219,7 @@ app.post('/students/:studentId/position', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 조회
-app.get('/classes/:classId/positions', async (req, res) => {
+app.get('/api/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -244,7 +243,7 @@ app.get('/classes/:classId/positions', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 삭제 (리셋용)
-app.delete('/classes/:classId/positions', async (req, res) => {
+app.delete('/api/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
