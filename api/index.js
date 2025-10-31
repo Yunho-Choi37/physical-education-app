@@ -39,15 +39,22 @@ try {
 
 // 미들웨어 설정
 // CORS 설정 (모든 도메인 허용)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
 }));
-
-// OPTIONS 요청 처리 (CORS preflight)
-app.options('*', cors());
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
@@ -77,6 +84,11 @@ const deleteStudent = async (studentId) => {
 // 기본 라우트
 app.get('/', (req, res) => {
   res.send('백엔드 서버가 실행 중입니다. (Firestore 사용)');
+});
+
+// 헬스 체크 (배포 상태 확인용)
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, timestamp: Date.now() });
 });
 
 // API: 모든 데이터 가져오기
