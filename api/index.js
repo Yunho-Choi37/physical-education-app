@@ -15,16 +15,12 @@ let db;
 try {
   const firebaseConfig = require('./firebase-config');
   
-  if (!firebaseConfig.projectId || !firebaseConfig.clientEmail || !firebaseConfig.privateKey) {
+  if (!firebaseConfig || !firebaseConfig.project_id || !firebaseConfig.client_email || !firebaseConfig.private_key) {
     throw new Error('Firebase 환경 변수가 설정되지 않았습니다.');
   }
   
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: firebaseConfig.projectId,
-      clientEmail: firebaseConfig.clientEmail,
-      privateKey: firebaseConfig.privateKey
-    })
+    credential: admin.credential.cert(firebaseConfig)
   });
   db = admin.firestore();
   console.log('✅ Firestore 연결 성공');
@@ -275,22 +271,21 @@ app.delete('/api/classes/:classId/positions', async (req, res) => {
   }
 });
 
-// 서버 시작
-const server = app.listen(PORT, () => {
-  console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
-  console.log(`환경: ${process.env.NODE_ENV || 'development'}`);
-});
-
 // Vercel 서버리스 함수용 export
-// Vercel에서는 모든 요청을 index.js로 라우팅하므로 app을 export
-module.exports = app;
+// Vercel에서는 포트 바인딩 없이 app만 export 해야 함
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // 로컬 개발 서버에서만 포트 바인딩
+  const server = app.listen(PORT, () => {
+    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+    console.log(`환경: ${process.env.NODE_ENV || 'development'}`);
+  });
 
-// 로컬 개발 서버 (Vercel이 아닐 때만 실행)
-if (!process.env.VERCEL) {
   server.on('error', (error) => {
     console.error('서버 오류:', error);
   });
-  
+
   server.on('listening', () => {
     console.log(`✅ 로컬 서버가 포트 ${PORT}에서 실행 중입니다.`);
   });
