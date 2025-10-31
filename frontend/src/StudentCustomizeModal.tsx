@@ -270,7 +270,11 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   const handleSave = () => {
     if (!student) return;
 
-    console.log('저장하기 전 imageData 상태:', customization.imageData ? `있음 (길이: ${customization.imageData.length})` : '없음');
+    console.log('💾 저장하기 전 상태 확인:');
+    console.log('  - 이미지:', customization.imageData ? `있음 (${(customization.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+    console.log('  - 크기:', customization.size);
+    console.log('  - 색상:', customization.color);
+    console.log('  - 모양:', customization.shape);
 
     const updatedStudent = {
       ...student,
@@ -279,7 +283,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         color: customization.color,
         shape: customization.shape,
         pattern: customization.pattern,
-        size: customization.size,
+        size: customization.size, // 크기 저장 확인
         glow: customization.glow,
         border: customization.border,
         activity: selectedActivity,
@@ -287,7 +291,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         energy: student.existence?.energy || 60,
         personality: student.existence?.personality || 'active',
         customName: customization.customName,
-        imageData: customization.imageData,
+        imageData: customization.imageData || '', // 빈 문자열로 초기화
         showElectrons: showElectrons, // 전자 표시 여부 저장
         showProtonsNeutrons: showProtonsNeutrons, // 양성자/중성자 표시 여부 저장
         records: localRecords, // localRecords를 그대로 사용
@@ -295,7 +299,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       }
     };
 
-    console.log('저장되는 학생 데이터의 imageData:', updatedStudent.existence.imageData ? `있음 (길이: ${updatedStudent.existence.imageData.length})` : '없음');
+    console.log('💾 저장되는 학생 데이터:');
+    console.log('  - 이미지:', updatedStudent.existence.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+    console.log('  - 크기:', updatedStudent.existence.size);
+    console.log('  - 전체 데이터 크기:', `${(JSON.stringify(updatedStudent).length / 1024).toFixed(2)}KB`);
 
     onSave(updatedStudent);
     onHide();
@@ -543,10 +550,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     const input = e.currentTarget as HTMLInputElement;
                     const file = input.files?.[0];
                     if (!file) {
-                      console.log('이미지 업로드: 파일이 선택되지 않았습니다.');
+                      console.log('📸 이미지 업로드: 파일이 선택되지 않았습니다.');
                       return;
                     }
-                    console.log('이미지 업로드 시작:', file.name, file.type, file.size);
+                    console.log('📸 이미지 업로드 시작:', file.name, file.type, `${(file.size / 1024).toFixed(2)}KB`);
                     
                     // 파일 크기 제한 (10MB)
                     if (file.size > 10 * 1024 * 1024) {
@@ -558,13 +565,18 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     reader.onload = () => {
                       const dataUrl = typeof reader.result === 'string' ? reader.result : '';
                       if (dataUrl) {
-                        console.log('이미지 업로드 완료, Data URL 길이:', dataUrl.length);
+                        console.log('📸 이미지 업로드 완료, Data URL 길이:', `${(dataUrl.length / 1024).toFixed(2)}KB`);
                         // 이미지 로드 후 저장
                         const img = new Image();
                         img.onload = () => {
                           // 이미지가 성공적으로 로드되면 저장
-                          setCustomization(prev => ({ ...prev, imageData: dataUrl }));
                           console.log('✅ 이미지 로드 완료, 크기:', img.width, 'x', img.height);
+                          setCustomization(prev => {
+                            const updated = { ...prev, imageData: dataUrl };
+                            console.log('📸 customization 상태 업데이트:', updated.imageData ? `있음 (${(updated.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+                            return updated;
+                          });
+                          alert('이미지가 업로드되었습니다. 저장 버튼을 눌러주세요.');
                         };
                         img.onerror = () => {
                           console.error('❌ 이미지 로드 실패');
@@ -572,16 +584,22 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         };
                         img.src = dataUrl;
                       } else {
-                        console.error('이미지 업로드 실패: Data URL을 생성할 수 없습니다.');
+                        console.error('❌ 이미지 업로드 실패: Data URL을 생성할 수 없습니다.');
+                        alert('이미지를 읽을 수 없습니다.');
                       }
                     };
                     reader.onerror = (error) => {
-                      console.error('이미지 업로드 에러:', error);
+                      console.error('❌ 이미지 업로드 에러:', error);
                       alert('파일을 읽는 중 오류가 발생했습니다.');
                     };
                     reader.readAsDataURL(file);
                   }}
-                  style={{ maxWidth: 260 }}
+                  style={{ 
+                    maxWidth: '100%',
+                    fontSize: '16px',
+                    padding: '8px',
+                    cursor: 'pointer'
+                  }}
                 />
                 {customization.imageData && (
                   <>
@@ -628,14 +646,27 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>크기: {customization.size.toFixed(1)}</Form.Label>
+              <Form.Label>
+                <strong>크기: {customization.size.toFixed(1)}</strong>
+              </Form.Label>
               <Form.Range
                 min="0.5"
                 max="3.0"
                 step="0.1"
                 value={customization.size}
-                onChange={(e) => setCustomization(prev => ({ ...prev, size: parseFloat(e.target.value) }))}
+                onChange={(e) => {
+                  const newSize = parseFloat(e.target.value);
+                  console.log('📏 크기 변경:', newSize);
+                  setCustomization(prev => ({ ...prev, size: newSize }));
+                }}
+                style={{ 
+                  width: '100%',
+                  cursor: 'pointer'
+                }}
               />
+              <Form.Text className="text-muted">
+                0.5 (작음) ~ 3.0 (큼)
+              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">

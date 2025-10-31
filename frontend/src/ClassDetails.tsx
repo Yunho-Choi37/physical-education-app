@@ -1171,8 +1171,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handleTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
     
+    // 실제 드래그 거리 확인
+    const actualDragged = hasDragged;
+    const currentDraggedStudent = draggedStudent;
+    
+    // 먼저 마우스 업 처리 (드래그 종료)
+    handleMouseUp();
+    
     // 클릭 이벤트 처리 (드래그가 아닌 경우)
-    if (!hasDragged && draggedStudent === null && e.changedTouches.length === 1) {
+    // 실제로 드래그가 발생하지 않았고, 학생이 선택되어 있었던 경우 클릭으로 처리
+    if (!actualDragged && currentDraggedStudent !== null && e.changedTouches.length === 1) {
       const touch = e.changedTouches[0];
       const coords = getCanvasCoordinates(touch.clientX, touch.clientY);
       if (coords) {
@@ -1187,13 +1195,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           return distance <= nodeSize;
         });
         
-        if (clickedStudent) {
-          handleStudentClick(clickedStudent);
+        if (clickedStudent && clickedStudent.id === currentDraggedStudent) {
+          // 약간의 지연을 두어 드래그 상태 초기화 후 클릭 처리
+          setTimeout(() => {
+            handleStudentClick(clickedStudent);
+          }, 50);
         }
       }
     }
-    
-    handleMouseUp();
   };
 
   // 마우스 업 이벤트 (드래그 종료)
@@ -1378,6 +1387,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
   const handleSaveStudent = async (updatedStudent: Student) => {
     try {
+      console.log('💾 학생 저장 시작:', updatedStudent.id, updatedStudent.name);
+      console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+      console.log('📏 크기:', updatedStudent.existence?.size);
+      
       const response = await fetch(`${API_URL}/api/students/${updatedStudent.id}`, {
         method: 'PUT',
         headers: {
@@ -1385,7 +1398,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         },
         body: JSON.stringify(updatedStudent),
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ 저장 실패:', response.status, errorText);
+        alert(`저장 실패: ${response.status} ${errorText}`);
+        return;
+      }
+      
       const savedStudent = await response.json();
+      console.log('✅ 학생 저장 완료:', savedStudent.id);
+      console.log('📸 저장된 이미지 데이터:', savedStudent.existence?.imageData ? `있음 (${(savedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+      console.log('📏 저장된 크기:', savedStudent.existence?.size);
+      
       setStudents(students.map(student => student.id === savedStudent.id ? savedStudent : student));
       
       // 모달 상태에 따라 적절한 모달 닫기
@@ -1394,7 +1419,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       }
       // 커스터마이징 모달은 자동으로 닫지 않음 (사용자가 직접 닫기 버튼을 눌러야 함)
     } catch (error) {
-      console.error('Error saving student:', error);
+      console.error('❌ Error saving student:', error);
+      alert(`저장 중 오류가 발생했습니다: ${error}`);
     }
   };
 
