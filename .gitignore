@@ -44,3 +44,7 @@ serviceAccountKey.json
 # Vercel
 .vercel
 
+# Local secrets/helper docs (do not commit)
+VERCEL_ENV_VALUES.txt
+
+

@@ -178,3 +178,4 @@ app.use(cors({
 - [Vercel 문서](https://vercel.com/docs)
 - [Firestore 보안 규칙](https://firebase.google.com/docs/firestore/security/get-started)
 
+
