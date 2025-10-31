@@ -125,6 +125,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         }));
         
         setStudents(studentsWithExistence);
+        
+        // 자동 배치 적용
+        setTimeout(() => {
+          updateAutoLayout(studentsWithExistence);
+        }, 100);
       } catch (error) {
         console.error('❌ Error fetching students:', error);
         console.error('API_URL:', API_URL);
@@ -137,17 +142,22 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     fetchStudents();
   }, [classId]);
 
-  // 화면 크기 감지 및 캔버스 크기 조절
+  // 화면 크기 감지 및 캔버스 크기 조절 (모바일 최적화)
   useEffect(() => {
     const updateCanvasSize = () => {
       if (containerRef.current) {
         const container = containerRef.current;
-        const containerWidth = container.clientWidth;
-        const containerHeight = Math.max(600, window.innerHeight * 0.6); // 화면 높이의 60%
+        const isMobile = window.innerWidth < 768;
+        
+        // 모바일에서는 전체 화면 활용, 데스크톱에서는 제한된 크기
+        const containerWidth = container.clientWidth || window.innerWidth;
+        const containerHeight = isMobile 
+          ? window.innerHeight - 200 // 모바일: 거의 전체 높이
+          : Math.max(600, window.innerHeight * 0.6); // 데스크톱: 화면 높이의 60%
         
         const newSize = {
-          width: Math.min(containerWidth - 40, 1200), // 여백 40px 제외
-          height: Math.min(containerHeight, 1000)
+          width: Math.min(containerWidth - (isMobile ? 20 : 40), isMobile ? window.innerWidth : 1200),
+          height: Math.min(containerHeight, isMobile ? window.innerHeight - 150 : 1000)
         };
         
         setCanvasSize(newSize);
@@ -725,43 +735,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   }, [students, canvasSize]);
 
-  // 저장된 학생 위치 불러오기
+  // 저장된 학생 위치 불러오기 (자동 배치 우선)
   const loadStudentPositions = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/classes/${classId}/positions`);
-      const savedPositions = await response.json();
-      
-      const positions = new Map();
-      const hasAnySaved = Object.keys(savedPositions || {}).length > 0;
-      if (!hasAnySaved) {
-        // 저장된 위치가 하나도 없으면 번호(학생 id) 순으로 원형 정렬
-        const ordered = generateOrderedPositions(students, canvasSize.width, canvasSize.height);
-        ordered.forEach((pos, id) => positions.set(id, pos));
-      } else {
-        // 일부 저장된 경우: 저장된 것은 유지, 없는 것만 임시 원형 배치
-        students.forEach(student => {
-          if (savedPositions[student.id]) {
-            positions.set(student.id, {
-              x: savedPositions[student.id].x,
-              y: savedPositions[student.id].y
-            });
-          } else {
-            const ordered = generateOrderedPositions(students, canvasSize.width, canvasSize.height);
-            const pos = ordered.get(student.id);
-            if (pos) positions.set(student.id, pos);
-          }
-        });
-      }
-      
-      setStudentPositions(positions);
+      // 자동 배치 적용 (저장된 위치 무시하고 항상 자동 배치)
+      updateAutoLayout(students);
       
       const { groups } = findConnectedGroups(students);
       setStudentGroups(groups);
     } catch (error) {
       console.error('Error loading positions:', error);
-      // 에러 시에도 정렬된 원형 위치 생성
-      const positions = generateOrderedPositions(students, canvasSize.width, canvasSize.height);
-      setStudentPositions(positions);
+      // 에러 시에도 자동 배치 적용
+      updateAutoLayout(students);
       
       const { groups } = findConnectedGroups(students);
       setStudentGroups(groups);
@@ -810,7 +795,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     // 그룹 색상 계산
     const { groupColors } = findConnectedGroups(students);
-    const baseNodeSize = Math.min(canvasSize.width, canvasSize.height) * 0.04; // 캔버스 크기의 4%
+    // 원 크기 고정 (모바일에서도 동일한 크기)
+    const baseNodeSize = 50; // 고정 크기 (픽셀)
     
     const nodes = students.map((student, index) => {
       const position = studentPositions.get(student.id);
@@ -818,7 +804,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const groupColor = groupColors.get(groupId || student.id);
       const existence = student.existence;
       
-      // 존재의 특성에 따른 크기 조절
+      // 존재의 특성에 따른 크기 조절 (크기 비율만 적용, 절대 크기는 고정)
       const existenceSize = existence?.size || 1.0;
       const energySize = (existence?.energy || 60) / 100;
       const finalSize = baseNodeSize * existenceSize * energySize;
@@ -1049,20 +1035,33 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     });
   };
 
-  // 마우스 다운 이벤트 (드래그 시작)
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // 좌표를 캔버스 좌표로 변환하는 공통 함수
+  const getCanvasCoordinates = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
+    if (!canvas) return null;
+    
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    return {
+      x: (clientX - rect.left) * (canvas.width / (rect.width * devicePixelRatio)),
+      y: (clientY - rect.top) * (canvas.height / (rect.height * devicePixelRatio))
+    };
+  };
 
+  // 마우스/터치 다운 이벤트 공통 처리
+  const handlePointerDown = (clientX: number, clientY: number) => {
+    const coords = getCanvasCoordinates(clientX, clientY);
+    if (!coords) return;
+    
+    const { x, y } = coords;
+    
     // 드래그 시작 위치 저장
     setDragStartPos({ x, y });
     setHasDragged(false);
 
-    const nodeSize = Math.min(canvasSize.width, canvasSize.height) * 0.04;
+    // 원 크기 고정 (모바일에서도 동일)
+    const nodeSize = 50;
     
     const clickedStudent = students.find((student) => {
       const position = studentPositions.get(student.id);
@@ -1085,17 +1084,31 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   };
 
-  // 마우스 이동 이벤트 (드래그 중 또는 호버)
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // 마우스 다운 이벤트 (드래그 시작)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handlePointerDown(e.clientX, e.clientY);
+  };
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+  // 터치 다운 이벤트
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // 스크롤 방지
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      handlePointerDown(touch.clientX, touch.clientY);
+    }
+  };
 
-    // 피시아이/호버 효과용 마우스 위치 저장
-    setMousePos({ x, y });
+  // 마우스/터치 이동 이벤트 공통 처리
+  const handlePointerMove = (clientX: number, clientY: number) => {
+    const coords = getCanvasCoordinates(clientX, clientY);
+    if (!coords) return;
+    
+    const { x, y } = coords;
+
+    // 피시아이/호버 효과용 마우스 위치 저장 (데스크톱만)
+    if (!isDragging) {
+      setMousePos({ x, y });
+    }
 
     if (isDragging && draggedStudent) {
       // 드래그 거리 계산 (5px 이상 움직였을 때만 드래그로 인식)
@@ -1119,8 +1132,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         return newPositions;
       });
     } else {
-      // 호버 효과
-      const nodeSize = Math.min(canvasSize.width, canvasSize.height) * 0.04;
+      // 호버 효과 (데스크톱만)
+      const nodeSize = 50; // 고정 크기
       
       const hoveredNode = students.find((student) => {
         const position = studentPositions.get(student.id);
@@ -1134,10 +1147,53 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   };
 
+  // 마우스 이동 이벤트 (드래그 중 또는 호버)
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handlePointerMove(e.clientX, e.clientY);
+  };
+
+  // 터치 이동 이벤트
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // 스크롤 방지
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      handlePointerMove(touch.clientX, touch.clientY);
+    }
+  };
+
   // 마우스가 캔버스를 벗어나면 효과 초기화
   const handleMouseLeave = () => {
     setHoveredStudent(null);
     setMousePos(null);
+  };
+
+  // 터치 종료 이벤트
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    
+    // 클릭 이벤트 처리 (드래그가 아닌 경우)
+    if (!hasDragged && draggedStudent === null && e.changedTouches.length === 1) {
+      const touch = e.changedTouches[0];
+      const coords = getCanvasCoordinates(touch.clientX, touch.clientY);
+      if (coords) {
+        const { x, y } = coords;
+        const nodeSize = 50; // 고정 크기
+        
+        const clickedStudent = students.find((student) => {
+          const position = studentPositions.get(student.id);
+          if (!position) return false;
+          
+          const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+          return distance <= nodeSize;
+        });
+        
+        if (clickedStudent) {
+          handleStudentClick(clickedStudent);
+        }
+      }
+    }
+    
+    handleMouseUp();
   };
 
   // 마우스 업 이벤트 (드래그 종료)
@@ -1181,14 +1237,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 실제 드래그가 발생했으면 클릭 이벤트 무시
     if (hasDragged) return;
     
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const nodeSize = Math.min(canvasSize.width, canvasSize.height) * 0.04;
+    const coords = getCanvasCoordinates(e.clientX, e.clientY);
+    if (!coords) return;
+    
+    const { x, y } = coords;
+    const nodeSize = 50; // 고정 크기
     
     const clickedStudent = students.find((student) => {
       const position = studentPositions.get(student.id);
@@ -1345,20 +1398,84 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   };
 
-  const handleAddStudent = async (name: string) => {
+  const handleAddStudent = async (count: number) => {
     try {
-      const response = await fetch(`${API_URL}/api/classes/${classId}/students`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, classId: parseInt(classId!) }),
-      });
-      const newStudent = await response.json();
-      setStudents([...students, newStudent]);
+      const newStudents: Student[] = [];
+      for (let i = 0; i < count; i++) {
+        const response = await fetch(`${API_URL}/api/classes/${classId}/students`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: `학생 ${students.length + i + 1}`, classId: parseInt(classId!) }),
+        });
+        const newStudent = await response.json();
+        newStudents.push(newStudent);
+      }
+      setStudents([...students, ...newStudents]);
       setShowAddModal(false);
+      
+      // 자동 배치 업데이트
+      setTimeout(() => {
+        updateAutoLayout([...students, ...newStudents]);
+      }, 100);
     } catch (error) {
       console.error('Error adding student:', error);
+    }
+  };
+
+  // 자동 배치 함수 (원형/격자 배치)
+  const updateAutoLayout = (studentList: Student[]) => {
+    if (studentList.length === 0) return;
+    
+    const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
+    const containerHeight = containerRef.current?.clientHeight || window.innerHeight - 200;
+    
+    // 원 크기 고정 (모바일에서도 동일)
+    const circleRadius = 50; // 고정 크기
+    const spacing = 120; // 원 사이 간격
+    
+    // 격자 배치 계산
+    const cols = Math.ceil(Math.sqrt(studentList.length * 1.2)); // 약간의 여유
+    const rows = Math.ceil(studentList.length / cols);
+    
+    const totalWidth = cols * spacing;
+    const totalHeight = rows * spacing;
+    
+    const startX = (containerWidth - totalWidth) / 2 + spacing / 2;
+    const startY = (containerHeight - totalHeight) / 2 + spacing / 2;
+    
+    const newPositions = new Map<number, {x: number, y: number}>();
+    
+    studentList.forEach((student, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      
+      const x = startX + col * spacing;
+      const y = startY + row * spacing;
+      
+      newPositions.set(student.id, { x, y });
+    });
+    
+    setStudentPositions(newPositions);
+    
+    // 위치를 서버에 저장
+    savePositionsToServer(newPositions);
+  };
+  
+  const savePositionsToServer = async (positions: Map<number, {x: number, y: number}>) => {
+    for (const [studentId, pos] of positions.entries()) {
+      try {
+        await fetch(`${API_URL}/api/students/${studentId}/position`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ x: pos.x, y: pos.y }),
+        });
+      } catch (error) {
+        console.error(`Error saving position for student ${studentId}:`, error);
+      }
     }
   };
 
@@ -1408,7 +1525,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
           onClick={handleCanvasClick}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           className="graph-canvas"
+          style={{ touchAction: 'none' }} // 스크롤 방지
         />
         
         

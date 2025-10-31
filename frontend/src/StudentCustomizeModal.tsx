@@ -538,6 +538,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   key={`image-upload-${student?.id || 'new'}`}
                   type="file"
                   accept="image/*"
+                  capture="environment" // 모바일에서 카메라 사용
                   onChange={(e) => {
                     const input = e.currentTarget as HTMLInputElement;
                     const file = input.files?.[0];
@@ -546,18 +547,37 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       return;
                     }
                     console.log('이미지 업로드 시작:', file.name, file.type, file.size);
+                    
+                    // 파일 크기 제한 (10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                      alert('이미지 크기는 10MB 이하여야 합니다.');
+                      return;
+                    }
+                    
                     const reader = new FileReader();
                     reader.onload = () => {
                       const dataUrl = typeof reader.result === 'string' ? reader.result : '';
                       if (dataUrl) {
                         console.log('이미지 업로드 완료, Data URL 길이:', dataUrl.length);
-                        setCustomization(prev => ({ ...prev, imageData: dataUrl }));
+                        // 이미지 로드 후 저장
+                        const img = new Image();
+                        img.onload = () => {
+                          // 이미지가 성공적으로 로드되면 저장
+                          setCustomization(prev => ({ ...prev, imageData: dataUrl }));
+                          console.log('✅ 이미지 로드 완료, 크기:', img.width, 'x', img.height);
+                        };
+                        img.onerror = () => {
+                          console.error('❌ 이미지 로드 실패');
+                          alert('이미지를 불러올 수 없습니다. 다른 이미지를 선택해주세요.');
+                        };
+                        img.src = dataUrl;
                       } else {
                         console.error('이미지 업로드 실패: Data URL을 생성할 수 없습니다.');
                       }
                     };
                     reader.onerror = (error) => {
                       console.error('이미지 업로드 에러:', error);
+                      alert('파일을 읽는 중 오류가 발생했습니다.');
                     };
                     reader.readAsDataURL(file);
                   }}
