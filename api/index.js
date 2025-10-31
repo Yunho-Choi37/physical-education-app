@@ -38,7 +38,17 @@ try {
 }
 
 // 미들웨어 설정
-app.use(cors());
+// CORS 설정 (모든 도메인 허용)
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+
+// OPTIONS 요청 처리 (CORS preflight)
+app.options('*', cors());
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -70,7 +80,8 @@ app.get('/', (req, res) => {
 });
 
 // API: 모든 데이터 가져오기
-app.get('/api/data', async (req, res) => {
+// Vercel에서는 api/index.js가 자동으로 /api 경로로 매핑되므로 /api 접두사 제거
+app.get('/data', async (req, res) => {
   try {
     const students = await getStudents();
     res.json({ students });
@@ -81,7 +92,7 @@ app.get('/api/data', async (req, res) => {
 });
 
 // API: 특정 반의 학생들 가져오기
-app.get('/api/classes/:classId/students', async (req, res) => {
+app.get('/classes/:classId/students', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -94,7 +105,7 @@ app.get('/api/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 추가
-app.post('/api/classes/:classId/students', async (req, res) => {
+app.post('/classes/:classId/students', async (req, res) => {
   try {
     const { name } = req.body;
     const classId = parseInt(req.params.classId, 10);
@@ -148,7 +159,7 @@ app.post('/api/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 정보 수정
-app.put('/api/students/:studentId', async (req, res) => {
+app.put('/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -167,7 +178,7 @@ app.put('/api/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 삭제
-app.delete('/api/students/:studentId', async (req, res) => {
+app.delete('/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -185,7 +196,7 @@ app.delete('/api/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 위치 저장
-app.post('/api/students/:studentId/position', async (req, res) => {
+app.post('/students/:studentId/position', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const { x, y } = req.body;
@@ -209,7 +220,7 @@ app.post('/api/students/:studentId/position', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 조회
-app.get('/api/classes/:classId/positions', async (req, res) => {
+app.get('/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -233,7 +244,7 @@ app.get('/api/classes/:classId/positions', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 삭제 (리셋용)
-app.delete('/api/classes/:classId/positions', async (req, res) => {
+app.delete('/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -260,11 +271,17 @@ const server = app.listen(PORT, () => {
 });
 
 // Vercel 서버리스 함수용 export
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
+// Vercel에서는 모든 요청을 index.js로 라우팅하므로 app을 export
+module.exports = app;
+
+// 로컬 개발 서버 (Vercel이 아닐 때만 실행)
+if (!process.env.VERCEL) {
   server.on('error', (error) => {
     console.error('서버 오류:', error);
+  });
+  
+  server.on('listening', () => {
+    console.log(`✅ 로컬 서버가 포트 ${PORT}에서 실행 중입니다.`);
   });
 }
 

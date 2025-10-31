@@ -105,8 +105,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+        const url = `${API_URL}/api/classes/${classId}/students`;
+        console.log('🔄 학생 목록 가져오기:', url);
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('✅ 학생 데이터 수신:', data.length, '명');
         
         // 학생들의 존재 초기화 (기존 데이터가 있으면 유지, 없으면 새로 생성)
         const studentsWithExistence = data.map((student: Student) => ({
@@ -117,7 +126,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         
         setStudents(studentsWithExistence);
       } catch (error) {
-        console.error('Error fetching students:', error);
+        console.error('❌ Error fetching students:', error);
+        console.error('API_URL:', API_URL);
+        console.error('classId:', classId);
+        // 에러가 발생해도 빈 배열로 설정하여 화면이 깨지지 않도록
+        setStudents([]);
       }
     };
 
