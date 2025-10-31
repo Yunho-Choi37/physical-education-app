@@ -8,8 +8,13 @@ let firebaseConfig;
 if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
   try {
     firebaseConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    console.log('✅ FIREBASE_SERVICE_ACCOUNT_JSON 파싱 성공');
+    console.log('📋 Project ID:', firebaseConfig.project_id);
+    console.log('📧 Client Email:', firebaseConfig.client_email);
+    console.log('🔑 Private Key 존재:', !!firebaseConfig.private_key);
   } catch (error) {
-    console.error('❌ FIREBASE_SERVICE_ACCOUNT_JSON 파싱 실패:', error);
+    console.error('❌ FIREBASE_SERVICE_ACCOUNT_JSON 파싱 실패:', error.message);
+    console.error('📝 환경 변수 길이:', process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.length || 0);
     firebaseConfig = null;
   }
 } 

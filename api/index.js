@@ -55,25 +55,36 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Firestore 연결 확인
+const checkFirestoreConnection = () => {
+  if (!db) {
+    throw new Error('Firestore가 초기화되지 않았습니다. 환경 변수를 확인하세요.');
+  }
+};
+
 // Firestore 헬퍼 함수
 const getStudents = async () => {
+  checkFirestoreConnection();
   const snapshot = await db.collection('students').get();
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
 const getStudentById = async (studentId) => {
+  checkFirestoreConnection();
   const doc = await db.collection('students').doc(studentId.toString()).get();
   if (!doc.exists) return null;
   return { id: doc.id, ...doc.data() };
 };
 
 const saveStudent = async (student) => {
+  checkFirestoreConnection();
   const studentRef = db.collection('students').doc(student.id.toString());
   await studentRef.set(student);
   return student;
 };
 
 const deleteStudent = async (studentId) => {
+  checkFirestoreConnection();
   await db.collection('students').doc(studentId.toString()).delete();
 };
 
@@ -87,14 +98,35 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now() });
 });
 
+// Firestore 연결 상태 확인
+app.get('/api/health/firestore', (req, res) => {
+  if (!db) {
+    return res.status(503).json({ 
+      ok: false, 
+      error: 'Firestore가 초기화되지 않았습니다.',
+      message: 'FIREBASE_SERVICE_ACCOUNT_JSON 환경 변수를 확인하세요.'
+    });
+  }
+  res.json({ ok: true, message: 'Firestore 연결됨' });
+});
+
 // API: 모든 데이터 가져오기
 app.get('/api/data', async (req, res) => {
   try {
+    if (!db) {
+      return res.status(503).json({ 
+        error: 'Firestore가 연결되지 않았습니다.',
+        message: 'FIREBASE_SERVICE_ACCOUNT_JSON 환경 변수를 확인하세요.'
+      });
+    }
     const students = await getStudents();
     res.json({ students });
   } catch (error) {
     console.error('Error fetching data:', error);
-    res.status(500).json({ error: '데이터를 가져오는 중 오류가 발생했습니다.' });
+    res.status(500).json({ 
+      error: '데이터를 가져오는 중 오류가 발생했습니다.',
+      details: error.message 
+    });
   }
 });
 
