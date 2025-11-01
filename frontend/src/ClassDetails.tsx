@@ -118,11 +118,32 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         console.log('✅ 학생 데이터 수신:', data.length, '명');
         
         // 학생들의 존재 초기화 (기존 데이터가 있으면 유지, 없으면 새로 생성)
-        const studentsWithExistence = data.map((student: Student) => ({
-          ...student,
-          password: student.password || '0000', // 기본 비밀번호 0000
-          existence: student.existence || generateStudentExistence(student.name, student.id)
-        }));
+        const studentsWithExistence = data.map((student: Student) => {
+          // 이미지 데이터 확인 및 로깅
+          if (student.existence?.imageData) {
+            const imgData = student.existence.imageData;
+            const isValid = imgData.startsWith('data:image/');
+            console.log(`📸 학생 ${student.id} 이미지 데이터:`, {
+              있음: true,
+              유효함: isValid,
+              길이: imgData.length,
+              크기: `${(imgData.length / 1024).toFixed(2)}KB`,
+              미리보기: imgData.substring(0, 50) + '...'
+            });
+            
+            if (!isValid) {
+              console.warn(`⚠️ 학생 ${student.id}의 이미지 데이터 형식이 올바르지 않습니다.`);
+            }
+          } else {
+            console.log(`📸 학생 ${student.id} 이미지 데이터: 없음`);
+          }
+          
+          return {
+            ...student,
+            password: student.password || '0000', // 기본 비밀번호 0000
+            existence: student.existence || generateStudentExistence(student.name, student.id)
+          };
+        });
         
         setStudents(studentsWithExistence);
         
@@ -873,42 +894,78 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       
       // 이미지가 있으면 이미지를 우선 그리기
       const imageData = existence?.imageData;
-      const hasImage = !!imageData;
+      const hasImage = !!imageData && imageData.length > 0;
+      
       if (hasImage && imageData) {
-        const cache = imageCacheRef.current;
-        let cached = cache.get(imageData);
+        // 이미지 데이터가 유효한지 확인 (base64 Data URL 형식 체크)
+        const isValidDataUrl = imageData.startsWith('data:image/');
         
-        // 이미지가 캐시에 없거나 아직 로드 중이면 새로 로드
-        if (!cached || !cached.complete) {
-          if (!cached) {
-            cached = new Image();
-            cache.set(imageData, cached);
-            cached.onload = () => {
-              // 이미지 로드 완료 후 다음 프레임에 다시 그리기
-              requestAnimationFrame(() => drawGraph());
-            };
-            cached.onerror = () => {
-              // 이미지 로드 실패 시 캐시에서 제거
-              cache.delete(imageData);
-            };
-            cached.src = imageData;
-          }
-          
-          // 로딩 중에는 얇은 테두리만 표시
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
-          ctx.strokeStyle = node.color;
-          ctx.lineWidth = 2;
-          ctx.stroke();
+        if (!isValidDataUrl) {
+          console.warn(`⚠️ 학생 ${node.id}의 이미지 데이터가 유효하지 않습니다:`, imageData.substring(0, 50));
+          // 유효하지 않은 이미지 데이터면 기본 형태로 그리기
+          drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
         } else {
-          // 이미지가 완전히 로드되었으면 그리기
-          ctx.save();
-          // 원형 클리핑(옵션): 이미지 가장자리를 둥글게
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
-          ctx.clip();
-          ctx.drawImage(cached, node.x - node.size, node.y - node.size, node.size * 2, node.size * 2);
-          ctx.restore();
+          const cache = imageCacheRef.current;
+          let cached = cache.get(imageData);
+          
+          // 이미지가 캐시에 없거나 아직 로드 중이면 새로 로드
+          if (!cached || !cached.complete || cached.naturalWidth === 0) {
+            if (!cached) {
+              cached = new Image();
+              cache.set(imageData, cached);
+              
+              cached.onload = () => {
+                console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, cached.width, 'x', cached.height);
+                // 이미지 로드 완료 후 즉시 다시 그리기
+                requestAnimationFrame(() => {
+                  drawGraph();
+                });
+              };
+              
+              cached.onerror = (error) => {
+                console.error(`❌ 이미지 로드 실패 (학생 ${node.id}):`, error);
+                // 이미지 로드 실패 시 캐시에서 제거
+                cache.delete(imageData);
+                // 기본 형태로 다시 그리기
+                requestAnimationFrame(() => {
+                  drawGraph();
+                });
+              };
+              
+              console.log(`📸 이미지 로드 시작 (학생 ${node.id}):`, imageData.substring(0, 50) + '...');
+              cached.src = imageData;
+            }
+            
+            // 로딩 중에는 얇은 테두리만 표시
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
+            ctx.strokeStyle = node.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 로딩 표시 (선택사항)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fill();
+          } else if (cached.complete && cached.naturalWidth > 0) {
+            // 이미지가 완전히 로드되었으면 그리기
+            try {
+              ctx.save();
+              // 원형 클리핑: 이미지 가장자리를 둥글게
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
+              ctx.clip();
+              ctx.drawImage(cached, node.x - node.size, node.y - node.size, node.size * 2, node.size * 2);
+              ctx.restore();
+            } catch (error) {
+              console.error(`❌ 이미지 그리기 실패 (학생 ${node.id}):`, error);
+              // 그리기 실패 시 기본 형태로 대체
+              ctx.restore();
+              drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
+            }
+          } else {
+            // 이미지가 로드 중이거나 실패한 경우 기본 형태로 그리기
+            drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
+          }
         }
       } else {
         // 형태에 따른 그리기

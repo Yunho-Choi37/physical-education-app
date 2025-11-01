@@ -566,13 +566,62 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       const dataUrl = typeof reader.result === 'string' ? reader.result : '';
                       if (dataUrl) {
                         console.log('📸 이미지 업로드 완료, Data URL 길이:', `${(dataUrl.length / 1024).toFixed(2)}KB`);
-                        // 이미지 로드 후 저장
+                        // 이미지 로드 후 저장 및 압축
                         const img = new Image();
                         img.onload = () => {
-                          // 이미지가 성공적으로 로드되면 저장
-                          console.log('✅ 이미지 로드 완료, 크기:', img.width, 'x', img.height);
+                          // 이미지가 성공적으로 로드되면 크기 조정 및 압축
+                          console.log('✅ 이미지 로드 완료, 원본 크기:', img.width, 'x', img.height);
+                          
+                          // 최대 크기 제한 (800x800 픽셀) - Firestore 필드 크기 제한(1MB) 고려
+                          const maxSize = 800;
+                          let targetWidth = img.width;
+                          let targetHeight = img.height;
+                          
+                          if (img.width > maxSize || img.height > maxSize) {
+                            const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                            targetWidth = Math.floor(img.width * ratio);
+                            targetHeight = Math.floor(img.height * ratio);
+                            console.log('📐 이미지 크기 조정:', targetWidth, 'x', targetHeight);
+                          }
+                          
+                          // Canvas를 사용하여 이미지 리사이즈 및 압축
+                          const canvas = document.createElement('canvas');
+                          canvas.width = targetWidth;
+                          canvas.height = targetHeight;
+                          const ctx = canvas.getContext('2d');
+                          
+                          if (!ctx) {
+                            console.error('❌ Canvas 컨텍스트를 생성할 수 없습니다.');
+                            alert('이미지 처리 중 오류가 발생했습니다.');
+                            return;
+                          }
+                          
+                          // 이미지 그리기 (고품질 스케일링)
+                          ctx.imageSmoothingEnabled = true;
+                          ctx.imageSmoothingQuality = 'high';
+                          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                          
+                          // JPEG로 압축 (품질 0.8, 약 1MB 이하로 압축 목표)
+                          let quality = 0.8;
+                          let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                          
+                          // 데이터 크기가 여전히 크면 품질을 더 낮춤 (최소 0.5)
+                          while (compressedDataUrl.length > 800 * 1024 && quality > 0.5) {
+                            quality -= 0.1;
+                            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                          }
+                          
+                          console.log('📸 압축 완료, 최종 크기:', `${(compressedDataUrl.length / 1024).toFixed(2)}KB`, `(품질: ${quality.toFixed(1)})`);
+                          
+                          // 유효성 검사: data:image/ 접두사 확인
+                          if (!compressedDataUrl.startsWith('data:image/')) {
+                            console.error('❌ 압축된 이미지 데이터 형식이 올바르지 않습니다.');
+                            alert('이미지 처리 중 오류가 발생했습니다.');
+                            return;
+                          }
+                          
                           setCustomization(prev => {
-                            const updated = { ...prev, imageData: dataUrl };
+                            const updated = { ...prev, imageData: compressedDataUrl };
                             console.log('📸 customization 상태 업데이트:', updated.imageData ? `있음 (${(updated.imageData.length / 1024).toFixed(2)}KB)` : '없음');
                             return updated;
                           });
