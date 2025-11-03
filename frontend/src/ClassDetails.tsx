@@ -954,15 +954,35 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           } else if (cached && cached.complete && cached.naturalWidth > 0) {
             // 이미지가 완전히 로드되었으면 그리기
             try {
+              // 먼저 배경을 그려서 이미지가 보이도록 (투명도 문제 해결)
               ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
+              ctx.fillStyle = node.color;
+              ctx.fill();
+              
               // 원형 클리핑: 이미지 가장자리를 둥글게
               ctx.beginPath();
               ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
               ctx.clip();
-              ctx.drawImage(cached, node.x - node.size, node.y - node.size, node.size * 2, node.size * 2);
+              
+              // 이미지 그리기
+              ctx.drawImage(
+                cached, 
+                node.x - node.size, 
+                node.y - node.size, 
+                node.size * 2, 
+                node.size * 2
+              );
+              
               ctx.restore();
               imageDrawn = true; // 이미지가 성공적으로 그려짐
-              console.log(`✅ 이미지 그리기 성공 (학생 ${node.id}):`, node.size, 'x', node.size);
+              console.log(`✅ 이미지 그리기 성공 (학생 ${node.id}):`, {
+                size: node.size,
+                imageSize: `${cached.width}x${cached.height}`,
+                position: `(${node.x}, ${node.y})`,
+                drawArea: `${(node.x - node.size).toFixed(0)}, ${(node.y - node.size).toFixed(0)}, ${(node.size * 2).toFixed(0)}, ${(node.size * 2).toFixed(0)}`
+              });
             } catch (error) {
               console.error(`❌ 이미지 그리기 실패 (학생 ${node.id}):`, error);
               // 그리기 실패 시 기본 형태로 대체
@@ -984,9 +1004,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         drawPattern(ctx, node.x, node.y, node.size, existence.pattern, node.color);
       }
       
-      // 테두리 그리기
+      // 테두리 그리기 - 이미지가 있든 없든 항상 테두리는 그리기 (이미지 위에 표시)
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
       const borderWidth = existence?.border === 'thick' ? 4 : 2;
-      ctx.strokeStyle = node.color;
+      ctx.strokeStyle = imageDrawn ? node.color : node.color; // 이미지가 있을 때도 테두리 색상 유지
       ctx.lineWidth = draggedStudent === node.id ? borderWidth + 2 : borderWidth;
       
       if (existence?.border === 'dotted') {
@@ -1013,6 +1035,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
       // 노드의 외형: 이미지가 없을 때만 이모티콘 모양이나 기본 형태 표시
       // 이미지가 있으면 이미지가 우선이므로 이모티콘 모양을 그리지 않음
+      // 주의: 이미지가 그려진 경우에는 이미 배경이 채워져 있으므로 추가로 그리지 않음
       if (!imageDrawn) {
         const shape = existence?.shape || 'circle';
         const isEmojiShape = isEmojiLike(shape);
@@ -1032,6 +1055,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           ctx.lineWidth = 3;
           ctx.stroke();
         }
+      } else {
+        // 이미지가 그려진 경우, 디버깅을 위한 로그 (선택사항)
+        // console.log(`🖼️ 이미지가 그려진 노드 (학생 ${node.id}), 추가 요소는 그리지 않음`);
       }
 
       // 원자 모델 그리기 (실제로 입자가 있을 때만)
