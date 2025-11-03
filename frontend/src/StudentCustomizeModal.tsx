@@ -477,14 +477,14 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               size="sm"
               onClick={() => setActivePanel('nucleus')}
             >
-              양성자·중성자 편집
+              원 편집
             </Button>
             <Button
               variant={activePanel === 'shells' ? 'info' : 'outline-info'}
               size="sm"
               onClick={() => setActivePanel('shells')}
             >
-              껍질 편집
+              원 편집
             </Button>
             <Button
               variant={activePanel === 'records' ? 'warning' : 'outline-warning'}
@@ -795,24 +795,24 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 원자 모델 편집 - 패널 전환: nucleus */}
         {activePanel === 'nucleus' && (
         <Card className="mb-3">
-          <Card.Header>⚛️ 원자 모델 편집</Card.Header>
+          <Card.Header>⚛️ 원 편집</Card.Header>
           <Card.Body>
             {/* 양성자/중성자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="양성자/중성자 표시하기"
+                label="원 표시하기"
                 checked={showProtonsNeutrons}
                 onChange={(e) => setShowProtonsNeutrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                체크하면 편집한 양성자/중성자들이 화면에 표시됩니다.
+                체크하면 편집한 원들이 화면에 표시됩니다.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={6}>
-                <h6>🔴 양성자 (핵심 특성)</h6>
+                <h6>🔴 원</h6>
                 {atomModel.protons.map((proton, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -830,7 +830,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="핵심 특성 키워드 (예: 창의적, 친화적, 리더십)"
+                        placeholder="키워드"
                         value={proton.keyword}
                         onChange={(e) => {
                           const newProtons = [...atomModel.protons];
@@ -971,7 +971,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       <Form.Control
                         as="textarea"
                         rows={3}
-                        placeholder="양성자에 대한 상세 설명을 입력하세요..."
+                        placeholder="설명을 입력하세요..."
                         value={proton.description || ''}
                         onChange={(e) => {
                           const newProtons = [...atomModel.protons];
@@ -992,12 +992,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 양성자 추가
+                  + 추가
                 </Button>
               </Col>
               
               <Col md={6}>
-                <h6>🔵 중성자 (균형적 특성)</h6>
+                <h6>🔵 원</h6>
                 {atomModel.neutrons.map((neutron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1015,7 +1015,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="취미/관심사 키워드 (예: 독서, 음악, 운동)"
+                        placeholder="키워드"
                         value={neutron.keyword}
                         onChange={(e) => {
                           const newNeutrons = [...atomModel.neutrons];
@@ -1157,7 +1157,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       <Form.Control
                         as="textarea"
                         rows={3}
-                        placeholder="중성자에 대한 상세 설명을 입력하세요..."
+                        placeholder="설명을 입력하세요..."
                         value={neutron.description || ''}
                         onChange={(e) => {
                           const newNeutrons = [...atomModel.neutrons];
@@ -1178,7 +1178,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 중성자 추가
+                  + 추가
                 </Button>
               </Col>
             </Row>
@@ -1189,24 +1189,24 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 전자 껍질 편집 - 패널 전환: shells */}
         {activePanel === 'shells' && (
         <Card className="mb-3">
-          <Card.Header>⚡ 전자 껍질 편집</Card.Header>
+          <Card.Header>⚡ 원 편집</Card.Header>
           <Card.Body>
             {/* 전자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="전자 표시하기"
+                label="원 표시하기"
                 checked={showElectrons}
                 onChange={(e) => setShowElectrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                체크하면 편집한 전자들이 화면에 표시됩니다.
+                체크하면 편집한 원들이 화면에 표시됩니다.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={3}>
-                <h6>🟠 K 껍질</h6>
+                <h6>🟠 원</h6>
                 {atomModel.electrons.kShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="mb-2">선택된 이모티콘: <span style={{fontSize:'18px'}}>{electron.emoji}</span></div>
@@ -1347,12 +1347,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + K 껍질 추가
+                  + 추가
                 </Button>
               </Col>
 
               <Col md={3}>
-                <h6>🟡 L 껍질</h6>
+                <h6>🟡 원</h6>
                 {atomModel.electrons.lShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1368,7 +1368,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">껍질 이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
                     </div>
                     <Form.Group className="mb-2">
                       <Form.Label>이모티콘 선택</Form.Label>
@@ -1507,12 +1507,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + L 껍질 추가
+                  + 추가
                 </Button>
               </Col>
 
               <Col md={3}>
-                <h6>🟢 M 껍질</h6>
+                <h6>🟢 원</h6>
                 {atomModel.electrons.mShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1528,7 +1528,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">껍질 이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
                     </div>
                     <Form.Group className="mb-2">
                       <Form.Label>이모티콘 선택</Form.Label>
@@ -1667,12 +1667,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + M 껍질 추가
+                  + 추가
                 </Button>
               </Col>
 
               <Col md={3}>
-                <h6>🔵 원자가 전자</h6>
+                <h6>🔵 원</h6>
                 {atomModel.electrons.valence.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1688,7 +1688,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">껍질 이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
                     </div>
                     <Form.Group className="mb-2">
                       <Form.Label>이모티콘 선택</Form.Label>
@@ -1827,7 +1827,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 원자가 전자 추가
+                  + 추가
                 </Button>
               </Col>
             </Row>
