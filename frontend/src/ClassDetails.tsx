@@ -911,18 +911,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           // 이미지가 캐시에 없거나 아직 로드 중이면 새로 로드
           if (!cached || !cached.complete || cached.naturalWidth === 0) {
             if (!cached) {
-              cached = new Image();
-              cache.set(imageData, cached);
+              const newImage = new Image();
+              cache.set(imageData, newImage);
               
-              cached.onload = () => {
-                console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, cached.width, 'x', cached.height);
+              newImage.onload = () => {
+                console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, newImage.width, 'x', newImage.height);
                 // 이미지 로드 완료 후 즉시 다시 그리기
                 requestAnimationFrame(() => {
                   drawGraph();
                 });
               };
               
-              cached.onerror = (error) => {
+              newImage.onerror = (error) => {
                 console.error(`❌ 이미지 로드 실패 (학생 ${node.id}):`, error);
                 // 이미지 로드 실패 시 캐시에서 제거
                 cache.delete(imageData);
@@ -933,7 +933,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               };
               
               console.log(`📸 이미지 로드 시작 (학생 ${node.id}):`, imageData.substring(0, 50) + '...');
-              cached.src = imageData;
+              newImage.src = imageData;
+              cached = newImage; // cached 변수 업데이트
             }
             
             // 로딩 중에는 얇은 테두리만 표시
@@ -946,7 +947,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             // 로딩 표시 (선택사항)
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fill();
-          } else if (cached.complete && cached.naturalWidth > 0) {
+          } else if (cached && cached.complete && cached.naturalWidth > 0) {
             // 이미지가 완전히 로드되었으면 그리기
             try {
               ctx.save();
