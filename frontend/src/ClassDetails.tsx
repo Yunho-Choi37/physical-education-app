@@ -120,50 +120,69 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 새로고침/세션마다 바뀌는 랜덤 위상 시드(세션 내 안정성 보장)
   const sessionSeedRef = useRef<number>(Math.floor(Math.random() * 1_000_000_000));
   
-  // localStorage에서 클래스 이름 가져오기
+  // API에서 클래스 이름 가져오기
   const [className, setClassName] = useState<string>(`${classId}반`);
   
   useEffect(() => {
-    const updateClassName = () => {
-      const saved = localStorage.getItem('classNames');
-      if (saved) {
-        const classNames = JSON.parse(saved);
-        const classIndex = parseInt(classId || '1', 10) - 1;
-        if (classNames[classIndex]) {
-          setClassName(classNames[classIndex]);
+    const updateClassName = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/classes`);
+        if (response.ok) {
+          const classNames = await response.json();
+          const classIndex = parseInt(classId || '1', 10) - 1;
+          if (classNames[classIndex]) {
+            setClassName(classNames[classIndex]);
+          } else {
+            setClassName(`${classId}반`);
+          }
+        } else {
+          // API 실패 시 localStorage에서 가져오기 (백업)
+          const saved = localStorage.getItem('classNames');
+          if (saved) {
+            const classNames = JSON.parse(saved);
+            const classIndex = parseInt(classId || '1', 10) - 1;
+            if (classNames[classIndex]) {
+              setClassName(classNames[classIndex]);
+            } else {
+              setClassName(`${classId}반`);
+            }
+          } else {
+            setClassName(`${classId}반`);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching class name:', error);
+        // 오류 발생 시 localStorage에서 가져오기 (백업)
+        const saved = localStorage.getItem('classNames');
+        if (saved) {
+          const classNames = JSON.parse(saved);
+          const classIndex = parseInt(classId || '1', 10) - 1;
+          if (classNames[classIndex]) {
+            setClassName(classNames[classIndex]);
+          } else {
+            setClassName(`${classId}반`);
+          }
         } else {
           setClassName(`${classId}반`);
         }
-      } else {
-        setClassName(`${classId}반`);
       }
     };
     
     // 초기 로드
     updateClassName();
     
-    // localStorage 변경 감지 (다른 탭 및 같은 탭에서 수정 시 동기화)
-    const handleStorageChange = (e: StorageEvent | CustomEvent) => {
-      if (e instanceof StorageEvent && e.key === 'classNames' && e.newValue) {
-        const classNames = JSON.parse(e.newValue);
-        const classIndex = parseInt(classId || '1', 10) - 1;
-        if (classNames[classIndex]) {
-          setClassName(classNames[classIndex]);
-        }
-      } else if (e instanceof CustomEvent && e.type === 'classNamesUpdated') {
-        updateClassName();
-      }
+    // 커스텀 이벤트 감지 (같은 탭에서 수정 시 즉시 반영)
+    const handleClassNamesUpdated = (e: CustomEvent) => {
+      updateClassName();
     };
     
-    window.addEventListener('storage', handleStorageChange as EventListener);
-    window.addEventListener('classNamesUpdated', handleStorageChange as EventListener);
+    window.addEventListener('classNamesUpdated', handleClassNamesUpdated as EventListener);
     
-    // 주기적으로 확인 (안전장치)
-    const interval = setInterval(updateClassName, 1000);
+    // 주기적으로 확인 (다른 기기 동기화를 위한 안전장치)
+    const interval = setInterval(updateClassName, 3000);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange as EventListener);
-      window.removeEventListener('classNamesUpdated', handleStorageChange as EventListener);
+      window.removeEventListener('classNamesUpdated', handleClassNamesUpdated as EventListener);
       clearInterval(interval);
     };
   }, [classId]);

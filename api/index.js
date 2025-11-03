@@ -88,6 +88,22 @@ const deleteStudent = async (studentId) => {
   await db.collection('students').doc(studentId.toString()).delete();
 };
 
+// 클래스 정보 관리 헬퍼 함수
+const getClasses = async () => {
+  checkFirestoreConnection();
+  const doc = await db.collection('settings').doc('classes').get();
+  if (!doc.exists) {
+    // 기본값 반환
+    return ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+  }
+  return doc.data().classNames || ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+};
+
+const saveClasses = async (classNames) => {
+  checkFirestoreConnection();
+  await db.collection('settings').doc('classes').set({ classNames });
+};
+
 // 기본 라우트
 app.get('/', (req, res) => {
   res.send('백엔드 서버가 실행 중입니다. (Firestore 사용)');
@@ -255,6 +271,32 @@ app.post('/api/students/:studentId/position', async (req, res) => {
   } catch (error) {
     console.error('Error saving position:', error);
     res.status(500).json({ error: '위치를 저장하는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 클래스 목록 조회
+app.get('/api/classes', async (req, res) => {
+  try {
+    const classNames = await getClasses();
+    res.json(classNames);
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+    res.status(500).json({ error: '클래스 목록을 가져오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 클래스 목록 저장
+app.put('/api/classes', async (req, res) => {
+  try {
+    const { classNames } = req.body;
+    if (!Array.isArray(classNames)) {
+      return res.status(400).json({ error: 'classNames는 배열이어야 합니다.' });
+    }
+    await saveClasses(classNames);
+    res.json({ success: true, classNames });
+  } catch (error) {
+    console.error('Error saving classes:', error);
+    res.status(500).json({ error: '클래스 목록을 저장하는 중 오류가 발생했습니다.' });
   }
 });
 

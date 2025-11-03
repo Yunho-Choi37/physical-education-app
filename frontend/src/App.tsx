@@ -6,11 +6,8 @@ import ClassDetails from './ClassDetails';
 import { API_URL } from './config';
 
 function App() {
-  const [classes, setClasses] = useState<string[]>(() => {
-    // localStorage에서 클래스 이름 불러오기
-    const saved = localStorage.getItem('classNames');
-    return saved ? JSON.parse(saved) : ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
-  });
+  const [classes, setClasses] = useState<string[]>(['1반', '2반', '3반', '4반', '5반', '6반', '7반']);
+  const [classesLoaded, setClassesLoaded] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [positionsInitialized, setPositionsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => {
@@ -48,16 +45,77 @@ function App() {
     setEditingClassName(classes[index]);
   };
 
-  const handleSaveClassName = (index: number) => {
+  // 클래스 목록 불러오기
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/classes`);
+        if (response.ok) {
+          const classNames = await response.json();
+          setClasses(classNames);
+          setClassesLoaded(true);
+          // localStorage에도 백업 저장
+          localStorage.setItem('classNames', JSON.stringify(classNames));
+        } else {
+          console.error('Failed to fetch classes:', response.status);
+          // API 실패 시 localStorage에서 불러오기 (백업)
+          const saved = localStorage.getItem('classNames');
+          if (saved) {
+            const classNames = JSON.parse(saved);
+            setClasses(classNames);
+          }
+          setClassesLoaded(true);
+        }
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+        // 오류 발생 시 localStorage에서 불러오기 (백업)
+        const saved = localStorage.getItem('classNames');
+        if (saved) {
+          const classNames = JSON.parse(saved);
+          setClasses(classNames);
+        }
+        setClassesLoaded(true);
+      }
+    };
+    
+    fetchClasses();
+    
+    // 주기적으로 클래스 목록 갱신 (다른 기기 동기화를 위한 안전장치)
+    const interval = setInterval(fetchClasses, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleSaveClassName = async (index: number) => {
     if (editingClassName.trim()) {
       const newClasses = [...classes];
       newClasses[index] = editingClassName.trim();
       setClasses(newClasses);
-      localStorage.setItem('classNames', JSON.stringify(newClasses));
-      // 커스텀 이벤트 발생 (같은 탭에서도 동기화되도록)
-      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
-        detail: { classNames: newClasses }
-      }));
+      
+      // API에 저장
+      try {
+        await fetch(`${API_URL}/api/classes`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ classNames: newClasses }),
+        });
+        
+        // localStorage에도 백업 저장
+        localStorage.setItem('classNames', JSON.stringify(newClasses));
+        
+        // 커스텀 이벤트 발생 (같은 탭에서도 동기화되도록)
+        window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+          detail: { classNames: newClasses }
+        }));
+      } catch (error) {
+        console.error('Error saving class name:', error);
+        alert('클래스 이름 저장 중 오류가 발생했습니다.');
+      }
+      
       setEditingClassIndex(null);
       setEditingClassName('');
     }
@@ -68,14 +126,33 @@ function App() {
     setEditingClassName('');
   };
 
-  const handleAddClass = () => {
+  const handleAddClass = async () => {
     if (newClassName.trim()) {
       const newClasses = [...classes, newClassName.trim()];
       setClasses(newClasses);
-      localStorage.setItem('classNames', JSON.stringify(newClasses));
-      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
-        detail: { classNames: newClasses }
-      }));
+      
+      // API에 저장
+      try {
+        await fetch(`${API_URL}/api/classes`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ classNames: newClasses }),
+        });
+        
+        // localStorage에도 백업 저장
+        localStorage.setItem('classNames', JSON.stringify(newClasses));
+        
+        window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+          detail: { classNames: newClasses }
+        }));
+      } catch (error) {
+        console.error('Error adding class:', error);
+        alert('클래스 추가 중 오류가 발생했습니다.');
+        return;
+      }
+      
       setNewClassName('');
       setShowAddClassModal(false);
     }
@@ -102,10 +179,27 @@ function App() {
       // 클래스 목록에서 제거
       const newClasses = classes.filter((_, i) => i !== index);
       setClasses(newClasses);
-      localStorage.setItem('classNames', JSON.stringify(newClasses));
-      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
-        detail: { classNames: newClasses }
-      }));
+      
+      // API에 저장
+      try {
+        await fetch(`${API_URL}/api/classes`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ classNames: newClasses }),
+        });
+        
+        // localStorage에도 백업 저장
+        localStorage.setItem('classNames', JSON.stringify(newClasses));
+        
+        window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+          detail: { classNames: newClasses }
+        }));
+      } catch (error) {
+        console.error('Error deleting class:', error);
+        alert('클래스 삭제 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -263,7 +357,7 @@ function App() {
               )}
             </div>
 
-            {classes.map((className, index) => (
+            {classesLoaded && classes.map((className, index) => (
               <div
                 key={`class-${index}`}
                 style={{ 
