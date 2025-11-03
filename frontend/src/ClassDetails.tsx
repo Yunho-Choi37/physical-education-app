@@ -2072,15 +2072,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             if (particleInfo.studentId && particleInfo.particleIndex !== undefined && particleInfo.particleIndex >= 0) {
                               const student = students.find(s => s.id === particleInfo.studentId);
                               if (student && student.existence?.atom) {
-                                const updatedStudent = { ...student };
-                                if (!updatedStudent.existence) {
-                                  updatedStudent.existence = {} as any;
-                                }
-                                if (!updatedStudent.existence.atom) {
-                                  updatedStudent.existence.atom = {} as any;
-                                }
+                                const updatedStudent: Student = { 
+                                  ...student,
+                                  existence: {
+                                    ...student.existence,
+                                    atom: {
+                                      ...student.existence.atom
+                                    }
+                                  }
+                                };
                                 
-                                // TypeScript 타입 가드
+                                // TypeScript 타입 가드 - existence와 atom이 확실히 존재하는지 확인
                                 if (!updatedStudent.existence || !updatedStudent.existence.atom) {
                                   console.error('입자 데이터 구조 오류');
                                   return;
