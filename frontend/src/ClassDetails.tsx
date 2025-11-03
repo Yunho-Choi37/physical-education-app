@@ -43,34 +43,46 @@ interface Student {
               strength: number;  // 특성 강도 (1-5)
               color: string;     // 양성자 색상
               emoji: string;     // 선택된 이모티콘
+              imageData?: string; // 사진 (Data URL)
+              description?: string; // 설명
             }>;
             neutrons: Array<{    // 중성자 (균형적 특성)
               keyword: string;   // 취미/관심사 키워드
               category: string;  // 카테고리 (취미, 관심사, 개성)
               color: string;     // 중성자 색상 (양성자와 다름)
               emoji: string;     // 선택된 이모티콘
+              imageData?: string; // 사진 (Data URL)
+              description?: string; // 설명
             }>;
             electrons: {         // 전자 (활동 에너지 준위)
               kShell: Array<{    // K 껍질 (필수 활동)
                 activity: string;
                 frequency: number; // 빈도 (1-7, 매일=7)
                 emoji: string;     // 선택된 이모티콘
+                description?: string; // 설명
+                imageData?: string; // 사진 (Data URL)
               }>;
               lShell: Array<{    // L 껍질 (선택 활동)
                 activity: string;
                 frequency: number; // 빈도 (1-7)
                 emoji: string;     // 선택된 이모티콘
+                description?: string; // 설명
+                imageData?: string; // 사진 (Data URL)
               }>;
               mShell: Array<{    // M 껍질 (특별 활동)
                 activity: string;
                 frequency: number; // 빈도 (1-7)
                 emoji: string;     // 선택된 이모티콘
+                description?: string; // 설명
+                imageData?: string; // 사진 (Data URL)
               }>;
               valence: Array<{   // 원자가 전자 (사회적 결합 활동)
                 activity: string;
                 cooperation: number; // 협력도 (1-5)
                 social: boolean;     // 사회적 활동 여부
                 emoji: string;       // 선택된 이모티콘
+                description?: string; // 설명
+                imageData?: string; // 사진 (Data URL)
               }>;
             };
           };
@@ -86,6 +98,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [hoveredStudent, setHoveredStudent] = useState<number | null>(null);
+  // 입자 설명 모달 상태
+  const [particleInfo, setParticleInfo] = useState<{ type: 'proton' | 'neutron' | 'electron'; keyword?: string; description?: string; emoji?: string; studentId: number } | null>(null);
   const [draggedStudent, setDraggedStudent] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
@@ -96,6 +110,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [mousePos, setMousePos] = useState<{x: number, y: number} | null>(null);
   const [studentPositions, setStudentPositions] = useState<Map<number, {x: number, y: number}>>(new Map());
   const [studentGroups, setStudentGroups] = useState<Map<number, number>>(new Map());
+  // 입자 위치 추적 (클릭 감지용)
+  const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number }>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { classId } = useParams<{ classId: string }>();
@@ -418,7 +434,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     atom: any,
     coreSize: number,
     time: number,
-    seed: number
+    seed: number,
+    studentId: number
   ) => {
     if (!atom) return;
 
@@ -491,12 +508,39 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 이모티콘 (입자 이모지) - 원 크기에 맞춰 조정
-        const emoji = item.emoji || '✨';
-        ctx.font = `${Math.floor(particleRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(emoji, px, py);
+        // 입자 위치 저장 (클릭 감지용)
+        particlePositionsRef.current.push({
+          type: items === atom.protons ? 'proton' : 'neutron',
+          x: px,
+          y: py,
+          radius: particleRadius,
+          data: item,
+          studentId: studentId
+        });
+
+        // 이미지가 있으면 이미지 렌더링, 없으면 이모티콘
+        if (item.imageData) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
+            ctx.clip();
+            ctx.drawImage(img, px - particleRadius, py - particleRadius, particleRadius * 2, particleRadius * 2);
+            ctx.restore();
+            ctx.beginPath();
+            ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
+            ctx.stroke();
+          };
+          img.src = item.imageData;
+        } else {
+          // 이모티콘 (입자 이모지) - 원 크기에 맞춰 조정
+          const emoji = item.emoji || '✨';
+          ctx.font = `${Math.floor(particleRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(emoji, px, py);
+        }
       });
     };
 
@@ -506,7 +550,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   };
 
   // 전자 궤도 그리기 함수
-  const drawElectronOrbits = (ctx: CanvasRenderingContext2D, x: number, y: number, atom: any, size: number, time: number, seed: number) => {
+  const drawElectronOrbits = (ctx: CanvasRenderingContext2D, x: number, y: number, atom: any, size: number, time: number, seed: number, studentId: number) => {
     if (!atom?.electrons) return;
     
     // 껍질 자체는 보이지 않도록 하되, 간격은 더 넓힘
@@ -569,12 +613,39 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 전자 이모티콘 - 원 크기에 맞춰 조정
-        const emoji = electron.emoji || '⚡';
-        ctx.font = `${Math.floor(electronRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(emoji, electronX, electronY);
+        // 입자 위치 저장 (클릭 감지용)
+        particlePositionsRef.current.push({
+          type: 'electron',
+          x: electronX,
+          y: electronY,
+          radius: electronRadius,
+          data: electron,
+          studentId: studentId
+        });
+
+        // 이미지가 있으면 이미지 렌더링, 없으면 이모티콘
+        if (electron.imageData) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
+            ctx.clip();
+            ctx.drawImage(img, electronX - electronRadius, electronY - electronRadius, electronRadius * 2, electronRadius * 2);
+            ctx.restore();
+            ctx.beginPath();
+            ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
+            ctx.stroke();
+          };
+          img.src = electron.imageData;
+        } else {
+          // 전자 이모티콘 - 원 크기에 맞춰 조정
+          const emoji = electron.emoji || '⚡';
+          ctx.font = `${Math.floor(electronRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(emoji, electronX, electronY);
+        }
       });
     });
   };
@@ -842,6 +913,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // 입자 위치 추적 초기화 (매 프레임마다 다시 계산)
+    particlePositionsRef.current = [];
 
     // 고해상도 렌더링을 위한 DPI 스케일링
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -1160,13 +1234,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         
         // 양성자/중성자가 하나라도 있고, showProtonsNeutrons가 true일 때만 표시
         if ((hasProtons || hasNeutrons) && existence?.showProtonsNeutrons === true) {
-          drawProtonNeutronSatellites(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed);
+          drawProtonNeutronSatellites(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed, node.id);
         }
         
         // 전자가 하나라도 있고, showElectrons가 true일 때만 전자 궤도를 표시
         if (hasElectrons && existence?.showElectrons === true) {
           // 전자는 궤도에서 떠다니도록 표시
-          drawElectronOrbits(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed);
+          drawElectronOrbits(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed, node.id);
         }
       }
       
@@ -1367,13 +1441,34 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     
     // 클릭 이벤트 처리 (드래그가 아닌 경우)
     // 실제로 드래그가 발생하지 않았고, 학생이 선택되어 있었던 경우 클릭으로 처리
-    if (!actualDragged && currentDraggedStudent !== null && e.changedTouches.length === 1) {
+    if (!actualDragged && e.changedTouches.length === 1) {
       const touch = e.changedTouches[0];
       const coords = getCanvasCoordinates(touch.clientX, touch.clientY);
       if (coords) {
         const { x, y } = coords;
-        const nodeSize = 50; // 고정 크기
         
+        // 먼저 입자 클릭 확인
+        const clickedParticle = particlePositionsRef.current.find(particle => {
+          const distance = Math.sqrt((x - particle.x) ** 2 + (y - particle.y) ** 2);
+          return distance <= particle.radius;
+        });
+        
+        if (clickedParticle) {
+          // 입자 설명 모달 표시
+          setTimeout(() => {
+            setParticleInfo({
+              type: clickedParticle.type,
+              keyword: clickedParticle.data.keyword || clickedParticle.data.activity,
+              description: clickedParticle.data.description,
+              emoji: clickedParticle.data.emoji,
+              studentId: clickedParticle.studentId
+            });
+          }, 100);
+          return;
+        }
+        
+        // 학생 클릭 확인
+        const nodeSize = 50; // 고정 크기
         const clickedStudent = students.find((student) => {
           const position = studentPositions.get(student.id);
           if (!position) return false;
@@ -1386,7 +1481,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           // 약간의 지연을 두어 드래그 상태 초기화 후 클릭 처리
           setTimeout(() => {
             handleStudentClick(clickedStudent);
-          }, 50);
+          }, 100);
         }
       }
     }
@@ -1437,8 +1532,27 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     if (!coords) return;
     
     const { x, y } = coords;
-    const nodeSize = 50; // 고정 크기
     
+    // 먼저 입자 클릭 확인
+    const clickedParticle = particlePositionsRef.current.find(particle => {
+      const distance = Math.sqrt((x - particle.x) ** 2 + (y - particle.y) ** 2);
+      return distance <= particle.radius;
+    });
+    
+    if (clickedParticle) {
+      // 입자 설명 모달 표시
+      setParticleInfo({
+        type: clickedParticle.type,
+        keyword: clickedParticle.data.keyword || clickedParticle.data.activity,
+        description: clickedParticle.data.description,
+        emoji: clickedParticle.data.emoji,
+        studentId: clickedParticle.studentId
+      });
+      return;
+    }
+    
+    // 학생 클릭 확인
+    const nodeSize = 50; // 고정 크기
     const clickedStudent = students.find((student) => {
       const position = studentPositions.get(student.id);
       if (!position) return false;
@@ -1749,6 +1863,46 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       </div>
       <StudentDetailsModal student={selectedStudent} show={showDetailsModal} onHide={handleCloseDetailsModal} onSave={handleSaveStudent} onDelete={handleDeleteStudent} />
       <AddStudentModal show={showAddModal} onHide={() => setShowAddModal(false)} onSave={handleAddStudent} />
+      
+      {/* 입자 설명 모달 */}
+      {particleInfo && (
+        <div className="particle-info-modal-overlay" onClick={() => setParticleInfo(null)}>
+          <div className="particle-info-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="particle-info-header">
+              <h3>
+                {particleInfo.type === 'proton' && '🔴 양성자'}
+                {particleInfo.type === 'neutron' && '🔵 중성자'}
+                {particleInfo.type === 'electron' && '⚡ 전자'}
+              </h3>
+              <button className="close-btn" onClick={() => setParticleInfo(null)}>×</button>
+            </div>
+            <div className="particle-info-body">
+              {particleInfo.emoji && (
+                <div style={{ fontSize: '48px', textAlign: 'center', marginBottom: '16px' }}>
+                  {particleInfo.emoji}
+                </div>
+              )}
+              {particleInfo.keyword && (
+                <div style={{ marginBottom: '16px' }}>
+                  <strong>키워드:</strong> {particleInfo.keyword}
+                </div>
+              )}
+              {particleInfo.description && (
+                <div style={{ marginTop: '16px' }}>
+                  <strong>설명:</strong>
+                  <p style={{ marginTop: '8px', whiteSpace: 'pre-wrap' }}>{particleInfo.description}</p>
+                </div>
+              )}
+              {!particleInfo.description && (
+                <div style={{ color: '#666', fontStyle: 'italic', marginTop: '16px' }}>
+                  설명이 없습니다.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
       <StudentCustomizeModal 
         student={selectedStudent} 
         show={showCustomizeModal} 

@@ -122,13 +122,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
   // 원자 모델 편집 상태 - 처음에는 모두 빈 배열
   const [atomModel, setAtomModel] = useState<{
-    protons: Array<{ keyword: string; strength: number; color: string; emoji: string }>;
-    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string }>;
+    protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; description?: string }>;
+    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; description?: string }>;
     electrons: {
-      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string }>;
-      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string }>;
-      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string }>;
-      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string }>;
+      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string }>;
+      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string }>;
+      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string }>;
+      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string }>;
     };
   }>({
     protons: [],
@@ -881,6 +881,105 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         ))}
                       </div>
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newProtons = [...atomModel.protons];
+                                  newProtons[index].imageData = compressedDataUrl;
+                                  setAtomModel({...atomModel, protons: newProtons});
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {proton.imageData && (
+                          <>
+                            <img
+                              src={proton.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newProtons = [...atomModel.protons];
+                                newProtons[index].imageData = undefined;
+                                setAtomModel({...atomModel, protons: newProtons});
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </Form.Group>
+                    <Form.Group>
+                      <Form.Label>설명</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        placeholder="양성자에 대한 상세 설명을 입력하세요..."
+                        value={proton.description || ''}
+                        onChange={(e) => {
+                          const newProtons = [...atomModel.protons];
+                          newProtons[index].description = e.target.value;
+                          setAtomModel({...atomModel, protons: newProtons});
+                        }}
+                      />
+                    </Form.Group>
                   </div>
                 ))}
                 <Button 
@@ -968,6 +1067,105 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         ))}
                       </div>
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newNeutrons = [...atomModel.neutrons];
+                                  newNeutrons[index].imageData = compressedDataUrl;
+                                  setAtomModel({...atomModel, neutrons: newNeutrons});
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {neutron.imageData && (
+                          <>
+                            <img
+                              src={neutron.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newNeutrons = [...atomModel.neutrons];
+                                newNeutrons[index].imageData = undefined;
+                                setAtomModel({...atomModel, neutrons: newNeutrons});
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </Form.Group>
+                    <Form.Group>
+                      <Form.Label>설명</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        placeholder="중성자에 대한 상세 설명을 입력하세요..."
+                        value={neutron.description || ''}
+                        onChange={(e) => {
+                          const newNeutrons = [...atomModel.neutrons];
+                          newNeutrons[index].description = e.target.value;
+                          setAtomModel({...atomModel, neutrons: newNeutrons});
+                        }}
+                      />
+                    </Form.Group>
                   </div>
                 ))}
                 <Button 
@@ -1043,6 +1241,97 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }}
                       />
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newKShell = [...atomModel.electrons.kShell];
+                                  newKShell[index].imageData = compressedDataUrl;
+                                  setAtomModel({
+                                    ...atomModel,
+                                    electrons: { ...atomModel.electrons, kShell: newKShell }
+                                  });
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {electron.imageData && (
+                          <>
+                            <img
+                              src={electron.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newKShell = [...atomModel.electrons.kShell];
+                                newKShell[index].imageData = undefined;
+                                setAtomModel({
+                                  ...atomModel,
+                                  electrons: { ...atomModel.electrons, kShell: newKShell }
+                                });
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </Form.Group>
                   </div>
                 ))}
                 <Button 
@@ -1111,6 +1400,97 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newLShell = [...atomModel.electrons.lShell];
+                                  newLShell[index].imageData = compressedDataUrl;
+                                  setAtomModel({
+                                    ...atomModel,
+                                    electrons: { ...atomModel.electrons, lShell: newLShell }
+                                  });
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {electron.imageData && (
+                          <>
+                            <img
+                              src={electron.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newLShell = [...atomModel.electrons.lShell];
+                                newLShell[index].imageData = undefined;
+                                setAtomModel({
+                                  ...atomModel,
+                                  electrons: { ...atomModel.electrons, lShell: newLShell }
+                                });
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </Form.Group>
                   </div>
                 ))}
@@ -1181,6 +1561,97 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }}
                       />
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newMShell = [...atomModel.electrons.mShell];
+                                  newMShell[index].imageData = compressedDataUrl;
+                                  setAtomModel({
+                                    ...atomModel,
+                                    electrons: { ...atomModel.electrons, mShell: newMShell }
+                                  });
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {electron.imageData && (
+                          <>
+                            <img
+                              src={electron.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newMShell = [...atomModel.electrons.mShell];
+                                newMShell[index].imageData = undefined;
+                                setAtomModel({
+                                  ...atomModel,
+                                  electrons: { ...atomModel.electrons, mShell: newMShell }
+                                });
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </Form.Group>
                   </div>
                 ))}
                 <Button 
@@ -1249,6 +1720,97 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>사진 업로드</Form.Label>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => {
+                            const file = e.currentTarget.files?.[0];
+                            if (!file) return;
+                            
+                            if (file.size > 10 * 1024 * 1024) {
+                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              return;
+                            }
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                              if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const maxSize = 400;
+                                  let targetWidth = img.width;
+                                  let targetHeight = img.height;
+                                  
+                                  if (img.width > maxSize || img.height > maxSize) {
+                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                    targetWidth = Math.floor(img.width * ratio);
+                                    targetHeight = Math.floor(img.height * ratio);
+                                  }
+                                  
+                                  const canvas = document.createElement('canvas');
+                                  canvas.width = targetWidth;
+                                  canvas.height = targetHeight;
+                                  const ctx = canvas.getContext('2d');
+                                  
+                                  if (!ctx) return;
+                                  
+                                  ctx.imageSmoothingEnabled = true;
+                                  ctx.imageSmoothingQuality = 'high';
+                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                  
+                                  let quality = 0.8;
+                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  
+                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                    quality -= 0.1;
+                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                  }
+                                  
+                                  const newValence = [...atomModel.electrons.valence];
+                                  newValence[index].imageData = compressedDataUrl;
+                                  setAtomModel({
+                                    ...atomModel,
+                                    electrons: { ...atomModel.electrons, valence: newValence }
+                                  });
+                                  alert('사진이 업로드되었습니다.');
+                                };
+                                img.src = dataUrl;
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ fontSize: '14px', padding: '6px' }}
+                        />
+                        {electron.imageData && (
+                          <>
+                            <img
+                              src={electron.imageData}
+                              alt="preview"
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newValence = [...atomModel.electrons.valence];
+                                newValence[index].imageData = undefined;
+                                setAtomModel({
+                                  ...atomModel,
+                                  electrons: { ...atomModel.electrons, valence: newValence }
+                                });
+                              }}
+                            >
+                              제거
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </Form.Group>
                   </div>
                 ))}
