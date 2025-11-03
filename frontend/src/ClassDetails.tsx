@@ -1663,12 +1663,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       <div className="header-controls">
         <Link to="/" className="modern-btn back-btn">
           <span className="btn-icon">←</span>
-          <span className="btn-text">반 선택으로 돌아가기</span>
+          <span className="btn-text">원 선택으로 돌아가기</span>
         </Link>
         {isAdmin && (
           <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
             <span className="btn-icon">+</span>
-            <span className="btn-text">학생 추가하기</span>
+            <span className="btn-text">원 추가하기</span>
           </button>
         )}
         {isAdmin && (

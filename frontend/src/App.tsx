@@ -5,7 +5,11 @@ import { Routes, Route, Link } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
 
 function App() {
-  const classes = ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+  const [classes, setClasses] = useState<string[]>(() => {
+    // localStorage에서 클래스 이름 불러오기
+    const saved = localStorage.getItem('classNames');
+    return saved ? JSON.parse(saved) : ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+  });
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [positionsInitialized, setPositionsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => {
@@ -15,6 +19,8 @@ function App() {
   });
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [editingClassIndex, setEditingClassIndex] = useState<number | null>(null);
+  const [editingClassName, setEditingClassName] = useState('');
 
   const handleAdminLogin = () => {
     if (adminPassword === '159753') {
@@ -30,6 +36,27 @@ function App() {
   const handleAdminLogout = () => {
     setIsAdmin(false);
     localStorage.removeItem('isAdmin'); // localStorage에서 제거
+  };
+
+  const handleEditClassName = (index: number) => {
+    setEditingClassIndex(index);
+    setEditingClassName(classes[index]);
+  };
+
+  const handleSaveClassName = (index: number) => {
+    if (editingClassName.trim()) {
+      const newClasses = [...classes];
+      newClasses[index] = editingClassName.trim();
+      setClasses(newClasses);
+      localStorage.setItem('classNames', JSON.stringify(newClasses));
+      setEditingClassIndex(null);
+      setEditingClassName('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingClassIndex(null);
+    setEditingClassName('');
   };
 
   useEffect(() => {
@@ -127,20 +154,83 @@ function App() {
             </div>
 
             {classes.map((className, index) => (
-              <Link 
-                key={className} 
-                to={`/class/${index + 1}`} 
+              <div
+                key={`class-${index}`}
                 style={{ 
-                  textDecoration: 'none',
                   position: 'absolute',
                   left: classPositions[index]?.x || 0,
                   top: classPositions[index]?.y || 0
                 }}
               >
-                <div className="floating-class-button">
-                  <span className="class-text">{className}</span>
-                </div>
-              </Link>
+                {editingClassIndex === index && isAdmin ? (
+                  <div className="floating-class-button">
+                    <Form.Control
+                      type="text"
+                      value={editingClassName}
+                      onChange={(e) => setEditingClassName(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveClassName(index);
+                        } else if (e.key === 'Escape') {
+                          handleCancelEdit();
+                        }
+                      }}
+                      onBlur={() => handleSaveClassName(index)}
+                      autoFocus
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        textAlign: 'center',
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        padding: 0,
+                        width: '100%',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Link 
+                    to={`/class/${index + 1}`} 
+                    style={{ 
+                      textDecoration: 'none',
+                      display: 'block'
+                    }}
+                    onDoubleClick={(e) => {
+                      if (isAdmin) {
+                        e.preventDefault();
+                        handleEditClassName(index);
+                      }
+                    }}
+                  >
+                    <div className="floating-class-button">
+                      {isAdmin && (
+                        <div 
+                          className="edit-hint"
+                          style={{
+                            position: 'absolute',
+                            top: '-30px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            background: 'rgba(0, 0, 0, 0.7)',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.7rem',
+                            whiteSpace: 'nowrap',
+                            opacity: 0,
+                            transition: 'opacity 0.3s',
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          더블클릭하여 이름 수정
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
         } />
@@ -274,6 +364,9 @@ function App() {
           transform: translateY(-8px) scale(1.05);
           border-color: rgba(255, 255, 255, 0.25);
           animation-play-state: paused;
+        }
+        .floating-class-button:hover .edit-hint {
+          opacity: 1;
         }
         .floating-class-button:active {
           transform: translateY(-4px) scale(1.02);

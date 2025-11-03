@@ -21,7 +21,7 @@ const AddStudentModal: React.FC<Props> = ({ show, onHide, onSave }) => {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>학생 추가하기</Modal.Title>
+        <Modal.Title>원 추가하기</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
