@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
+import { API_URL } from './config';
 
 function App() {
   const [classes, setClasses] = useState<string[]>(() => {
@@ -21,6 +22,10 @@ function App() {
   const [adminPassword, setAdminPassword] = useState('');
   const [editingClassIndex, setEditingClassIndex] = useState<number | null>(null);
   const [editingClassName, setEditingClassName] = useState('');
+  const [showAddClassModal, setShowAddClassModal] = useState(false);
+  const [newClassName, setNewClassName] = useState('');
+  const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
+  const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
 
   const handleAdminLogin = () => {
     if (adminPassword === '159753') {
@@ -61,6 +66,98 @@ function App() {
   const handleCancelEdit = () => {
     setEditingClassIndex(null);
     setEditingClassName('');
+  };
+
+  const handleAddClass = () => {
+    if (newClassName.trim()) {
+      const newClasses = [...classes, newClassName.trim()];
+      setClasses(newClasses);
+      localStorage.setItem('classNames', JSON.stringify(newClasses));
+      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+        detail: { classNames: newClasses }
+      }));
+      setNewClassName('');
+      setShowAddClassModal(false);
+    }
+  };
+
+  const handleDeleteClass = async (index: number) => {
+    if (window.confirm(`정말로 ${classes[index]}를 삭제하시겠습니까? 이 클래스의 모든 학생도 삭제됩니다.`)) {
+      const classId = index + 1;
+      
+      // 해당 클래스의 모든 학생 삭제
+      try {
+        const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+        const students = await response.json();
+        
+        for (const student of students) {
+          await fetch(`${API_URL}/api/students/${student.id}`, {
+            method: 'DELETE'
+          });
+        }
+      } catch (error) {
+        console.error('Error deleting students:', error);
+      }
+      
+      // 클래스 목록에서 제거
+      const newClasses = classes.filter((_, i) => i !== index);
+      setClasses(newClasses);
+      localStorage.setItem('classNames', JSON.stringify(newClasses));
+      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+        detail: { classNames: newClasses }
+      }));
+    }
+  };
+
+  const handleOpenStudentManage = async (index: number) => {
+    const classId = index + 1;
+    try {
+      const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+      const students = await response.json();
+      setClassStudents(students);
+      setShowStudentManageModal(index);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      alert('학생 목록을 불러오는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleAddStudent = async (classIndex: number, count: number) => {
+    const classId = classIndex + 1;
+    try {
+      const students = [...classStudents];
+      
+      for (let i = 0; i < count; i++) {
+        const response = await fetch(`${API_URL}/api/classes/${classId}/students`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: `학생 ${classStudents.length + i + 1}`, classId }),
+        });
+        const newStudent = await response.json();
+        students.push(newStudent);
+      }
+      
+      setClassStudents(students);
+    } catch (error) {
+      console.error('Error adding student:', error);
+      alert('학생 추가 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteStudent = async (studentId: number) => {
+    if (window.confirm('정말로 이 학생을 삭제하시겠습니까?')) {
+      try {
+        await fetch(`${API_URL}/api/students/${studentId}`, {
+          method: 'DELETE'
+        });
+        setClassStudents(classStudents.filter(s => s.id !== studentId));
+      } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('학생 삭제 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   useEffect(() => {
@@ -125,7 +222,7 @@ function App() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [classes]); // classes가 변경될 때마다 위치 재계산
 
   return (
     <div className="App">
@@ -145,6 +242,15 @@ function App() {
               ) : (
                 <div className="admin-status">
                   <span className="admin-badge">관리자 모드</span>
+                  <Button 
+                    variant="success"
+                    size="sm"
+                    onClick={() => setShowAddClassModal(true)}
+                    className="admin-add-class-btn"
+                    style={{ marginRight: '8px' }}
+                  >
+                    ➕ 원 추가
+                  </Button>
                   <Button 
                     variant="outline-danger" 
                     size="sm"
@@ -206,45 +312,118 @@ function App() {
                       <div className="floating-class-button"></div>
                     </Link>
                     {isAdmin && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleEditClassName(index);
-                        }}
-                        className="edit-class-btn"
-                        style={{
-                          position: 'absolute',
-                          bottom: '-35px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          background: 'rgba(102, 126, 234, 0.9)',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '28px',
-                          height: '28px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          color: 'white',
-                          fontSize: '14px',
-                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-                          transition: 'all 0.3s ease',
-                          zIndex: 10
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(102, 126, 234, 1)';
-                          e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(102, 126, 234, 0.9)';
-                          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-                        }}
-                        title="원 이름 수정"
-                      >
-                        ✏️
-                      </button>
+                      <div style={{ 
+                        position: 'absolute',
+                        bottom: '-50px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '8px',
+                        zIndex: 10
+                      }}>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleEditClassName(index);
+                          }}
+                          className="edit-class-btn"
+                          style={{
+                            background: 'rgba(102, 126, 234, 0.9)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'white',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(102, 126, 234, 1)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(102, 126, 234, 0.9)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 이름 수정"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenStudentManage(index);
+                          }}
+                          className="manage-students-btn"
+                          style={{
+                            background: 'rgba(40, 167, 69, 0.9)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'white',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(40, 167, 69, 1)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(40, 167, 69, 0.9)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 관리"
+                        >
+                          👥
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteClass(index);
+                          }}
+                          className="delete-class-btn"
+                          style={{
+                            background: 'rgba(220, 53, 69, 0.9)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'white',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(220, 53, 69, 1)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(220, 53, 69, 0.9)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 삭제"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -280,6 +459,132 @@ function App() {
           </Button>
           <Button variant="primary" onClick={handleAdminLogin}>
             로그인
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* 클래스 추가 모달 */}
+      <Modal show={showAddClassModal} onHide={() => setShowAddClassModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>➕ 원 추가</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>원 이름</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="예: 8반"
+                value={newClassName}
+                onChange={(e) => setNewClassName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddClass()}
+                autoFocus
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAddClassModal(false)}>
+            취소
+          </Button>
+          <Button variant="primary" onClick={handleAddClass}>
+            추가
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* 학생 관리 모달 */}
+      <Modal 
+        show={showStudentManageModal !== null} 
+        onHide={() => setShowStudentManageModal(null)} 
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} 학생 관리
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {showStudentManageModal !== null && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <Form.Group>
+                  <Form.Label>원 추가하기 (개수)</Form.Label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <Form.Control
+                      type="number"
+                      min="1"
+                      max="50"
+                      placeholder="개수"
+                      id="student-count-input"
+                      style={{ width: '120px' }}
+                    />
+                    <Button
+                      variant="success"
+                      onClick={() => {
+                        const input = document.getElementById('student-count-input') as HTMLInputElement;
+                        const count = parseInt(input.value) || 1;
+                        if (count > 0 && count <= 50) {
+                          handleAddStudent(showStudentManageModal, count);
+                          input.value = '';
+                        } else {
+                          alert('1부터 50 사이의 숫자를 입력하세요.');
+                        }
+                      }}
+                    >
+                      추가
+                    </Button>
+                  </div>
+                </Form.Group>
+              </div>
+              
+              <div>
+                <strong>현재 학생 목록 ({classStudents.length}명)</strong>
+                <div style={{ 
+                  maxHeight: '400px', 
+                  overflowY: 'auto',
+                  marginTop: '10px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  padding: '10px'
+                }}>
+                  {classStudents.length === 0 ? (
+                    <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
+                      학생이 없습니다.
+                    </div>
+                  ) : (
+                    classStudents.map((student) => (
+                      <div
+                        key={student.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '10px',
+                          borderBottom: '1px solid #eee',
+                          marginBottom: '5px'
+                        }}
+                      >
+                        <span>{student.name}</span>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleDeleteStudent(student.id)}
+                        >
+                          삭제
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowStudentManageModal(null)}>
+            닫기
           </Button>
         </Modal.Footer>
       </Modal>
