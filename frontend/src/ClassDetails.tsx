@@ -518,21 +518,79 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           studentId: studentId
         });
 
-        // 이미지가 있으면 이미지 렌더링, 없으면 이모티콘
+        // 이미지가 있으면 이미지 렌더링 (원과 같은 방식)
         if (item.imageData) {
-          const img = new Image();
-          img.onload = () => {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
-            ctx.clip();
-            ctx.drawImage(img, px - particleRadius, py - particleRadius, particleRadius * 2, particleRadius * 2);
-            ctx.restore();
-            ctx.beginPath();
-            ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
-            ctx.stroke();
-          };
-          img.src = item.imageData;
+          const cache = imageCacheRef.current;
+          let cached = cache.get(item.imageData);
+          
+          if (!cached) {
+            // 캐시에 없으면 새로 로드
+            const newImage = new Image();
+            newImage.onload = () => {
+              // 이미지가 로드되면 다시 그리기
+              requestAnimationFrame(() => {
+                drawGraph();
+              });
+            };
+            newImage.onerror = (error) => {
+              console.error(`❌ 입자 이미지 로드 실패:`, error);
+              cache.delete(item.imageData);
+              requestAnimationFrame(() => {
+                drawGraph();
+              });
+            };
+            newImage.src = item.imageData;
+            cached = newImage;
+            cache.set(item.imageData, newImage);
+          }
+          
+          if (cached && cached.complete && cached.naturalWidth > 0) {
+            // 이미지가 완전히 로드되었으면 그리기
+            try {
+              ctx.save();
+              // 먼저 배경 채우기
+              ctx.beginPath();
+              ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
+              ctx.fillStyle = item.color || 'rgba(255,255,255,0.9)';
+              ctx.fill();
+              
+              // 원형 클리핑
+              ctx.beginPath();
+              ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
+              ctx.clip();
+              
+              // 이미지 그리기
+              const drawX = px - particleRadius;
+              const drawY = py - particleRadius;
+              const drawWidth = particleRadius * 2;
+              const drawHeight = particleRadius * 2;
+              ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
+              
+              ctx.restore();
+              
+              // 테두리 다시 그리기
+              ctx.beginPath();
+              ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
+              ctx.strokeStyle = stroke;
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            } catch (error) {
+              console.error(`❌ 입자 이미지 그리기 실패:`, error);
+              // 실패 시 이모티콘으로 대체
+              const emoji = item.emoji || '✨';
+              ctx.font = `${Math.floor(particleRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(emoji, px, py);
+            }
+          } else {
+            // 로딩 중이면 이모티콘 표시
+            const emoji = item.emoji || '✨';
+            ctx.font = `${Math.floor(particleRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, px, py);
+          }
         } else {
           // 이모티콘 (입자 이모지) - 원 크기에 맞춰 조정
           const emoji = item.emoji || '✨';
@@ -623,21 +681,79 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           studentId: studentId
         });
 
-        // 이미지가 있으면 이미지 렌더링, 없으면 이모티콘
+        // 이미지가 있으면 이미지 렌더링 (원과 같은 방식)
         if (electron.imageData) {
-          const img = new Image();
-          img.onload = () => {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
-            ctx.clip();
-            ctx.drawImage(img, electronX - electronRadius, electronY - electronRadius, electronRadius * 2, electronRadius * 2);
-            ctx.restore();
-            ctx.beginPath();
-            ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
-            ctx.stroke();
-          };
-          img.src = electron.imageData;
+          const cache = imageCacheRef.current;
+          let cached = cache.get(electron.imageData);
+          
+          if (!cached) {
+            // 캐시에 없으면 새로 로드
+            const newImage = new Image();
+            newImage.onload = () => {
+              // 이미지가 로드되면 다시 그리기
+              requestAnimationFrame(() => {
+                drawGraph();
+              });
+            };
+            newImage.onerror = (error) => {
+              console.error(`❌ 전자 이미지 로드 실패:`, error);
+              cache.delete(electron.imageData);
+              requestAnimationFrame(() => {
+                drawGraph();
+              });
+            };
+            newImage.src = electron.imageData;
+            cached = newImage;
+            cache.set(electron.imageData, newImage);
+          }
+          
+          if (cached && cached.complete && cached.naturalWidth > 0) {
+            // 이미지가 완전히 로드되었으면 그리기
+            try {
+              ctx.save();
+              // 먼저 배경 채우기
+              ctx.beginPath();
+              ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
+              ctx.fillStyle = orbit.color;
+              ctx.fill();
+              
+              // 원형 클리핑
+              ctx.beginPath();
+              ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
+              ctx.clip();
+              
+              // 이미지 그리기
+              const drawX = electronX - electronRadius;
+              const drawY = electronY - electronRadius;
+              const drawWidth = electronRadius * 2;
+              const drawHeight = electronRadius * 2;
+              ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
+              
+              ctx.restore();
+              
+              // 테두리 다시 그리기
+              ctx.beginPath();
+              ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
+              ctx.strokeStyle = '#fff';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            } catch (error) {
+              console.error(`❌ 전자 이미지 그리기 실패:`, error);
+              // 실패 시 이모티콘으로 대체
+              const emoji = electron.emoji || '⚡';
+              ctx.font = `${Math.floor(electronRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(emoji, electronX, electronY);
+            }
+          } else {
+            // 로딩 중이면 이모티콘 표시
+            const emoji = electron.emoji || '⚡';
+            ctx.font = `${Math.floor(electronRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, electronX, electronY);
+          }
         } else {
           // 전자 이모티콘 - 원 크기에 맞춰 조정
           const emoji = electron.emoji || '⚡';
