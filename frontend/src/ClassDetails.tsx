@@ -2060,11 +2060,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         <div className="particle-info-modal-overlay" onClick={() => { setParticleInfo(null); setIsEditingParticle(false); }}>
           <div className="particle-info-modal" onClick={(e) => e.stopPropagation()}>
             <div className="particle-info-header">
-              <h3>
-                {particleInfo.type === 'proton' && '🔴 양성자'}
-                {particleInfo.type === 'neutron' && '🔵 중성자'}
-                {particleInfo.type === 'electron' && '⚡ 전자'}
-              </h3>
               <button className="close-btn" onClick={() => { setParticleInfo(null); setIsEditingParticle(false); }}>×</button>
             </div>
             <div className="particle-info-body">
@@ -2084,16 +2079,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   ) : null}
                 </div>
                 
-                {/* 오른쪽: 키워드와 설명 */}
+                {/* 오른쪽: 설명 */}
                 <div className="particle-info-right">
-                  {particleInfo.keyword && (
-                    <div className="keyword-section">
-                      <strong>키워드:</strong> {particleInfo.keyword}
-                    </div>
-                  )}
                   {isEditingParticle ? (
                     <div className="description-section">
-                      <strong>설명:</strong>
                       <textarea
                         value={editingDescription}
                         onChange={(e) => setEditingDescription(e.target.value)}
@@ -2159,11 +2148,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                     </div>
                   ) : (
                     <div className="description-section">
-                      <strong>설명:</strong>
                       {particleInfo.description ? (
-                        <p style={{ marginTop: '8px', whiteSpace: 'pre-wrap', minHeight: '60px' }}>{particleInfo.description}</p>
+                        <p style={{ whiteSpace: 'pre-wrap', minHeight: '60px' }}>{particleInfo.description}</p>
                       ) : (
-                        <p style={{ marginTop: '8px', color: '#666', fontStyle: 'italic', minHeight: '60px' }}>설명이 없습니다.</p>
+                        <p style={{ color: '#666', fontStyle: 'italic', minHeight: '60px' }}>설명이 없습니다.</p>
                       )}
                       <button
                         className="btn-edit"
