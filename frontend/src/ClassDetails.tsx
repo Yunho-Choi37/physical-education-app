@@ -381,7 +381,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     const protonOrbit = coreSize * 0.95;   // 모양 가장자리 바로 바깥
     const neutronOrbit = coreSize * 1.25;  // 그 바깥
 
-    const baseParticleSize = Math.max(10, Math.floor(coreSize * 0.28)); // 전자보다 큼
+    // 기본 원의 1/3 크기로 설정
+    const baseParticleSize = Math.max(10, Math.floor(coreSize / 3));
 
     const drawOrbiting = (items: any[], radius: number, stroke: string, speed: number, phaseOffset: number, shellIndex: number) => {
       if (!items || items.length === 0) return;
@@ -397,7 +398,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const angleOffset = time * speed + phaseOffset + basePhase;
 
       // 겹침 방지: 둘레 대비 입자 지름 수용량으로 반경/크기 동적 조정 후 위치/스케일 계산
-      const particleDiameter = baseParticleSize * 0.6 * 2;
+      const particleDiameter = baseParticleSize * 2; // 기본 원의 1/3 크기
       const requiredPerimeter = count * particleDiameter * 1.15;
       let adjRadius = radius;
       let scaleCap = 1;
@@ -432,18 +433,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       particles.sort((a, b): number => a.scale - b.scale); // 작은 것부터 그리고, 큰 것(호버)은 나중에 그려 위로
 
       particles.forEach(({ item, x: px, y: py, scale }) => {
-        // 배경 원 (입자 색)
+        // 배경 원 (입자 색) - 기본 원의 1/3 크기
+        const particleRadius = (baseParticleSize * scale);
         ctx.beginPath();
-        ctx.arc(px, py, baseParticleSize * 0.6 * scale, 0, 2 * Math.PI);
+        ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
         ctx.fillStyle = item.color || 'rgba(255,255,255,0.9)';
         ctx.fill();
         ctx.strokeStyle = stroke;
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 이모티콘 (입자 이모지)
+        // 이모티콘 (입자 이모지) - 원 크기에 맞춰 조정
         const emoji = item.emoji || '✨';
-        ctx.font = `${Math.floor(baseParticleSize * scale)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+        ctx.font = `${Math.floor(particleRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(emoji, px, py);
@@ -509,18 +511,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       particles.sort((a, b): number => a.scale - b.scale);
 
       particles.forEach(({ electron, x: electronX, y: electronY, scale }: { electron: any; x: number; y: number; scale: number }) => {
-        // 전자 배경 원
+        // 전자 배경 원 - 기본 원의 1/3 크기
+        const electronRadius = (size / 3) * scale;
         ctx.beginPath();
-        ctx.arc(electronX, electronY, 8 * scale, 0, 2 * Math.PI);
+        ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
         ctx.fillStyle = orbit.color;
         ctx.fill();
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 전자 이모티콘
+        // 전자 이모티콘 - 원 크기에 맞춰 조정
         const emoji = electron.emoji || '⚡';
-        ctx.font = `${Math.floor(12 * scale)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+        ctx.font = `${Math.floor(electronRadius * 1.2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(emoji, electronX, electronY);
