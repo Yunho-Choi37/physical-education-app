@@ -49,6 +49,10 @@ function App() {
       newClasses[index] = editingClassName.trim();
       setClasses(newClasses);
       localStorage.setItem('classNames', JSON.stringify(newClasses));
+      // 커스텀 이벤트 발생 (같은 탭에서도 동기화되도록)
+      window.dispatchEvent(new CustomEvent('classNamesUpdated', {
+        detail: { classNames: newClasses }
+      }));
       setEditingClassIndex(null);
       setEditingClassName('');
     }
@@ -191,44 +195,58 @@ function App() {
                     />
                   </div>
                 ) : (
-                  <Link 
-                    to={`/class/${index + 1}`} 
-                    style={{ 
-                      textDecoration: 'none',
-                      display: 'block'
-                    }}
-                    onDoubleClick={(e) => {
-                      if (isAdmin) {
-                        e.preventDefault();
-                        handleEditClassName(index);
-                      }
-                    }}
-                  >
-                    <div className="floating-class-button">
-                      {isAdmin && (
-                        <div 
-                          className="edit-hint"
-                          style={{
-                            position: 'absolute',
-                            top: '-30px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            color: 'white',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.7rem',
-                            whiteSpace: 'nowrap',
-                            opacity: 0,
-                            transition: 'opacity 0.3s',
-                            pointerEvents: 'none'
-                          }}
-                        >
-                          더블클릭하여 이름 수정
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+                  <div style={{ position: 'relative' }}>
+                    <Link 
+                      to={`/class/${index + 1}`} 
+                      style={{ 
+                        textDecoration: 'none',
+                        display: 'block'
+                      }}
+                    >
+                      <div className="floating-class-button"></div>
+                    </Link>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleEditClassName(index);
+                        }}
+                        className="edit-class-btn"
+                        style={{
+                          position: 'absolute',
+                          bottom: '-35px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          background: 'rgba(102, 126, 234, 0.9)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '28px',
+                          height: '28px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: 'white',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                          transition: 'all 0.3s ease',
+                          zIndex: 10
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(102, 126, 234, 1)';
+                          e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(102, 126, 234, 0.9)';
+                          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+                        }}
+                        title="원 이름 수정"
+                      >
+                        ✏️
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

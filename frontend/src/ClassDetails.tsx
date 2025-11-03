@@ -101,6 +101,54 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const { classId } = useParams<{ classId: string }>();
   // 새로고침/세션마다 바뀌는 랜덤 위상 시드(세션 내 안정성 보장)
   const sessionSeedRef = useRef<number>(Math.floor(Math.random() * 1_000_000_000));
+  
+  // localStorage에서 클래스 이름 가져오기
+  const [className, setClassName] = useState<string>(`${classId}반`);
+  
+  useEffect(() => {
+    const updateClassName = () => {
+      const saved = localStorage.getItem('classNames');
+      if (saved) {
+        const classNames = JSON.parse(saved);
+        const classIndex = parseInt(classId || '1', 10) - 1;
+        if (classNames[classIndex]) {
+          setClassName(classNames[classIndex]);
+        } else {
+          setClassName(`${classId}반`);
+        }
+      } else {
+        setClassName(`${classId}반`);
+      }
+    };
+    
+    // 초기 로드
+    updateClassName();
+    
+    // localStorage 변경 감지 (다른 탭 및 같은 탭에서 수정 시 동기화)
+    const handleStorageChange = (e: StorageEvent | CustomEvent) => {
+      if (e instanceof StorageEvent && e.key === 'classNames' && e.newValue) {
+        const classNames = JSON.parse(e.newValue);
+        const classIndex = parseInt(classId || '1', 10) - 1;
+        if (classNames[classIndex]) {
+          setClassName(classNames[classIndex]);
+        }
+      } else if (e instanceof CustomEvent && e.type === 'classNamesUpdated') {
+        updateClassName();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange as EventListener);
+    window.addEventListener('classNamesUpdated', handleStorageChange as EventListener);
+    
+    // 주기적으로 확인 (안전장치)
+    const interval = setInterval(updateClassName, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange as EventListener);
+      window.removeEventListener('classNamesUpdated', handleStorageChange as EventListener);
+      clearInterval(interval);
+    };
+  }, [classId]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -1678,7 +1726,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </button>
         )}
       </div>
-      <h2 className="class-title">{classId}반</h2>
+      <h2 className="class-title">{className}</h2>
       
       <div className="graph-container" ref={containerRef}>
         <canvas
