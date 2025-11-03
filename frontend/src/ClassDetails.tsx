@@ -912,6 +912,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           const cache = imageCacheRef.current;
           let cached = cache.get(imageData);
           
+          // 디버깅: 캐시 상태 확인
+          if (cached) {
+            console.log(`🔍 캐시 확인 (학생 ${node.id}):`, {
+              complete: cached.complete,
+              naturalWidth: cached.naturalWidth,
+              naturalHeight: cached.naturalHeight,
+              width: cached.width,
+              height: cached.height,
+              src: cached.src.substring(0, 50) + '...'
+            });
+          }
+          
           // 이미지가 캐시에 없거나 아직 로드 중이면 새로 로드
           if (!cached || !cached.complete || cached.naturalWidth === 0) {
             if (!cached) {
@@ -919,7 +931,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               cache.set(imageData, newImage);
               
               newImage.onload = () => {
-                console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, newImage.width, 'x', newImage.height);
+                console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, {
+                  width: newImage.width,
+                  height: newImage.height,
+                  naturalWidth: newImage.naturalWidth,
+                  naturalHeight: newImage.naturalHeight,
+                  complete: newImage.complete
+                });
                 // 이미지 로드 완료 후 즉시 다시 그리기
                 requestAnimationFrame(() => {
                   drawGraph();
@@ -939,6 +957,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               console.log(`📸 이미지 로드 시작 (학생 ${node.id}):`, imageData.substring(0, 50) + '...');
               newImage.src = imageData;
               cached = newImage; // cached 변수 업데이트
+            } else {
+              // 캐시에 있지만 아직 로딩 중
+              console.log(`⏳ 이미지 로딩 중 (학생 ${node.id}):`, {
+                complete: cached.complete,
+                naturalWidth: cached.naturalWidth
+              });
             }
             
             // 로딩 중에는 얇은 테두리만 표시
@@ -953,6 +977,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             ctx.fill();
           } else if (cached && cached.complete && cached.naturalWidth > 0) {
             // 이미지가 완전히 로드되었으면 그리기
+            console.log(`🎨 이미지 그리기 시작 (학생 ${node.id}):`, {
+              cached: !!cached,
+              complete: cached.complete,
+              naturalWidth: cached.naturalWidth,
+              nodeSize: node.size,
+              position: `(${node.x}, ${node.y})`
+            });
+            
             try {
               // 먼저 배경을 그려서 이미지가 보이도록 (투명도 문제 해결)
               ctx.save();
@@ -967,21 +999,28 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               ctx.clip();
               
               // 이미지 그리기
-              ctx.drawImage(
-                cached, 
-                node.x - node.size, 
-                node.y - node.size, 
-                node.size * 2, 
-                node.size * 2
-              );
+              const drawX = node.x - node.size;
+              const drawY = node.y - node.size;
+              const drawWidth = node.size * 2;
+              const drawHeight = node.size * 2;
+              
+              console.log(`🖼️ drawImage 호출 (학생 ${node.id}):`, {
+                image: cached,
+                x: drawX,
+                y: drawY,
+                width: drawWidth,
+                height: drawHeight
+              });
+              
+              ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
               
               ctx.restore();
               imageDrawn = true; // 이미지가 성공적으로 그려짐
-              console.log(`✅ 이미지 그리기 성공 (학생 ${node.id}):`, {
+              console.log(`✅✅✅ 이미지 그리기 성공 (학생 ${node.id}):`, {
                 size: node.size,
                 imageSize: `${cached.width}x${cached.height}`,
                 position: `(${node.x}, ${node.y})`,
-                drawArea: `${(node.x - node.size).toFixed(0)}, ${(node.y - node.size).toFixed(0)}, ${(node.size * 2).toFixed(0)}, ${(node.size * 2).toFixed(0)}`
+                drawArea: `${drawX.toFixed(0)}, ${drawY.toFixed(0)}, ${drawWidth.toFixed(0)}, ${drawHeight.toFixed(0)}`
               });
             } catch (error) {
               console.error(`❌ 이미지 그리기 실패 (학생 ${node.id}):`, error);
@@ -991,6 +1030,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             }
           } else {
             // 이미지가 로드 중이거나 실패한 경우 기본 형태로 그리기
+            console.log(`⚠️ 이미지 상태 이상 (학생 ${node.id}):`, {
+              cached: !!cached,
+              complete: cached?.complete,
+              naturalWidth: cached?.naturalWidth
+            });
             drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
           }
         }
