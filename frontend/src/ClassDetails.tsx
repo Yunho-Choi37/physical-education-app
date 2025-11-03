@@ -113,7 +113,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [studentPositions, setStudentPositions] = useState<Map<number, {x: number, y: number}>>(new Map());
   const [studentGroups, setStudentGroups] = useState<Map<number, number>>(new Map());
   // 입자 위치 추적 (클릭 감지용)
-  const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number }>>([]);
+  const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number; particleIndex: number; shellType: string }>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { classId } = useParams<{ classId: string }>();
@@ -477,7 +477,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         }
       }
 
-      const particles: Array<{ item: any; x: number; y: number; scale: number }> = items.map((item: any, idx: number) => {
+      const particles: Array<{ item: any; x: number; y: number; scale: number; originalIndex: number }> = items.map((item: any, idx: number) => {
         const angle = angleOffset + idx * angleStep;
         const baseX = x + Math.cos(angle) * adjRadius;
         const baseY = y + Math.sin(angle) * adjRadius;
@@ -494,12 +494,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        return { item, x: baseX + dx, y: baseY + dy, scale };
+        return { item, x: baseX + dx, y: baseY + dy, scale, originalIndex: idx };
       });
 
       particles.sort((a, b): number => a.scale - b.scale); // 작은 것부터 그리고, 큰 것(호버)은 나중에 그려 위로
 
-      particles.forEach(({ item, x: px, y: py, scale }) => {
+      particles.forEach(({ item, x: px, y: py, scale, originalIndex }) => {
         // 배경 원 (입자 색) - 기본 원의 1/3 크기
         const particleRadius = (baseParticleSize * scale);
         ctx.beginPath();
@@ -510,14 +510,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 입자 위치 저장 (클릭 감지용)
+        // 입자 위치 저장 (클릭 감지용) - 정렬 전 원래 인덱스 사용
         particlePositionsRef.current.push({
           type: items === atom.protons ? 'proton' : 'neutron',
           x: px,
           y: py,
           radius: particleRadius,
           data: item,
-          studentId: studentId
+          studentId: studentId,
+          particleIndex: originalIndex,
+          shellType: '' // 양성자/중성자는 shellType 없음
         });
 
         // 이미지가 있으면 이미지 렌더링 (원과 같은 방식)
@@ -636,7 +638,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const angleOffset = time * (0.00005 + orbitIndex * 0.00001) + basePhase; // 아주 느린 회전 + 무작위 위상
 
       // 먼저 위치/스케일 계산(피시아이/호버) 후, 스케일이 작은 것부터 그려 큰 것(호버)이 위로 오게
-      const particles: Array<{ electron: any; x: number; y: number; scale: number }> = electrons.map((electron: any, electronIndex: number) => {
+      const particles: Array<{ electron: any; x: number; y: number; scale: number; originalIndex: number }> = electrons.map((electron: any, electronIndex: number) => {
         const perElectronPhase = baseRand(seed + (orbitIndex + 1) * 1000 + electronIndex * 97) * (angleStep * 0.3);
         const baseAngle = angleOffset + electronIndex * angleStep + perElectronPhase;
         const floatOffset = Math.sin(time * 0.0015 + electronIndex * 0.6 + orbitIndex * 0.4) * 4; // 반경 미세 진동 (정렬은 유지)
@@ -657,12 +659,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        return { electron, x: ex + dx, y: ey + dy, scale };
+        return { electron, x: ex + dx, y: ey + dy, scale, originalIndex: electronIndex };
       });
 
       particles.sort((a, b): number => a.scale - b.scale);
 
-      particles.forEach(({ electron, x: electronX, y: electronY, scale }: { electron: any; x: number; y: number; scale: number }) => {
+      particles.forEach(({ electron, x: electronX, y: electronY, scale, originalIndex }: { electron: any; x: number; y: number; scale: number; originalIndex: number }) => {
         // 전자 배경 원 - 기본 원의 1/3 크기
         const electronRadius = (size / 3) * scale;
         ctx.beginPath();
@@ -673,14 +675,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 입자 위치 저장 (클릭 감지용)
+        // 입자 위치 저장 (클릭 감지용) - 정렬 전 원래 인덱스 사용
         particlePositionsRef.current.push({
           type: 'electron',
           x: electronX,
           y: electronY,
           radius: electronRadius,
           data: electron,
-          studentId: studentId
+          studentId: studentId,
+          particleIndex: originalIndex,
+          shellType: orbit.shell
         });
 
         // 이미지가 있으면 이미지 렌더링 (원과 같은 방식)
@@ -1572,29 +1576,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         });
         
         if (clickedParticle) {
-          // 입자 설명 모달 표시
-          const student = students.find(s => s.id === clickedParticle.studentId);
-          let particleIndex = -1;
-          let shellType = '';
+          // 입자 설명 모달 표시 - 이미 저장된 인덱스와 shellType 사용
+          const particleIndex = clickedParticle.particleIndex ?? -1;
+          const shellType = clickedParticle.shellType || '';
           
-          if (student?.existence?.atom) {
-            if (clickedParticle.type === 'proton') {
-              particleIndex = student.existence.atom.protons?.findIndex((p: any) => p === clickedParticle.data) || -1;
-            } else if (clickedParticle.type === 'neutron') {
-              particleIndex = student.existence.atom.neutrons?.findIndex((n: any) => n === clickedParticle.data) || -1;
-            } else if (clickedParticle.type === 'electron') {
-              // 전자는 껍질 타입도 필요
-              const shells = ['kShell', 'lShell', 'mShell', 'valence'];
-              for (const shell of shells) {
-                const index = student.existence.atom.electrons?.[shell]?.findIndex((e: any) => e === clickedParticle.data);
-                if (index !== undefined && index >= 0) {
-                  particleIndex = index;
-                  shellType = shell;
-                  break;
-                }
-              }
-            }
-          }
+          console.log('🔵 입자 클릭 감지 (터치):', {
+            type: clickedParticle.type,
+            studentId: clickedParticle.studentId,
+            particleIndex,
+            shellType,
+            hasImage: !!clickedParticle.data.imageData,
+            hasEmoji: !!clickedParticle.data.emoji
+          });
           
           setTimeout(() => {
             setParticleInfo({
@@ -1686,29 +1679,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     });
     
     if (clickedParticle) {
-      // 입자 설명 모달 표시
-      const student = students.find(s => s.id === clickedParticle.studentId);
-      let particleIndex = -1;
-      let shellType = '';
+      // 입자 설명 모달 표시 - 이미 저장된 인덱스와 shellType 사용
+      const particleIndex = clickedParticle.particleIndex ?? -1;
+      const shellType = clickedParticle.shellType || '';
       
-      if (student?.existence?.atom) {
-        if (clickedParticle.type === 'proton') {
-          particleIndex = student.existence.atom.protons?.findIndex((p: any) => p === clickedParticle.data) || -1;
-        } else if (clickedParticle.type === 'neutron') {
-          particleIndex = student.existence.atom.neutrons?.findIndex((n: any) => n === clickedParticle.data) || -1;
-        } else if (clickedParticle.type === 'electron') {
-          // 전자는 껍질 타입도 필요
-          const shells = ['kShell', 'lShell', 'mShell', 'valence'];
-          for (const shell of shells) {
-            const index = student.existence.atom.electrons?.[shell]?.findIndex((e: any) => e === clickedParticle.data);
-            if (index !== undefined && index >= 0) {
-              particleIndex = index;
-              shellType = shell;
-              break;
-            }
-          }
-        }
-      }
+      console.log('🔵 입자 클릭 감지:', {
+        type: clickedParticle.type,
+        studentId: clickedParticle.studentId,
+        particleIndex,
+        shellType,
+        hasImage: !!clickedParticle.data.imageData,
+        hasEmoji: !!clickedParticle.data.emoji
+      });
       
       setParticleInfo({
         type: clickedParticle.type,
@@ -2052,66 +2034,39 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             </div>
             <div className="particle-info-body">
               {/* 사진, 이모티콘, 글을 좌우로 배치 */}
-              <div className="particle-info-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', marginBottom: '16px' }}>
+              <div className="particle-info-content">
                 {/* 왼쪽: 사진 또는 이모티콘 */}
-                <div className="particle-info-left" style={{ flexShrink: 0 }}>
+                <div className="particle-info-left">
                   {particleInfo.imageData ? (
                     <img 
                       src={particleInfo.imageData} 
-                      alt="입자 사진" 
-                      style={{ 
-                        width: '120px', 
-                        height: '120px', 
-                        objectFit: 'cover', 
-                        borderRadius: '50%',
-                        border: '2px solid #ddd'
-                      }} 
+                      alt="입자 사진"
                     />
                   ) : particleInfo.emoji ? (
-                    <div style={{ 
-                      fontSize: '80px', 
-                      textAlign: 'center',
-                      width: '120px',
-                      height: '120px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '50%',
-                      border: '2px solid #ddd'
-                    }}>
+                    <div className="emoji-display">
                       {particleInfo.emoji}
                     </div>
                   ) : null}
                 </div>
                 
                 {/* 오른쪽: 키워드와 설명 */}
-                <div className="particle-info-right" style={{ flex: 1 }}>
+                <div className="particle-info-right">
                   {particleInfo.keyword && (
-                    <div style={{ marginBottom: '16px' }}>
+                    <div className="keyword-section">
                       <strong>키워드:</strong> {particleInfo.keyword}
                     </div>
                   )}
                   {isEditingParticle ? (
-                    <div>
+                    <div className="description-section">
                       <strong>설명:</strong>
                       <textarea
                         value={editingDescription}
                         onChange={(e) => setEditingDescription(e.target.value)}
-                        style={{
-                          width: '100%',
-                          minHeight: '100px',
-                          marginTop: '8px',
-                          padding: '8px',
-                          border: '1px solid #ddd',
-                          borderRadius: '4px',
-                          fontSize: '14px',
-                          fontFamily: 'inherit'
-                        }}
                         placeholder="설명을 입력하세요..."
                       />
-                      <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+                      <div className="edit-buttons">
                         <button
+                          className="btn-save"
                           onClick={async () => {
                             // 저장 로직
                             if (particleInfo.studentId && particleInfo.particleIndex !== undefined && particleInfo.particleIndex >= 0) {
@@ -2138,31 +2093,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               }
                             }
                           }}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
                         >
                           저장
                         </button>
                         <button
+                          className="btn-cancel-particle"
                           onClick={() => {
                             setEditingDescription(particleInfo.description || '');
                             setIsEditingParticle(false);
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
                           }}
                         >
                           취소
@@ -2170,7 +2108,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                       </div>
                     </div>
                   ) : (
-                    <div>
+                    <div className="description-section">
                       <strong>설명:</strong>
                       {particleInfo.description ? (
                         <p style={{ marginTop: '8px', whiteSpace: 'pre-wrap', minHeight: '60px' }}>{particleInfo.description}</p>
@@ -2178,17 +2116,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         <p style={{ marginTop: '8px', color: '#666', fontStyle: 'italic', minHeight: '60px' }}>설명이 없습니다.</p>
                       )}
                       <button
+                        className="btn-edit"
                         onClick={() => setIsEditingParticle(true)}
-                        style={{
-                          marginTop: '12px',
-                          padding: '8px 16px',
-                          backgroundColor: '#28a745',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}
                       >
                         편집
                       </button>
