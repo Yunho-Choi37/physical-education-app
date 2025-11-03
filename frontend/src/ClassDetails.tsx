@@ -898,6 +898,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       // 이미지가 있으면 이미지를 우선 그리기
       const imageData = existence?.imageData;
       const hasImage = !!imageData && imageData.length > 0;
+      let imageDrawn = false; // 이미지가 성공적으로 그려졌는지 추적
       
       if (hasImage && imageData) {
         // 이미지 데이터가 유효한지 확인 (base64 Data URL 형식 체크)
@@ -960,6 +961,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               ctx.clip();
               ctx.drawImage(cached, node.x - node.size, node.y - node.size, node.size * 2, node.size * 2);
               ctx.restore();
+              imageDrawn = true; // 이미지가 성공적으로 그려짐
+              console.log(`✅ 이미지 그리기 성공 (학생 ${node.id}):`, node.size, 'x', node.size);
             } catch (error) {
               console.error(`❌ 이미지 그리기 실패 (학생 ${node.id}):`, error);
               // 그리기 실패 시 기본 형태로 대체
@@ -976,8 +979,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
       }
       
-      // 패턴 그리기
-      if (existence?.pattern && existence.pattern !== 'solid') {
+      // 패턴 그리기 - 이미지가 있을 때는 패턴을 그리지 않음 (이미지를 덮지 않도록)
+      if (!imageDrawn && existence?.pattern && existence.pattern !== 'solid') {
         drawPattern(ctx, node.x, node.y, node.size, existence.pattern, node.color);
       }
       
@@ -1008,24 +1011,27 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       );
       const hasCustomization = hasProtons || hasNeutrons || hasElectrons;
 
-      // 노드의 외형: 사용자가 이모티콘 모양을 선택했다면, 원자 여부와 관계없이 우선 표시
-      const shape = existence?.shape || 'circle';
-      const isEmojiShape = isEmojiLike(shape);
-      if (isEmojiShape) {
-        ctx.font = `${Math.floor(node.size * 2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(shape, node.x, node.y);
-      } else if (!hasCustomization) {
-        // 원자 모델이 없고 이모티콘 모양이 아니면 기본 원
-        const simpleSize = baseNodeSize; // 모든 번호 원 동일 크기
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, simpleSize, 0, 2 * Math.PI);
-        ctx.fillStyle = node.color;
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
+      // 노드의 외형: 이미지가 없을 때만 이모티콘 모양이나 기본 형태 표시
+      // 이미지가 있으면 이미지가 우선이므로 이모티콘 모양을 그리지 않음
+      if (!imageDrawn) {
+        const shape = existence?.shape || 'circle';
+        const isEmojiShape = isEmojiLike(shape);
+        if (isEmojiShape) {
+          ctx.font = `${Math.floor(node.size * 2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(shape, node.x, node.y);
+        } else if (!hasCustomization) {
+          // 원자 모델이 없고 이모티콘 모양이 아니면 기본 원
+          const simpleSize = baseNodeSize; // 모든 번호 원 동일 크기
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, simpleSize, 0, 2 * Math.PI);
+          ctx.fillStyle = node.color;
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
       }
 
       // 원자 모델 그리기 (실제로 입자가 있을 때만)
