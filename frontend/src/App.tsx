@@ -236,12 +236,12 @@ function App() {
       setClassStudents(students);
     } catch (error) {
       console.error('Error adding student:', error);
-      alert('학생 추가 중 오류가 발생했습니다.');
+      alert('원 추가 중 오류가 발생했습니다.');
     }
   };
 
   const handleDeleteStudent = async (studentId: number) => {
-    if (window.confirm('정말로 이 학생을 삭제하시겠습니까?')) {
+    if (window.confirm('정말로 이 원을 삭제하시겠습니까?')) {
       try {
         await fetch(`${API_URL}/api/students/${studentId}`, {
           method: 'DELETE'
@@ -249,10 +249,34 @@ function App() {
         setClassStudents(classStudents.filter(s => s.id !== studentId));
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert('학생 삭제 중 오류가 발생했습니다.');
+        alert('원 삭제 중 오류가 발생했습니다.');
       }
     }
   };
+
+  // 학생 정보 업데이트 이벤트 리스너 (이름 동기화를 위해)
+  useEffect(() => {
+    const handleStudentUpdated = async () => {
+      // 모달이 열려있을 때만 학생 목록을 다시 불러옴
+      if (showStudentManageModal !== null) {
+        const classId = showStudentManageModal + 1;
+        try {
+          const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+          const students = await response.json();
+          setClassStudents(students);
+        } catch (error) {
+          console.error('Error refreshing students:', error);
+        }
+      }
+    };
+    
+    // 커스텀 이벤트 리스너 추가
+    window.addEventListener('studentUpdated', handleStudentUpdated);
+    
+    return () => {
+      window.removeEventListener('studentUpdated', handleStudentUpdated);
+    };
+  }, [showStudentManageModal]);
 
   useEffect(() => {
     // 겹치지 않는 위치 생성 함수
@@ -337,7 +361,7 @@ function App() {
                 <div className="admin-status">
                   <span className="admin-badge">관리자 모드</span>
                   <Button 
-                    variant="success"
+                    variant="outline-warning"
                     size="sm"
                     onClick={() => setShowAddClassModal(true)}
                     className="admin-add-class-btn"
@@ -587,7 +611,7 @@ function App() {
         </Modal.Footer>
       </Modal>
 
-      {/* 학생 관리 모달 */}
+      {/* 원 이름 관리 모달 */}
       <Modal 
         show={showStudentManageModal !== null} 
         onHide={() => setShowStudentManageModal(null)} 
@@ -596,7 +620,7 @@ function App() {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} 학생 관리
+            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} 원 이름 관리
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -634,7 +658,7 @@ function App() {
               </div>
               
               <div>
-                <strong>현재 학생 목록 ({classStudents.length}명)</strong>
+                <strong>현재 원 목록 ({classStudents.length}개)</strong>
                 <div style={{ 
                   maxHeight: '400px', 
                   overflowY: 'auto',
@@ -645,7 +669,7 @@ function App() {
                 }}>
                   {classStudents.length === 0 ? (
                     <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
-                      학생이 없습니다.
+                      원이 없습니다.
                     </div>
                   ) : (
                     classStudents.map((student) => (
@@ -742,6 +766,19 @@ function App() {
         }
         .admin-logout-btn:hover {
           background: #dc3545;
+          color: white;
+          transform: translateY(-1px);
+        }
+        .admin-add-class-btn {
+          border: 1px solid #ffc107;
+          color: #ffc107;
+          padding: 6px 12px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          transition: all 0.3s ease;
+        }
+        .admin-add-class-btn:hover {
+          background: #ffc107;
           color: white;
           transform: translateY(-1px);
         }

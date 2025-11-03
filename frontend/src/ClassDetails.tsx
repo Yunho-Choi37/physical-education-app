@@ -1889,6 +1889,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       
       setStudents(students.map(student => student.id === savedStudent.id ? savedStudent : student));
       
+      // 학생 정보 업데이트 이벤트 발생 (홈 화면 모달 동기화를 위해)
+      window.dispatchEvent(new CustomEvent('studentUpdated', {
+        detail: { student: savedStudent }
+      }));
+      
       // 모달 상태에 따라 적절한 모달 닫기
       if (showDetailsModal) {
         handleCloseDetailsModal();
