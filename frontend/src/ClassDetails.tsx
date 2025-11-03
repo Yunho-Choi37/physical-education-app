@@ -1077,12 +1077,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       );
       const hasCustomization = hasProtons || hasNeutrons || hasElectrons;
 
+      // 이모티콘 모양 여부 확인 (블록 밖에서 선언하여 이후에도 사용 가능)
+      const shape = existence?.shape || 'circle';
+      const isEmojiShape = isEmojiLike(shape);
+
       // 노드의 외형: 이미지가 없을 때만 이모티콘 모양이나 기본 형태 표시
       // 이미지가 있으면 이미지가 우선이므로 이모티콘 모양을 그리지 않음
       // 주의: 이미지가 그려진 경우에는 이미 배경이 채워져 있으므로 추가로 그리지 않음
       if (!imageDrawn) {
-        const shape = existence?.shape || 'circle';
-        const isEmojiShape = isEmojiLike(shape);
         if (isEmojiShape) {
           ctx.font = `${Math.floor(node.size * 2)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
           ctx.textAlign = 'center';
