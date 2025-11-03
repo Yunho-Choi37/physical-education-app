@@ -93,10 +93,15 @@ const getClasses = async () => {
   checkFirestoreConnection();
   const doc = await db.collection('settings').doc('classes').get();
   if (!doc.exists) {
-    // 기본값 반환
-    return ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+    // 기본값 반환 (처음 생성된 원의 이름은 "."로 표시)
+    return ['.', '.', '.', '.', '.', '.', '.'];
   }
-  return doc.data().classNames || ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+  const classNames = doc.data().classNames || ['.', '.', '.', '.', '.', '.', '.'];
+  // 기본 이름(1반, 2반 등)이 있으면 "."로 변환
+  return classNames.map((name, index) => {
+    const defaultName = `${index + 1}반`;
+    return name === defaultName ? '.' : name;
+  });
 };
 
 const saveClasses = async (classNames) => {

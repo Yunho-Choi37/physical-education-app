@@ -6,7 +6,7 @@ import ClassDetails from './ClassDetails';
 import { API_URL } from './config';
 
 function App() {
-  const [classes, setClasses] = useState<string[]>(['1반', '2반', '3반', '4반', '5반', '6반', '7반']);
+  const [classes, setClasses] = useState<string[]>(['.', '.', '.', '.', '.', '.', '.']);
   const [classesLoaded, setClassesLoaded] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [positionsInitialized, setPositionsInitialized] = useState(false);
@@ -52,17 +52,26 @@ function App() {
         const response = await fetch(`${API_URL}/api/classes`);
         if (response.ok) {
           const classNames = await response.json();
-          setClasses(classNames);
+          // 기본 이름(1반, 2반 등)이 있으면 "."로 변환
+          const processedClassNames = classNames.map((name: string, index: number) => {
+            const defaultName = `${index + 1}반`;
+            return name === defaultName ? '.' : name;
+          });
+          setClasses(processedClassNames);
           setClassesLoaded(true);
           // localStorage에도 백업 저장
-          localStorage.setItem('classNames', JSON.stringify(classNames));
+          localStorage.setItem('classNames', JSON.stringify(processedClassNames));
         } else {
           console.error('Failed to fetch classes:', response.status);
           // API 실패 시 localStorage에서 불러오기 (백업)
           const saved = localStorage.getItem('classNames');
           if (saved) {
             const classNames = JSON.parse(saved);
-            setClasses(classNames);
+            const processedClassNames = classNames.map((name: string, index: number) => {
+              const defaultName = `${index + 1}반`;
+              return name === defaultName ? '.' : name;
+            });
+            setClasses(processedClassNames);
           }
           setClassesLoaded(true);
         }
@@ -72,7 +81,11 @@ function App() {
         const saved = localStorage.getItem('classNames');
         if (saved) {
           const classNames = JSON.parse(saved);
-          setClasses(classNames);
+          const processedClassNames = classNames.map((name: string, index: number) => {
+            const defaultName = `${index + 1}반`;
+            return name === defaultName ? '.' : name;
+          });
+          setClasses(processedClassNames);
         }
         setClassesLoaded(true);
       }
@@ -91,7 +104,16 @@ function App() {
   const handleSaveClassName = async (index: number) => {
     if (editingClassName.trim()) {
       const newClasses = [...classes];
-      newClasses[index] = editingClassName.trim();
+      const savedName = editingClassName.trim();
+      // "."인 경우 기본 이름으로 저장
+      const nameToSave = savedName === '.' ? `${index + 1}반` : savedName;
+      
+      // API에 저장할 때는 원본 이름 저장
+      const allClassNames = await fetch(`${API_URL}/api/classes`).then(r => r.json()).catch(() => classes.map((name, i) => name === '.' ? `${i + 1}반` : name));
+      allClassNames[index] = nameToSave;
+      
+      // 화면에 표시할 때는 "." 처리
+      newClasses[index] = nameToSave === `${index + 1}반` ? '.' : savedName;
       setClasses(newClasses);
       
       // API에 저장
@@ -101,15 +123,15 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ classNames: newClasses }),
+          body: JSON.stringify({ classNames: allClassNames }),
         });
         
-        // localStorage에도 백업 저장
-        localStorage.setItem('classNames', JSON.stringify(newClasses));
+        // localStorage에도 백업 저장 (원본 저장)
+        localStorage.setItem('classNames', JSON.stringify(allClassNames));
         
         // 커스텀 이벤트 발생 (같은 탭에서도 동기화되도록)
         window.dispatchEvent(new CustomEvent('classNamesUpdated', {
-          detail: { classNames: newClasses }
+          detail: { classNames: allClassNames }
         }));
       } catch (error) {
         console.error('Error saving class name:', error);
@@ -227,7 +249,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name: `학생 ${classStudents.length + i + 1}`, classId }),
+          body: JSON.stringify({ name: '원', classId }),
         });
         const newStudent = await response.json();
         students.push(newStudent);

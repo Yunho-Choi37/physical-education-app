@@ -121,7 +121,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const sessionSeedRef = useRef<number>(Math.floor(Math.random() * 1_000_000_000));
   
   // API에서 클래스 이름 가져오기
-  const [className, setClassName] = useState<string>(`${classId}반`);
+  const [className, setClassName] = useState<string>('');
+  const [classNameLoaded, setClassNameLoaded] = useState(false);
   
   useEffect(() => {
     const updateClassName = async () => {
@@ -131,10 +132,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           const classNames = await response.json();
           const classIndex = parseInt(classId || '1', 10) - 1;
           if (classNames[classIndex]) {
-            setClassName(classNames[classIndex]);
+            // 수정되지 않은 기본 이름이면 "."로 표시
+            const defaultName = `${classIndex + 1}반`;
+            const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
+            setClassName(displayName);
           } else {
-            setClassName(`${classId}반`);
+            setClassName('.');
           }
+          setClassNameLoaded(true);
         } else {
           // API 실패 시 localStorage에서 가져오기 (백업)
           const saved = localStorage.getItem('classNames');
@@ -142,13 +147,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             const classNames = JSON.parse(saved);
             const classIndex = parseInt(classId || '1', 10) - 1;
             if (classNames[classIndex]) {
-              setClassName(classNames[classIndex]);
+              const defaultName = `${classIndex + 1}반`;
+              const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
+              setClassName(displayName);
             } else {
-              setClassName(`${classId}반`);
+              setClassName('.');
             }
           } else {
-            setClassName(`${classId}반`);
+            setClassName('.');
           }
+          setClassNameLoaded(true);
         }
       } catch (error) {
         console.error('Error fetching class name:', error);
@@ -158,17 +166,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           const classNames = JSON.parse(saved);
           const classIndex = parseInt(classId || '1', 10) - 1;
           if (classNames[classIndex]) {
-            setClassName(classNames[classIndex]);
+            const defaultName = `${classIndex + 1}반`;
+            const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
+            setClassName(displayName);
           } else {
-            setClassName(`${classId}반`);
+            setClassName('.');
           }
         } else {
-          setClassName(`${classId}반`);
+          setClassName('.');
         }
+        setClassNameLoaded(true);
       }
     };
     
-    // 초기 로드
+    // 즉시 로드 (지연 없이)
     updateClassName();
     
     // 커스텀 이벤트 감지 (같은 탭에서 수정 시 즉시 반영)
@@ -1914,7 +1925,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name: `학생 ${students.length + i + 1}`, classId: parseInt(classId!) }),
+          body: JSON.stringify({ name: '원', classId: parseInt(classId!) }),
         });
         const newStudent = await response.json();
         newStudents.push(newStudent);
@@ -2020,7 +2031,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </button>
         )}
       </div>
-      <h2 className="class-title">{className}</h2>
+      <h2 className="class-title">{classNameLoaded ? className : ''}</h2>
       
       <div className="graph-container" ref={containerRef}>
         <canvas
