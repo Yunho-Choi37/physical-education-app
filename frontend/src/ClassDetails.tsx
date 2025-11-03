@@ -2073,15 +2073,28 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               const student = students.find(s => s.id === particleInfo.studentId);
                               if (student && student.existence?.atom) {
                                 const updatedStudent = { ...student };
-                                if (!updatedStudent.existence) updatedStudent.existence = {} as any;
-                                if (!updatedStudent.existence.atom) updatedStudent.existence.atom = {} as any;
+                                if (!updatedStudent.existence) {
+                                  updatedStudent.existence = {} as any;
+                                }
+                                if (!updatedStudent.existence.atom) {
+                                  updatedStudent.existence.atom = {} as any;
+                                }
                                 
-                                if (particleInfo.type === 'proton' && updatedStudent.existence.atom.protons) {
+                                // TypeScript 타입 가드
+                                if (!updatedStudent.existence || !updatedStudent.existence.atom) {
+                                  console.error('입자 데이터 구조 오류');
+                                  return;
+                                }
+                                
+                                if (particleInfo.type === 'proton' && updatedStudent.existence.atom.protons && Array.isArray(updatedStudent.existence.atom.protons)) {
                                   updatedStudent.existence.atom.protons[particleInfo.particleIndex].description = editingDescription;
-                                } else if (particleInfo.type === 'neutron' && updatedStudent.existence.atom.neutrons) {
+                                } else if (particleInfo.type === 'neutron' && updatedStudent.existence.atom.neutrons && Array.isArray(updatedStudent.existence.atom.neutrons)) {
                                   updatedStudent.existence.atom.neutrons[particleInfo.particleIndex].description = editingDescription;
                                 } else if (particleInfo.type === 'electron' && particleInfo.shellType && updatedStudent.existence.atom.electrons) {
-                                  (updatedStudent.existence.atom.electrons as any)[particleInfo.shellType][particleInfo.particleIndex].description = editingDescription;
+                                  const electrons = (updatedStudent.existence.atom.electrons as any)[particleInfo.shellType];
+                                  if (Array.isArray(electrons)) {
+                                    electrons[particleInfo.particleIndex].description = editingDescription;
+                                  }
                                 }
                                 
                                 await handleSaveStudent(updatedStudent);
