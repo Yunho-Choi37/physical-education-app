@@ -3,11 +3,26 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
+import StudentCustomizeModal from './StudentCustomizeModal';
 import { API_URL } from './config';
+
+interface ClassExistence {
+  color: string;
+  shape: string;
+  pattern: string;
+  size: number;
+  glow: boolean;
+  border: string;
+  customName?: string;
+  imageData?: string;
+}
 
 function App() {
   const [classes, setClasses] = useState<string[]>(['.', '.', '.', '.', '.', '.', '.']);
   const [classesLoaded, setClassesLoaded] = useState(false);
+  const [classExistence, setClassExistence] = useState<Record<number, ClassExistence>>({});
+  const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(null);
+  const [showClassCustomizeModal, setShowClassCustomizeModal] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [positionsInitialized, setPositionsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(() => {
@@ -51,13 +66,14 @@ function App() {
       try {
         const response = await fetch(`${API_URL}/api/classes`);
         if (response.ok) {
-          const classNames = await response.json();
+          const classesData = await response.json();
           // 기본 이름(1반, 2반 등)이 있으면 "."로 변환
-          const processedClassNames = classNames.map((name: string, index: number) => {
+          const processedClassNames = classesData.classNames.map((name: string, index: number) => {
             const defaultName = `${index + 1}반`;
             return name === defaultName ? '.' : name;
           });
           setClasses(processedClassNames);
+          setClassExistence(classesData.classExistence || {});
           setClassesLoaded(true);
           // localStorage에도 백업 저장
           localStorage.setItem('classNames', JSON.stringify(processedClassNames));
@@ -442,15 +458,91 @@ function App() {
                   </div>
                 ) : (
                   <div style={{ position: 'relative' }}>
-                    <Link 
-                      to={`/class/${index + 1}`} 
-                      style={{ 
-                        textDecoration: 'none',
-                        display: 'block'
-                      }}
-                    >
-                      <div className="floating-class-button"></div>
-                    </Link>
+                    {isAdmin ? (
+                      <div
+                        style={{ 
+                          cursor: 'pointer',
+                          display: 'block'
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedClassIndex(index);
+                          setShowClassCustomizeModal(true);
+                        }}
+                      >
+                        <div 
+                          className="floating-class-button"
+                          style={{
+                            background: classExistence[index + 1]?.imageData 
+                              ? `url(${classExistence[index + 1].imageData}) center/cover`
+                              : classExistence[index + 1]?.color 
+                              ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
+                              : undefined
+                          }}
+                        >
+                          {classExistence[index + 1]?.imageData ? null : (
+                            classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
+                              <span style={{ fontSize: '40px' }}>
+                                {classExistence[index + 1].shape === 'square' && '⬜'}
+                                {classExistence[index + 1].shape === 'triangle' && '🔺'}
+                                {classExistence[index + 1].shape === 'star' && '⭐'}
+                                {classExistence[index + 1].shape === 'heart' && '❤️'}
+                                {classExistence[index + 1].shape === 'smile' && '😊'}
+                                {classExistence[index + 1].shape === 'fire' && '🔥'}
+                                {classExistence[index + 1].shape === 'sun' && '☀️'}
+                                {classExistence[index + 1].shape === 'moon' && '🌙'}
+                                {classExistence[index + 1].shape === 'rainbow' && '🌈'}
+                                {classExistence[index + 1].shape === 'flower' && '🌸'}
+                                {classExistence[index + 1].shape === 'butterfly' && '🦋'}
+                                {classExistence[index + 1].shape === 'cat' && '🐱'}
+                                {classExistence[index + 1].shape === 'dog' && '🐶'}
+                                {classExistence[index + 1].shape === 'panda' && '🐼'}
+                              </span>
+                            ) : null
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <Link 
+                        to={`/class/${index + 1}`} 
+                        style={{ 
+                          textDecoration: 'none',
+                          display: 'block'
+                        }}
+                      >
+                        <div 
+                          className="floating-class-button"
+                          style={{
+                            background: classExistence[index + 1]?.imageData 
+                              ? `url(${classExistence[index + 1].imageData}) center/cover`
+                              : classExistence[index + 1]?.color 
+                              ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
+                              : undefined
+                          }}
+                        >
+                          {classExistence[index + 1]?.imageData ? null : (
+                            classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
+                              <span style={{ fontSize: '40px' }}>
+                                {classExistence[index + 1].shape === 'square' && '⬜'}
+                                {classExistence[index + 1].shape === 'triangle' && '🔺'}
+                                {classExistence[index + 1].shape === 'star' && '⭐'}
+                                {classExistence[index + 1].shape === 'heart' && '❤️'}
+                                {classExistence[index + 1].shape === 'smile' && '😊'}
+                                {classExistence[index + 1].shape === 'fire' && '🔥'}
+                                {classExistence[index + 1].shape === 'sun' && '☀️'}
+                                {classExistence[index + 1].shape === 'moon' && '🌙'}
+                                {classExistence[index + 1].shape === 'rainbow' && '🌈'}
+                                {classExistence[index + 1].shape === 'flower' && '🌸'}
+                                {classExistence[index + 1].shape === 'butterfly' && '🦋'}
+                                {classExistence[index + 1].shape === 'cat' && '🐱'}
+                                {classExistence[index + 1].shape === 'dog' && '🐶'}
+                                {classExistence[index + 1].shape === 'panda' && '🐼'}
+                              </span>
+                            ) : null
+                          )}
+                        </div>
+                      </Link>
+                    )}
                     {isAdmin && (
                       <div style={{ 
                         position: 'absolute',
@@ -728,6 +820,83 @@ function App() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* 클래스 편집 모달 */}
+      {selectedClassIndex !== null && (
+        <StudentCustomizeModal
+          student={{
+            id: selectedClassIndex + 1,
+            name: classes[selectedClassIndex],
+            classId: selectedClassIndex + 1,
+            existence: classExistence[selectedClassIndex + 1] ? {
+              color: classExistence[selectedClassIndex + 1].color,
+              shape: classExistence[selectedClassIndex + 1].shape,
+              pattern: classExistence[selectedClassIndex + 1].pattern,
+              size: classExistence[selectedClassIndex + 1].size,
+              glow: classExistence[selectedClassIndex + 1].glow,
+              border: classExistence[selectedClassIndex + 1].border,
+              activity: '',
+              activities: [],
+              energy: 60,
+              personality: 'active',
+              customName: classExistence[selectedClassIndex + 1].customName,
+              imageData: classExistence[selectedClassIndex + 1].imageData,
+              records: [],
+              showElectrons: false,
+              showProtonsNeutrons: false,
+              atom: {
+                protons: [],
+                neutrons: [],
+                electrons: {
+                  kShell: [],
+                  lShell: [],
+                  mShell: [],
+                  valence: []
+                }
+              }
+            } : undefined
+          }}
+          show={showClassCustomizeModal}
+          onHide={() => {
+            setShowClassCustomizeModal(false);
+            setSelectedClassIndex(null);
+          }}
+          onSave={async (updatedStudent) => {
+            const classId = selectedClassIndex + 1;
+            const existence: ClassExistence = {
+              color: updatedStudent.existence?.color || '#667eea',
+              shape: updatedStudent.existence?.shape || 'circle',
+              pattern: updatedStudent.existence?.pattern || 'solid',
+              size: updatedStudent.existence?.size || 1.0,
+              glow: updatedStudent.existence?.glow || false,
+              border: updatedStudent.existence?.border || 'normal',
+              customName: updatedStudent.existence?.customName,
+              imageData: updatedStudent.existence?.imageData
+            };
+            
+            try {
+              await fetch(`${API_URL}/api/classes/${classId}/existence`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ existence }),
+              });
+              
+              setClassExistence({
+                ...classExistence,
+                [classId]: existence
+              });
+              
+              setShowClassCustomizeModal(false);
+              setSelectedClassIndex(null);
+            } catch (error) {
+              console.error('Error saving class existence:', error);
+              alert('클래스 편집 저장 중 오류가 발생했습니다.');
+            }
+          }}
+        />
+      )}
 
       <style>{`
         .App {

@@ -94,19 +94,32 @@ const getClasses = async () => {
   const doc = await db.collection('settings').doc('classes').get();
   if (!doc.exists) {
     // 기본값 반환 (처음 생성된 원의 이름은 "."로 표시)
-    return ['.', '.', '.', '.', '.', '.', '.'];
+    return {
+      classNames: ['.', '.', '.', '.', '.', '.', '.'],
+      classExistence: {}
+    };
   }
-  const classNames = doc.data().classNames || ['.', '.', '.', '.', '.', '.', '.'];
+  const data = doc.data();
+  const classNames = data.classNames || ['.', '.', '.', '.', '.', '.', '.'];
   // 기본 이름(1반, 2반 등)이 있으면 "."로 변환
-  return classNames.map((name, index) => {
+  const processedNames = classNames.map((name, index) => {
     const defaultName = `${index + 1}반`;
     return name === defaultName ? '.' : name;
   });
+  return {
+    classNames: processedNames,
+    classExistence: data.classExistence || {}
+  };
 };
 
-const saveClasses = async (classNames) => {
+const saveClasses = async (classNames, classExistence = null) => {
   checkFirestoreConnection();
-  await db.collection('settings').doc('classes').set({ classNames });
+  const doc = await db.collection('settings').doc('classes').get();
+  const currentData = doc.exists ? doc.data() : {};
+  await db.collection('settings').doc('classes').set({
+    classNames,
+    classExistence: classExistence !== null ? classExistence : (currentData.classExistence || {})
+  });
 };
 
 // 기본 라우트
@@ -293,11 +306,11 @@ app.get('/api/classes', async (req, res) => {
 // API: 클래스 목록 저장
 app.put('/api/classes', async (req, res) => {
   try {
-    const { classNames } = req.body;
+    const { classNames, classExistence } = req.body;
     if (!Array.isArray(classNames)) {
       return res.status(400).json({ error: 'classNames는 배열이어야 합니다.' });
     }
-    await saveClasses(classNames);
+    await saveClasses(classNames, classExistence);
     res.json({ success: true, classNames });
   } catch (error) {
     console.error('Error saving classes:', error);
