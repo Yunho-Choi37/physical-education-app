@@ -1696,43 +1696,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       if (coords) {
         const { x, y } = coords;
         
-        // 먼저 입자 클릭 확인
-        const clickedParticle = particlePositionsRef.current.find(particle => {
-          const distance = Math.sqrt((x - particle.x) ** 2 + (y - particle.y) ** 2);
-          return distance <= particle.radius;
-        });
-        
-        if (clickedParticle) {
-          // 입자 설명 모달 표시 - 이미 저장된 인덱스와 shellType 사용
-          const particleIndex = clickedParticle.particleIndex ?? -1;
-          const shellType = clickedParticle.shellType || '';
-          
-          console.log('🔵 입자 클릭 감지 (터치):', {
-            type: clickedParticle.type,
-            studentId: clickedParticle.studentId,
-            particleIndex,
-            shellType,
-            hasImage: !!clickedParticle.data.imageData,
-            hasEmoji: !!clickedParticle.data.emoji
-          });
-          
-          setTimeout(() => {
-            setParticleInfo({
-              type: clickedParticle.type,
-              keyword: clickedParticle.data.keyword || clickedParticle.data.activity,
-              description: clickedParticle.data.description || '',
-              emoji: clickedParticle.data.emoji,
-              imageData: clickedParticle.data.imageData,
-              studentId: clickedParticle.studentId,
-              particleIndex,
-              shellType
-            });
-            setEditingDescription(clickedParticle.data.description || '');
-            setIsEditingParticle(false);
-          }, 100);
-          return;
-        }
-        
         // 학생 클릭 확인
         const nodeSize = 50; // 고정 크기
         const clickedStudent = students.find((student) => {
@@ -1804,41 +1767,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     if (!coords) return;
     
     const { x, y } = coords;
-    
-    // 먼저 입자 클릭 확인
-    const clickedParticle = particlePositionsRef.current.find(particle => {
-      const distance = Math.sqrt((x - particle.x) ** 2 + (y - particle.y) ** 2);
-      return distance <= particle.radius;
-    });
-    
-    if (clickedParticle) {
-      // 입자 설명 모달 표시 - 이미 저장된 인덱스와 shellType 사용
-      const particleIndex = clickedParticle.particleIndex ?? -1;
-      const shellType = clickedParticle.shellType || '';
-      
-      console.log('🔵 입자 클릭 감지:', {
-        type: clickedParticle.type,
-        studentId: clickedParticle.studentId,
-        particleIndex,
-        shellType,
-        hasImage: !!clickedParticle.data.imageData,
-        hasEmoji: !!clickedParticle.data.emoji
-      });
-      
-      setParticleInfo({
-        type: clickedParticle.type,
-        keyword: clickedParticle.data.keyword || clickedParticle.data.activity,
-        description: clickedParticle.data.description || '',
-        emoji: clickedParticle.data.emoji,
-        imageData: clickedParticle.data.imageData,
-        studentId: clickedParticle.studentId,
-        particleIndex,
-        shellType
-      });
-      setEditingDescription(clickedParticle.data.description || '');
-      setIsEditingParticle(false);
-      return;
-    }
     
     // 학생 클릭 확인
     const nodeSize = 50; // 고정 크기
