@@ -2292,8 +2292,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         <div className="particle-list-modal-overlay" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>
           <div className="particle-list-modal" onClick={(e) => e.stopPropagation()}>
             <div className="particle-list-header">
-              <h3>{selectedStudentForParticles.name}</h3>
-              <button className="close-btn" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>×</button>
+              <h3>{selectedStudentForParticles.existence?.customName || selectedStudentForParticles.name}</h3>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button className="btn-edit" onClick={() => {
+                  setShowParticleListModal(false);
+                  handleEditStudent(selectedStudentForParticles);
+                }}>
+                  Edit
+                </button>
+                <button className="close-btn" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>×</button>
+              </div>
             </div>
             <div className="particle-list-body">
               {selectedStudentForParticles.existence?.atom && (
@@ -2309,7 +2317,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         )}
                       </div>
                       <div className="particle-list-content">
-                        <h4>{proton.keyword || 'Proton'}</h4>
+                        <h4>{proton.name || proton.keyword || 'Circle'}</h4>
                         <p>{proton.description || 'No description'}</p>
                       </div>
                     </div>
@@ -2325,7 +2333,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         )}
                       </div>
                       <div className="particle-list-content">
-                        <h4>{neutron.keyword || 'Neutron'}</h4>
+                        <h4>{neutron.name || neutron.keyword || 'Circle'}</h4>
                         <p>{neutron.description || 'No description'}</p>
                       </div>
                     </div>
@@ -2343,7 +2351,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             )}
                           </div>
                           <div className="particle-list-content">
-                            <h4>{electron.activity || 'Electron'}</h4>
+                            <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
                           </div>
                         </div>
@@ -2358,7 +2366,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             )}
                           </div>
                           <div className="particle-list-content">
-                            <h4>{electron.activity || 'Electron'}</h4>
+                            <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
                           </div>
                         </div>
@@ -2373,7 +2381,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             )}
                           </div>
                           <div className="particle-list-content">
-                            <h4>{electron.activity || 'Electron'}</h4>
+                            <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
                           </div>
                         </div>
@@ -2388,21 +2396,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             )}
                           </div>
                           <div className="particle-list-content">
-                            <h4>{electron.activity || 'Electron'}</h4>
+                            <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
                           </div>
                         </div>
                       ))}
                     </>
                   )}
-                  <div className="particle-list-actions">
-                    <button className="btn-edit" onClick={() => {
-                      setShowParticleListModal(false);
-                      handleEditStudent(selectedStudentForParticles);
-                    }}>
-                      Edit
-                    </button>
-                  </div>
                 </>
               )}
             </div>
