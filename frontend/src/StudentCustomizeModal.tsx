@@ -836,31 +836,8 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           newProtons[index].name = e.target.value;
                           setAtomModel({...atomModel, protons: newProtons});
                         }}
-                        style={{ marginRight: '8px' }}
-                      />
-                      <Form.Control
-                        type="text"
-                        placeholder="Keyword"
-                        value={proton.keyword}
-                        onChange={(e) => {
-                          const newProtons = [...atomModel.protons];
-                          newProtons[index].keyword = e.target.value;
-                          setAtomModel({...atomModel, protons: newProtons});
-                        }}
                       />
                     </div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={proton.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newProtons = [...atomModel.protons];
-                          newProtons[index].emoji = emoji;
-                          setAtomModel({...atomModel, protons: newProtons});
-                        }}
-                        type="proton"
-                      />
-                    </Form.Group>
                     <Form.Group>
                       <Form.Label>Color</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
@@ -962,11 +939,11 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
-                    <Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Description</Form.Label>
                       <Form.Control
                         as="textarea"
-                        rows={3}
+                        rows={6}
                         placeholder="설명을 입력하세요..."
                         value={proton.description || ''}
                         onChange={(e) => {
@@ -974,6 +951,18 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           newProtons[index].description = e.target.value;
                           setAtomModel({...atomModel, protons: newProtons});
                         }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={proton.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newProtons = [...atomModel.protons];
+                          newProtons[index].emoji = emoji;
+                          setAtomModel({...atomModel, protons: newProtons});
+                        }}
+                        type="proton"
                       />
                     </Form.Group>
                     <Button 
@@ -1022,27 +1011,15 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Keyword"
-                        value={neutron.keyword}
+                        placeholder="Name"
+                        value={neutron.name || ''}
                         onChange={(e) => {
                           const newNeutrons = [...atomModel.neutrons];
-                          newNeutrons[index].keyword = e.target.value;
+                          newNeutrons[index].name = e.target.value;
                           setAtomModel({...atomModel, neutrons: newNeutrons});
                         }}
                       />
                     </div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={neutron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newNeutrons = [...atomModel.neutrons];
-                          newNeutrons[index].emoji = emoji;
-                          setAtomModel({...atomModel, neutrons: newNeutrons});
-                        }}
-                        type="neutron"
-                      />
-                    </Form.Group>
                     <Form.Group>
                       <Form.Label>Color</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
@@ -1144,11 +1121,11 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
-                    <Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Description</Form.Label>
                       <Form.Control
                         as="textarea"
-                        rows={3}
+                        rows={6}
                         placeholder="설명을 입력하세요..."
                         value={neutron.description || ''}
                         onChange={(e) => {
@@ -1156,6 +1133,18 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           newNeutrons[index].description = e.target.value;
                           setAtomModel({...atomModel, neutrons: newNeutrons});
                         }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={neutron.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newNeutrons = [...atomModel.neutrons];
+                          newNeutrons[index].emoji = emoji;
+                          setAtomModel({...atomModel, neutrons: newNeutrons});
+                        }}
+                        type="neutron"
                       />
                     </Form.Group>
                     <Button 
