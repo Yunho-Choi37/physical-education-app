@@ -499,7 +499,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 원 모양 선택 - 패널 전환: shape */}
         {activePanel === 'shape' && (
         <Card className="mb-3">
-          <Card.Header>원 모양 선택</Card.Header>
+          <Card.Header>Shape Selection</Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
               <Form.Label>색상</Form.Label>
@@ -527,19 +527,19 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         if (disabled) return;
                         setCustomization(prev => ({ ...prev, color }));
                       }}
-                      title={disabled ? '이모티콘 모양에서는 색상이 적용되지 않습니다.' : ''}
+                      title={disabled ? 'Color is not applied to emoji shapes.' : ''}
                     />
                   );
                 })}
               </div>
               {isEmojiLike(customization.shape) && (
-                <div className="mt-1 small text-muted">이모티콘 모양에서는 색상이 적용되지 않습니다.</div>
+                <div className="mt-1 small text-muted">Color is not applied to emoji shapes.</div>
               )}
             </Form.Group>
 
             {/* 이미지 업로드 */}
             <Form.Group className="mb-3">
-              <Form.Label>사진 업로드 (원 모양으로 사용)</Form.Label>
+              <Form.Label>Upload Photo (Use as Circle Shape)</Form.Label>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <input
                   key={`image-upload-${student?.id || 'new'}`}
@@ -556,7 +556,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     
                     // 파일 크기 제한 (10MB)
                     if (file.size > 10 * 1024 * 1024) {
-                      alert('이미지 크기는 10MB 이하여야 합니다.');
+                      alert('Image size must be 10MB or less.');
                       return;
                     }
                     
@@ -591,7 +591,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           
                           if (!ctx) {
                             console.error('❌ Canvas 컨텍스트를 생성할 수 없습니다.');
-                            alert('이미지 처리 중 오류가 발생했습니다.');
+                            alert('Error occurred while processing image.');
                             return;
                           }
                           
@@ -615,7 +615,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           // 유효성 검사: data:image/ 접두사 확인
                           if (!compressedDataUrl.startsWith('data:image/')) {
                             console.error('❌ 압축된 이미지 데이터 형식이 올바르지 않습니다.');
-                            alert('이미지 처리 중 오류가 발생했습니다.');
+                            alert('Error occurred while processing image.');
                             return;
                           }
                           
@@ -624,21 +624,21 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             console.log('📸 customization 상태 업데이트:', updated.imageData ? `있음 (${(updated.imageData.length / 1024).toFixed(2)}KB)` : '없음');
                             return updated;
                           });
-                          alert('이미지가 업로드되었습니다. 저장 버튼을 눌러주세요.');
+                          alert('Image uploaded. Please click Save button.');
                         };
                         img.onerror = () => {
                           console.error('❌ 이미지 로드 실패');
-                          alert('이미지를 불러올 수 없습니다. 다른 이미지를 선택해주세요.');
+                          alert('Cannot load image. Please select a different image.');
                         };
                         img.src = dataUrl;
                       } else {
                         console.error('❌ 이미지 업로드 실패: Data URL을 생성할 수 없습니다.');
-                        alert('이미지를 읽을 수 없습니다.');
+                        alert('Cannot read image.');
                       }
                     };
                     reader.onerror = (error) => {
                       console.error('❌ 이미지 업로드 에러:', error);
-                      alert('파일을 읽는 중 오류가 발생했습니다.');
+                      alert('Error occurred while reading file.');
                     };
                     reader.readAsDataURL(file);
                   }}
@@ -661,26 +661,26 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       size="sm"
                       onClick={() => setCustomization(prev => ({ ...prev, imageData: '' }))}
                     >
-                      제거
+                      Remove
                     </Button>
                   </>
                 )}
               </div>
-              <Form.Text className="text-muted">업로드한 사진이 있으면 이모티콘/도형보다 우선 적용됩니다.</Form.Text>
+              <Form.Text className="text-muted">Uploaded photos take priority over emoji/shape.</Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>모양 이모티콘</Form.Label>
+              <Form.Label>Shape Emoji</Form.Label>
               <EmojiSelector
                 selectedEmoji={customization.shape}
                 onEmojiSelect={(emoji) => setCustomization(prev => ({ ...prev, shape: emoji }))}
                 type="proton"
               />
-              <div className="mt-1 small text-muted">선택한 이모티콘이 원의 모양으로 사용됩니다.</div>
+              <div className="mt-1 small text-muted">Selected emoji will be used as the circle shape.</div>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>패턴</Form.Label>
+              <Form.Label>Pattern</Form.Label>
               <Form.Select
                 value={customization.pattern}
                 onChange={(e) => setCustomization(prev => ({ ...prev, pattern: e.target.value }))}
@@ -695,7 +695,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
             <Form.Group className="mb-3">
               <Form.Label>
-                <strong>크기: {customization.size.toFixed(1)}</strong>
+                <strong>Size: {customization.size.toFixed(1)}</strong>
               </Form.Label>
               <Form.Range
                 min="0.5"
@@ -713,12 +713,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                 }}
               />
               <Form.Text className="text-muted">
-                0.5 (작음) ~ 3.0 (큼)
+                0.5 (Small) ~ 3.0 (Large)
               </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>테두리</Form.Label>
+              <Form.Label>Border</Form.Label>
               <Form.Select
                 value={customization.border}
                 onChange={(e) => setCustomization(prev => ({ ...prev, border: e.target.value }))}
@@ -734,7 +734,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="빛나는 효과"
+                label="Glow Effect"
                 checked={customization.glow}
                 onChange={(e) => setCustomization(prev => ({ ...prev, glow: e.target.checked }))}
               />
@@ -746,13 +746,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
           <>
             {/* 사용자 정의 이름 입력 (모양 편집에서만 표시) */}
             <Card className="mb-3">
-              <Card.Header>원의 이름 설정</Card.Header>
+              <Card.Header>Circle Name Settings</Card.Header>
               <Card.Body>
                 <Form.Group>
-                  <Form.Label>원 안에 표시될 이름</Form.Label>
+                  <Form.Label>Name to display inside circle</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="이름을 입력하세요 (예: 김철수, 별명 등)"
+                    placeholder="Enter name (e.g., John, nickname, etc.)"
                     value={customization.customName}
                     onChange={(e) => setCustomization(prev => ({ ...prev, customName: e.target.value }))}
                     maxLength={10}
@@ -794,24 +794,24 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 원자 모델 편집 - 패널 전환: nucleus */}
         {activePanel === 'nucleus' && (
         <Card className="mb-3">
-          <Card.Header>⚛️ 원 편집</Card.Header>
+          <Card.Header>⚛️ Circle Edit</Card.Header>
           <Card.Body>
             {/* 양성자/중성자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="원 표시하기"
+                label="Show Circles"
                 checked={showProtonsNeutrons}
                 onChange={(e) => setShowProtonsNeutrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                체크하면 편집한 원들이 화면에 표시됩니다.
+                Check to display edited circles on screen.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={6}>
-                <h6>🔴 원</h6>
+                <h6>🔴 Circle</h6>
                 {atomModel.protons.map((proton, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -829,7 +829,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="키워드"
+                        placeholder="Keyword"
                         value={proton.keyword}
                         onChange={(e) => {
                           const newProtons = [...atomModel.protons];
@@ -839,7 +839,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={proton.emoji}
                         onEmojiSelect={(emoji) => {
@@ -881,7 +881,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -891,7 +891,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -958,14 +958,14 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 setAtomModel({...atomModel, protons: newProtons});
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
                       </div>
                     </Form.Group>
                     <Form.Group>
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={3}
@@ -990,12 +990,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
               
               <Col md={6}>
-                <h6>🔵 원</h6>
+                <h6>🔵 Circle</h6>
                 {atomModel.neutrons.map((neutron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1013,7 +1013,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="키워드"
+                        placeholder="Keyword"
                         value={neutron.keyword}
                         onChange={(e) => {
                           const newNeutrons = [...atomModel.neutrons];
@@ -1023,7 +1023,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={neutron.emoji}
                         onEmojiSelect={(emoji) => {
@@ -1066,7 +1066,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1076,7 +1076,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -1143,14 +1143,14 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 setAtomModel({...atomModel, neutrons: newNeutrons});
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
                       </div>
                     </Form.Group>
                     <Form.Group>
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={3}
@@ -1175,7 +1175,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
             </Row>
@@ -1186,29 +1186,29 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 전자 껍질 편집 - 패널 전환: shells */}
         {activePanel === 'shells' && (
         <Card className="mb-3">
-          <Card.Header>⚡ 원 편집</Card.Header>
+          <Card.Header>⚡ Circle Edit</Card.Header>
           <Card.Body>
             {/* 전자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="원 표시하기"
+                label="Show Circles"
                 checked={showElectrons}
                 onChange={(e) => setShowElectrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                체크하면 편집한 원들이 화면에 표시됩니다.
+                Check to display edited circles on screen.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={3}>
-                <h6>🟠 원</h6>
+                <h6>🟠 Circle</h6>
                 {atomModel.electrons.kShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
-                    <div className="mb-2">선택된 이모티콘: <span style={{fontSize:'18px'}}>{electron.emoji}</span></div>
+                    <div className="mb-2">Selected Emoji: <span style={{fontSize:'18px'}}>{electron.emoji}</span></div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
                         onEmojiSelect={(emoji) => {
@@ -1223,10 +1223,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="선택한 이모티콘에 대한 설명을 입력하세요"
+                        placeholder="Enter description for selected emoji"
                         value={electron.description || ''}
                         onChange={(e) => {
                           const newKShell = [...atomModel.electrons.kShell];
@@ -1239,7 +1239,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1249,7 +1249,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -1322,7 +1322,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
@@ -1343,12 +1343,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
 
               <Col md={3}>
-                <h6>🟡 원</h6>
+                <h6>🟡 Circle</h6>
                 {atomModel.electrons.lShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1364,10 +1364,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">Select an emoji</div>
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
                         onEmojiSelect={(emoji) => {
@@ -1382,10 +1382,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="선택한 이모티콘에 대한 설명을 입력하세요"
+                        placeholder="Enter description for selected emoji"
                         value={electron.description || ''}
                         onChange={(e) => {
                           const newLShell = [...atomModel.electrons.lShell];
@@ -1398,7 +1398,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1408,7 +1408,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -1481,7 +1481,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
@@ -1502,12 +1502,12 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
 
               <Col md={3}>
-                <h6>🟢 원</h6>
+                <h6>🟢 Circle</h6>
                 {atomModel.electrons.mShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1523,10 +1523,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">Select an emoji</div>
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
                         onEmojiSelect={(emoji) => {
@@ -1541,10 +1541,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="선택한 이모티콘에 대한 설명을 입력하세요"
+                        placeholder="Enter description for selected emoji"
                         value={electron.description || ''}
                         onChange={(e) => {
                           const newMShell = [...atomModel.electrons.mShell];
@@ -1557,7 +1557,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1567,7 +1567,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -1640,7 +1640,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
@@ -1661,7 +1661,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
 
@@ -1682,10 +1682,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">이모티콘을 선택하세요</div>
+                      <div className="ms-1 small text-muted">Select an emoji</div>
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>이모티콘 선택</Form.Label>
+                      <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
                         onEmojiSelect={(emoji) => {
@@ -1700,10 +1700,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>설명</Form.Label>
+                      <Form.Label>Description</Form.Label>
                       <Form.Control
                         type="text"
-                        placeholder="선택한 이모티콘에 대한 설명을 입력하세요"
+                        placeholder="Enter description for selected emoji"
                         value={electron.description || ''}
                         onChange={(e) => {
                           const newValence = [...atomModel.electrons.valence];
@@ -1716,7 +1716,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>사진 업로드</Form.Label>
+                      <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1726,7 +1726,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             if (!file) return;
                             
                             if (file.size > 10 * 1024 * 1024) {
-                              alert('이미지 크기는 10MB 이하여야 합니다.');
+                              alert('Image size must be 10MB or less.');
                               return;
                             }
                             
@@ -1799,7 +1799,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              제거
+                              Remove
                             </Button>
                           </>
                         )}
@@ -1820,7 +1820,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     });
                   }}
                 >
-                  + 추가
+                  + Add
                 </Button>
               </Col>
             </Row>
@@ -1939,7 +1939,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             fontSize: '20px',
                             marginLeft: '10px'
                           }}
-                          title="이 기록 삭제"
+                          title="Delete this record"
                         >
                           ×
                         </Button>
@@ -1954,10 +1954,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       </Modal.Body>
       <Modal.Footer>
         <Button variant="success" onClick={handleSave}>
-          저장하고 나가기
+          Save and Exit
         </Button>
         <Button variant="outline-secondary" onClick={onHide}>
-          나가기
+          Exit
         </Button>
       </Modal.Footer>
     </Modal>

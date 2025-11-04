@@ -828,14 +828,14 @@ function App() {
                         }
                       }}
                     >
-                      추가
+                      Add
                     </Button>
                   </div>
                 </Form.Group>
               </div>
               
               <div>
-                <strong>현재 원 목록 ({classStudents.length}개)</strong>
+                <strong>Current Circle List ({classStudents.length})</strong>
                 <div style={{ 
                   maxHeight: '400px', 
                   overflowY: 'auto',
@@ -867,7 +867,7 @@ function App() {
                           size="sm"
                           onClick={() => handleDeleteStudent(student.id)}
                         >
-                          삭제
+                          Delete
                         </Button>
                       </div>
                     ))
