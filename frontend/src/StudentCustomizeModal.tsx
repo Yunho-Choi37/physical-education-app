@@ -1201,9 +1201,19 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                 <h6>🟠 Circle</h6>
                 {atomModel.electrons.kShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
-                    <div className="mb-2">Selected Emoji: <span style={{fontSize:'18px'}}>{electron.emoji}</span></div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Name</Form.Label>
+                    <div className="d-flex align-items-center mb-2">
+                      <div 
+                        className="me-2 rounded-circle d-flex align-items-center justify-content-center"
+                        style={{ 
+                          width: '30px', 
+                          height: '30px', 
+                          backgroundColor: '#FF6B6B',
+                          color: 'white',
+                          fontSize: '16px'
+                        }}
+                      >
+                        {electron.emoji}
+                      </div>
                       <Form.Control
                         type="text"
                         placeholder="Name"
@@ -1217,38 +1227,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newKShell = [...atomModel.electrons.kShell];
-                          newKShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, kShell: newKShell }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter description for selected emoji"
-                        value={electron.description || ''}
-                        onChange={(e) => {
-                          const newKShell = [...atomModel.electrons.kShell];
-                          newKShell[index].description = e.target.value;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, kShell: newKShell }
-                          });
-                        }}
-                      />
-                    </Form.Group>
+                    </div>
                     <Form.Group className="mb-2">
                       <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1339,6 +1318,38 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={6}
+                        placeholder="설명을 입력하세요..."
+                        value={electron.description || ''}
+                        onChange={(e) => {
+                          const newKShell = [...atomModel.electrons.kShell];
+                          newKShell[index].description = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, kShell: newKShell }
+                          });
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={electron.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newKShell = [...atomModel.electrons.kShell];
+                          newKShell[index].emoji = emoji;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, kShell: newKShell }
+                          });
+                        }}
+                        type="electron"
+                      />
+                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -1380,19 +1391,15 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       <div 
                         className="me-2 rounded-circle d-flex align-items-center justify-content-center"
                         style={{ 
-                          width: '25px', 
-                          height: '25px', 
+                          width: '30px', 
+                          height: '30px', 
                           backgroundColor: '#4ECDC4',
                           color: 'white',
-                          fontSize: '14px'
+                          fontSize: '16px'
                         }}
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">Select an emoji</div>
-                    </div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
                         placeholder="Name"
@@ -1406,38 +1413,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newLShell = [...atomModel.electrons.lShell];
-                          newLShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, lShell: newLShell }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter description for selected emoji"
-                        value={electron.description || ''}
-                        onChange={(e) => {
-                          const newLShell = [...atomModel.electrons.lShell];
-                          newLShell[index].description = e.target.value;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, lShell: newLShell }
-                          });
-                        }}
-                      />
-                    </Form.Group>
+                    </div>
                     <Form.Group className="mb-2">
                       <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1528,6 +1504,38 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={6}
+                        placeholder="설명을 입력하세요..."
+                        value={electron.description || ''}
+                        onChange={(e) => {
+                          const newLShell = [...atomModel.electrons.lShell];
+                          newLShell[index].description = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, lShell: newLShell }
+                          });
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={electron.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newLShell = [...atomModel.electrons.lShell];
+                          newLShell[index].emoji = emoji;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, lShell: newLShell }
+                          });
+                        }}
+                        type="electron"
+                      />
+                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -1567,21 +1575,17 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
                       <div 
-                        className="me-2 rounded-circle d-flex align_items-center justify-content-center"
+                        className="me-2 rounded-circle d-flex align-items-center justify-content-center"
                         style={{ 
-                          width: '25px', 
-                          height: '25px', 
+                          width: '30px', 
+                          height: '30px', 
                           backgroundColor: '#45B7D1',
                           color: 'white',
-                          fontSize: '14px'
+                          fontSize: '16px'
                         }}
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">Select an emoji</div>
-                    </div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
                         placeholder="Name"
@@ -1595,38 +1599,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newMShell = [...atomModel.electrons.mShell];
-                          newMShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, mShell: newMShell }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter description for selected emoji"
-                        value={electron.description || ''}
-                        onChange={(e) => {
-                          const newMShell = [...atomModel.electrons.mShell];
-                          newMShell[index].description = e.target.value;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, mShell: newMShell }
-                          });
-                        }}
-                      />
-                    </Form.Group>
+                    </div>
                     <Form.Group className="mb-2">
                       <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1717,6 +1690,38 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={6}
+                        placeholder="설명을 입력하세요..."
+                        value={electron.description || ''}
+                        onChange={(e) => {
+                          const newMShell = [...atomModel.electrons.mShell];
+                          newMShell[index].description = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, mShell: newMShell }
+                          });
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={electron.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newMShell = [...atomModel.electrons.mShell];
+                          newMShell[index].emoji = emoji;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, mShell: newMShell }
+                          });
+                        }}
+                        type="electron"
+                      />
+                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -1758,19 +1763,15 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       <div 
                         className="me-2 rounded-circle d-flex align-items-center justify-content-center"
                         style={{ 
-                          width: '25px', 
-                          height: '25px', 
+                          width: '30px', 
+                          height: '30px', 
                           backgroundColor: '#96CEB4',
                           color: 'white',
-                          fontSize: '14px'
+                          fontSize: '16px'
                         }}
                       >
                         {electron.emoji}
                       </div>
-                      <div className="ms-1 small text-muted">Select an emoji</div>
-                    </div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
                         placeholder="Name"
@@ -1784,38 +1785,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           });
                         }}
                       />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newValence = [...atomModel.electrons.valence];
-                          newValence[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, valence: newValence }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter description for selected emoji"
-                        value={electron.description || ''}
-                        onChange={(e) => {
-                          const newValence = [...atomModel.electrons.valence];
-                          newValence[index].description = e.target.value;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, valence: newValence }
-                          });
-                        }}
-                      />
-                    </Form.Group>
+                    </div>
                     <Form.Group className="mb-2">
                       <Form.Label>Upload Photo</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1905,6 +1875,38 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                           </>
                         )}
                       </div>
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={6}
+                        placeholder="설명을 입력하세요..."
+                        value={electron.description || ''}
+                        onChange={(e) => {
+                          const newValence = [...atomModel.electrons.valence];
+                          newValence[index].description = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, valence: newValence }
+                          });
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Select Emoji</Form.Label>
+                      <EmojiSelector
+                        selectedEmoji={electron.emoji}
+                        onEmojiSelect={(emoji) => {
+                          const newValence = [...atomModel.electrons.valence];
+                          newValence[index].emoji = emoji;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, valence: newValence }
+                          });
+                        }}
+                        type="electron"
+                      />
                     </Form.Group>
                     <Button 
                       variant="outline-danger" 
