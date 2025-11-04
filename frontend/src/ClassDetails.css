@@ -645,6 +645,26 @@
   color: #e0e0e0;
 }
 
+.particle-list-header .btn-edit {
+  padding: 8px 16px;
+  background: #424242;
+  color: #e0e0e0;
+  border: 1px solid #616161;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Roboto', sans-serif;
+}
+
+.particle-list-header .btn-edit:hover {
+  background: #616161;
+  border-color: #757575;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 .particle-list-body {
   padding: 20px 24px;
 }
