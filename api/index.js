@@ -318,6 +318,34 @@ app.put('/api/classes', async (req, res) => {
   }
 });
 
+// API: 특정 클래스 existence 조회
+app.get('/api/classes/:classId/existence', async (req, res) => {
+  try {
+    const classId = parseInt(req.params.classId, 10);
+    const classesData = await getClasses();
+    const existence = classesData.classExistence[classId] || null;
+    res.json(existence);
+  } catch (error) {
+    console.error('Error fetching class existence:', error);
+    res.status(500).json({ error: '클래스 정보를 가져오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 특정 클래스 existence 저장
+app.put('/api/classes/:classId/existence', async (req, res) => {
+  try {
+    const classId = parseInt(req.params.classId, 10);
+    const { existence } = req.body;
+    const classesData = await getClasses();
+    classesData.classExistence[classId] = existence;
+    await saveClasses(classesData.classNames, classesData.classExistence);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error saving class existence:', error);
+    res.status(500).json({ error: '클래스 정보를 저장하는 중 오류가 발생했습니다.' });
+  }
+});
+
 // API: 클래스별 학생 위치 조회
 app.get('/api/classes/:classId/positions', async (req, res) => {
   try {
