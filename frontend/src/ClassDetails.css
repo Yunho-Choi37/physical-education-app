@@ -64,13 +64,15 @@
 
 /* 뒤로가기 버튼 */
 .back-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #424242;
+  color: #e0e0e0;
+  border: 1px solid #616161;
 }
 
 .back-btn:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  color: white;
+  background: #616161;
+  border-color: #757575;
+  color: #fff;
 }
 
 /* 추가 버튼 */
@@ -491,6 +493,10 @@
 .particle-info-right {
   flex: 1;
   min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .particle-info-right .description-section {
@@ -504,6 +510,10 @@
   margin-top: 0;
   margin-bottom: 16px;
   flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .particle-info-right textarea {
@@ -516,6 +526,10 @@
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
 .particle-info-right .edit-buttons {
@@ -698,6 +712,8 @@
 .particle-list-content {
   flex: 1;
   min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .particle-list-content h4 {
@@ -712,6 +728,10 @@
   font-size: 14px;
   color: #bdbdbd;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .particle-list-actions {
