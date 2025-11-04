@@ -1746,7 +1746,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         if (clickedStudent && clickedStudent.id === currentDraggedStudent) {
           // 약간의 지연을 두어 드래그 상태 초기화 후 클릭 처리
           setTimeout(() => {
-            handleStudentClick(clickedStudent);
+            // 큰 원 클릭 시 작은 원들 정렬된 목록 표시 (PC와 동일하게)
+            setSelectedStudentForParticles(clickedStudent);
+            setShowParticleListModal(true);
           }, 100);
         }
       }
