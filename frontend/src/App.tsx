@@ -589,8 +589,8 @@ function App() {
                           }}
                           className="edit-class-btn"
                           style={{
-                            background: 'rgba(102, 126, 234, 0.9)',
-                            border: 'none',
+                            background: '#424242',
+                            border: '1px solid #616161',
                             borderRadius: '50%',
                             width: '28px',
                             height: '28px',
@@ -598,20 +598,22 @@ function App() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            color: 'white',
+                            color: '#e0e0e0',
                             fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
                             transition: 'all 0.3s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(102, 126, 234, 1)';
+                            e.currentTarget.style.background = '#616161';
+                            e.currentTarget.style.borderColor = '#757575';
                             e.currentTarget.style.transform = 'scale(1.1)';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(102, 126, 234, 0.9)';
+                            e.currentTarget.style.background = '#424242';
+                            e.currentTarget.style.borderColor = '#616161';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="원 이름 수정"
+                          title="Edit Circle Name"
                         >
                           ✏️
                         </button>
