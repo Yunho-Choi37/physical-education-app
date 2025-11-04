@@ -458,91 +458,45 @@ function App() {
                   </div>
                 ) : (
                   <div style={{ position: 'relative' }}>
-                    {isAdmin ? (
-                      <div
-                        style={{ 
-                          cursor: 'pointer',
-                          display: 'block'
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedClassIndex(index);
-                          setShowClassCustomizeModal(true);
+                    <Link 
+                      to={`/class/${index + 1}`} 
+                      style={{ 
+                        textDecoration: 'none',
+                        display: 'block'
+                      }}
+                    >
+                      <div 
+                        className="floating-class-button"
+                        style={{
+                          background: classExistence[index + 1]?.imageData 
+                            ? `url(${classExistence[index + 1].imageData}) center/cover`
+                            : classExistence[index + 1]?.color 
+                            ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
+                            : undefined
                         }}
                       >
-                        <div 
-                          className="floating-class-button"
-                          style={{
-                            background: classExistence[index + 1]?.imageData 
-                              ? `url(${classExistence[index + 1].imageData}) center/cover`
-                              : classExistence[index + 1]?.color 
-                              ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
-                              : undefined
-                          }}
-                        >
-                          {classExistence[index + 1]?.imageData ? null : (
-                            classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
-                              <span style={{ fontSize: '40px' }}>
-                                {classExistence[index + 1].shape === 'square' && '⬜'}
-                                {classExistence[index + 1].shape === 'triangle' && '🔺'}
-                                {classExistence[index + 1].shape === 'star' && '⭐'}
-                                {classExistence[index + 1].shape === 'heart' && '❤️'}
-                                {classExistence[index + 1].shape === 'smile' && '😊'}
-                                {classExistence[index + 1].shape === 'fire' && '🔥'}
-                                {classExistence[index + 1].shape === 'sun' && '☀️'}
-                                {classExistence[index + 1].shape === 'moon' && '🌙'}
-                                {classExistence[index + 1].shape === 'rainbow' && '🌈'}
-                                {classExistence[index + 1].shape === 'flower' && '🌸'}
-                                {classExistence[index + 1].shape === 'butterfly' && '🦋'}
-                                {classExistence[index + 1].shape === 'cat' && '🐱'}
-                                {classExistence[index + 1].shape === 'dog' && '🐶'}
-                                {classExistence[index + 1].shape === 'panda' && '🐼'}
-                              </span>
-                            ) : null
-                          )}
-                        </div>
+                        {classExistence[index + 1]?.imageData ? null : (
+                          classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
+                            <span style={{ fontSize: '40px' }}>
+                              {classExistence[index + 1].shape === 'square' && '⬜'}
+                              {classExistence[index + 1].shape === 'triangle' && '🔺'}
+                              {classExistence[index + 1].shape === 'star' && '⭐'}
+                              {classExistence[index + 1].shape === 'heart' && '❤️'}
+                              {classExistence[index + 1].shape === 'smile' && '😊'}
+                              {classExistence[index + 1].shape === 'fire' && '🔥'}
+                              {classExistence[index + 1].shape === 'sun' && '☀️'}
+                              {classExistence[index + 1].shape === 'moon' && '🌙'}
+                              {classExistence[index + 1].shape === 'rainbow' && '🌈'}
+                              {classExistence[index + 1].shape === 'flower' && '🌸'}
+                              {classExistence[index + 1].shape === 'butterfly' && '🦋'}
+                              {classExistence[index + 1].shape === 'cat' && '🐱'}
+                              {classExistence[index + 1].shape === 'dog' && '🐶'}
+                              {classExistence[index + 1].shape === 'panda' && '🐼'}
+                            </span>
+                          ) : null
+                        )}
                       </div>
-                    ) : (
-                      <Link 
-                        to={`/class/${index + 1}`} 
-                        style={{ 
-                          textDecoration: 'none',
-                          display: 'block'
-                        }}
-                      >
-                        <div 
-                          className="floating-class-button"
-                          style={{
-                            background: classExistence[index + 1]?.imageData 
-                              ? `url(${classExistence[index + 1].imageData}) center/cover`
-                              : classExistence[index + 1]?.color 
-                              ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
-                              : undefined
-                          }}
-                        >
-                          {classExistence[index + 1]?.imageData ? null : (
-                            classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
-                              <span style={{ fontSize: '40px' }}>
-                                {classExistence[index + 1].shape === 'square' && '⬜'}
-                                {classExistence[index + 1].shape === 'triangle' && '🔺'}
-                                {classExistence[index + 1].shape === 'star' && '⭐'}
-                                {classExistence[index + 1].shape === 'heart' && '❤️'}
-                                {classExistence[index + 1].shape === 'smile' && '😊'}
-                                {classExistence[index + 1].shape === 'fire' && '🔥'}
-                                {classExistence[index + 1].shape === 'sun' && '☀️'}
-                                {classExistence[index + 1].shape === 'moon' && '🌙'}
-                                {classExistence[index + 1].shape === 'rainbow' && '🌈'}
-                                {classExistence[index + 1].shape === 'flower' && '🌸'}
-                                {classExistence[index + 1].shape === 'butterfly' && '🦋'}
-                                {classExistence[index + 1].shape === 'cat' && '🐱'}
-                                {classExistence[index + 1].shape === 'dog' && '🐶'}
-                                {classExistence[index + 1].shape === 'panda' && '🐼'}
-                              </span>
-                            ) : null
-                          )}
-                        </div>
-                      </Link>
-                    )}
+                    </Link>
                     {isAdmin && (
                       <div style={{ 
                         position: 'absolute',
@@ -620,6 +574,41 @@ function App() {
                           title="원 관리"
                         >
                           👥
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedClassIndex(index);
+                            setShowClassCustomizeModal(true);
+                          }}
+                          className="customize-class-btn"
+                          style={{
+                            background: 'rgba(255, 193, 7, 0.9)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'white',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 193, 7, 1)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 편집"
+                        >
+                          🎨
                         </button>
                         <button
                           onClick={(e) => {
