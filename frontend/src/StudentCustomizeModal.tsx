@@ -861,19 +861,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         type="proton"
                       />
                     </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>특성 강도: {proton.strength}</Form.Label>
-                      <Form.Range
-                        min="1"
-                        max="5"
-                        value={proton.strength}
-                        onChange={(e) => {
-                          const newProtons = [...atomModel.protons];
-                          newProtons[index].strength = parseInt(e.target.value);
-                          setAtomModel({...atomModel, protons: newProtons});
-                        }}
-                      />
-                    </Form.Group>
                     <Form.Group>
                       <Form.Label>Color</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
@@ -989,6 +976,17 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }}
                       />
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newProtons = atomModel.protons.filter((_, i) => i !== index);
+                        setAtomModel({...atomModel, protons: newProtons});
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
@@ -1044,20 +1042,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }}
                         type="neutron"
                       />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Select
-                        value={neutron.category}
-                        onChange={(e) => {
-                          const newNeutrons = [...atomModel.neutrons];
-                          newNeutrons[index].category = e.target.value;
-                          setAtomModel({...atomModel, neutrons: newNeutrons});
-                        }}
-                      >
-                        <option value="취미">취미</option>
-                        <option value="관심사">관심사</option>
-                        <option value="개성">개성</option>
-                      </Form.Select>
                     </Form.Group>
                     <Form.Group>
                       <Form.Label>Color</Form.Label>
@@ -1174,6 +1158,17 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }}
                       />
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newNeutrons = atomModel.neutrons.filter((_, i) => i !== index);
+                        setAtomModel({...atomModel, neutrons: newNeutrons});
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
@@ -1355,6 +1350,20 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newKShell = atomModel.electrons.kShell.filter((_, i) => i !== index);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, kShell: newKShell }
+                        });
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
@@ -1530,6 +1539,20 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newLShell = atomModel.electrons.lShell.filter((_, i) => i !== index);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, lShell: newLShell }
+                        });
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
@@ -1705,6 +1728,20 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newMShell = atomModel.electrons.mShell.filter((_, i) => i !== index);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, mShell: newMShell }
+                        });
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
@@ -1880,6 +1917,20 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         )}
                       </div>
                     </Form.Group>
+                    <Button 
+                      variant="outline-danger" 
+                      size="sm"
+                      onClick={() => {
+                        const newValence = atomModel.electrons.valence.filter((_, i) => i !== index);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, valence: newValence }
+                        });
+                      }}
+                      style={{ marginTop: '8px' }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ))}
                 <Button 
