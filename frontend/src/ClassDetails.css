@@ -536,12 +536,15 @@
 }
 
 .particle-info-right .btn-edit {
-  background-color: #28a745;
-  color: white;
+  background-color: #424242;
+  color: #e0e0e0;
+  border: 1px solid #616161;
 }
 
 .particle-info-right .btn-edit:hover {
-  background-color: #218838;
+  background-color: #616161;
+  border-color: #757575;
+  color: #fff;
 }
 
 .particle-info-right .btn-save {
@@ -702,8 +705,8 @@
 .particle-list-actions .btn-edit {
   padding: 10px 20px;
   background: #424242;
-  color: white;
-  border: none;
+  color: #e0e0e0;
+  border: 1px solid #616161;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -712,6 +715,8 @@
 }
 
 .particle-list-actions .btn-edit:hover {
-  background: #212121;
+  background: #616161;
+  border-color: #757575;
+  color: #fff;
   transform: translateY(-1px);
 }

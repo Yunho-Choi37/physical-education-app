@@ -692,8 +692,8 @@ function App() {
                           }}
                           className="delete-class-btn"
                           style={{
-                            background: 'rgba(220, 53, 69, 0.9)',
-                            border: 'none',
+                            background: '#424242',
+                            border: '1px solid #616161',
                             borderRadius: '50%',
                             width: '28px',
                             height: '28px',
@@ -701,17 +701,19 @@ function App() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            color: 'white',
+                            color: '#e0e0e0',
                             fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
                             transition: 'all 0.3s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(220, 53, 69, 1)';
+                            e.currentTarget.style.background = '#616161';
+                            e.currentTarget.style.borderColor = '#757575';
                             e.currentTarget.style.transform = 'scale(1.1)';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(220, 53, 69, 0.9)';
+                            e.currentTarget.style.background = '#424242';
+                            e.currentTarget.style.borderColor = '#616161';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
                           title="Delete Circle"
@@ -987,10 +989,11 @@ function App() {
       <style>{`
         .App {
           min-height: 100vh;
-          background-color: white;
-          color: #333;
+          background-color: #1a1a1a;
+          color: #e0e0e0;
           position: relative;
           overflow: hidden;
+          font-family: 'Roboto', sans-serif;
         }
         .floating-classes-container {
           position: relative;
@@ -1005,19 +1008,20 @@ function App() {
           z-index: 1000;
         }
         .admin-login-btn {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border: none;
-          color: white;
+          background: #424242;
+          border: 1px solid #616161;
+          color: #e0e0e0;
           padding: 10px 20px;
           border-radius: 25px;
           font-weight: 600;
-          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
           transition: all 0.3s ease;
         }
         .admin-login-btn:hover {
-          background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+          background: #616161;
+          border-color: #757575;
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
         .admin-status {
           display: flex;
@@ -1025,53 +1029,58 @@ function App() {
           gap: 10px;
         }
         .admin-badge {
-          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-          color: white;
+          background: #424242;
+          color: #e0e0e0;
           padding: 8px 16px;
           border-radius: 20px;
           font-weight: 600;
           font-size: 0.9rem;
-          box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+          border: 1px solid #616161;
         }
         .admin-logout-btn {
-          border: 1px solid #dc3545;
-          color: #dc3545;
+          border: 1px solid #616161;
+          color: #e0e0e0;
+          background: #424242;
           padding: 6px 12px;
           border-radius: 15px;
           font-size: 0.8rem;
           transition: all 0.3s ease;
         }
         .admin-logout-btn:hover {
-          background: #dc3545;
-          color: white;
+          background: #616161;
+          border-color: #757575;
+          color: #fff;
           transform: translateY(-1px);
         }
         .admin-add-class-btn {
-          border: 1px solid #ffc107;
-          color: #ffc107;
+          border: 1px solid #616161;
+          color: #e0e0e0;
+          background: #424242;
           padding: 6px 12px;
           border-radius: 15px;
           font-size: 0.8rem;
           transition: all 0.3s ease;
         }
         .admin-add-class-btn:hover {
-          background: #ffc107;
-          color: white;
+          background: #616161;
+          border-color: #757575;
+          color: #fff;
           transform: translateY(-1px);
         }
         .floating-class-button {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          background: #424242;
+          color: #e0e0e0;
           cursor: pointer;
           border-radius: 50%;
-          box-shadow: 0 10px 40px rgba(102, 126, 234, 0.25);
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
           text-align: center;
           position: absolute;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid #616161;
           backdrop-filter: blur(20px);
           overflow: hidden;
           animation: float 3s ease-in-out infinite;
@@ -1090,10 +1099,10 @@ function App() {
           left: 100%;
         }
         .floating-class-button:hover {
-          background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-          box-shadow: 0 20px 60px rgba(102, 126, 234, 0.35);
+          background: #616161;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
           transform: translateY(-8px) scale(1.05);
-          border-color: rgba(255, 255, 255, 0.25);
+          border-color: #757575;
           animation-play-state: paused;
         }
         .floating-class-button:hover .edit-hint {
@@ -1132,7 +1141,8 @@ function App() {
           font-size: 0.9rem;
           font-weight: 600;
           letter-spacing: 0.5px;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: 'Roboto', sans-serif;
+          color: #e0e0e0;
         }
         
         /* 원형 배치 반응형 디자인 */
