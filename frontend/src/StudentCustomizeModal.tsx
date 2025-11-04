@@ -545,7 +545,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   key={`image-upload-${student?.id || 'new'}`}
                   type="file"
                   accept="image/*"
-                  capture="environment" // 모바일에서 카메라 사용
                   onChange={(e) => {
                     const input = e.currentTarget as HTMLInputElement;
                     const file = input.files?.[0];
@@ -887,7 +886,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
@@ -1073,7 +1071,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
@@ -1247,7 +1244,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
@@ -1407,7 +1403,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
@@ -1567,7 +1562,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
@@ -1727,7 +1721,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           onChange={(e) => {
                             const file = e.currentTarget.files?.[0];
                             if (!file) return;
