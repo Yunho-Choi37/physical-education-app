@@ -1725,7 +1725,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               </Col>
 
               <Col md={3}>
-                <h6>🔵 원</h6>
+                <h6>🔵 Circle</h6>
                 {atomModel.electrons.valence.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1890,7 +1890,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       ...atomModel,
                       electrons: {
                         ...atomModel.electrons,
-                        valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '' }]
+                        valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '', name: '' }]
                       }
                     });
                   }}
