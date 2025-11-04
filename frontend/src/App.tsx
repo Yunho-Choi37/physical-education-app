@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link } from 'react-router-dom';
@@ -27,6 +27,7 @@ function App() {
   const [positionsInitialized, setPositionsInitialized] = useState(false);
   const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
   const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
+  const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
   const [isAdmin, setIsAdmin] = useState(() => {
     // localStorage에서 관리자 상태 복원
     const savedAdminState = localStorage.getItem('isAdmin');
@@ -341,55 +342,65 @@ function App() {
     };
   }, [showStudentManageModal]);
 
+  // 화면 크기 추적
   useEffect(() => {
-    // 겹치지 않는 위치 생성 함수
-    const generateCircularLayout = () => {
-      const positions: Array<{x: number, y: number}> = [];
-      
-      // 화면 크기에 따라 버튼 크기와 원 반지름 조정
-      const screenWidth = window.innerWidth;
-      const screenHeight = window.innerHeight;
-      
-      // 화면 중앙 좌표
-      const centerX = screenWidth / 2;
-      const centerY = screenHeight / 2;
-      
-      // 화면 크기에 따른 설정
-      let buttonSize, radius;
-      
-      // 기본 사이즈 증가 및 classExistence의 size 적용
-      const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150; // 기본 사이즈 증가
-      
-      if (screenWidth < 768) {
-        // 모바일: 작은 원
-        buttonSize = baseSize;
-        radius = Math.min(screenWidth, screenHeight) * 0.25;
-      } else if (screenWidth < 1024) {
-        // 태블릿: 중간 원
-        buttonSize = baseSize;
-        radius = Math.min(screenWidth, screenHeight) * 0.3;
-      } else {
-        // 데스크톱: 큰 원
-        buttonSize = baseSize;
-        radius = Math.min(screenWidth, screenHeight) * 0.35;
-      }
-      
-      // 7개 반을 시계 방향으로 배치 (1반이 12시 방향)
-      for (let i = 0; i < classes.length; i++) {
-        // 시계 방향 각도 계산 (12시 방향부터 시작, 시계방향으로 회전)
-        // 1반(0번째) = 12시 방향 (-90도), 2반(1번째) = 2시 방향, ...
-        const angle = (-Math.PI / 2) + (i * 2 * Math.PI) / classes.length;
-        
-        // 원 위의 좌표 계산
-        const x = centerX + Math.cos(angle) * radius - buttonSize / 2;
-        const y = centerY + Math.sin(angle) * radius - buttonSize / 2;
-        
-        positions.push({ x, y });
-      }
-      
-      return positions;
+    const handleResize = () => {
+      setScreenSize({ width: window.innerWidth, height: window.innerHeight });
     };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
+  // 겹치지 않는 위치 생성 함수
+  const generateCircularLayout = useCallback(() => {
+    const positions: Array<{x: number, y: number}> = [];
+    
+    // 화면 크기에 따라 버튼 크기와 원 반지름 조정
+    const screenWidth = screenSize.width;
+    const screenHeight = screenSize.height;
+    
+    // 화면 중앙 좌표
+    const centerX = screenWidth / 2;
+    const centerY = screenHeight / 2;
+    
+    // 화면 크기에 따른 설정
+    let buttonSize, radius;
+    
+    // 기본 사이즈 증가 및 classExistence의 size 적용
+    const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150; // 기본 사이즈 증가
+    
+    if (screenWidth < 768) {
+      // 모바일: 작은 원
+      buttonSize = baseSize;
+      radius = Math.min(screenWidth, screenHeight) * 0.25;
+    } else if (screenWidth < 1024) {
+      // 태블릿: 중간 원
+      buttonSize = baseSize;
+      radius = Math.min(screenWidth, screenHeight) * 0.3;
+    } else {
+      // 데스크톱: 큰 원
+      buttonSize = baseSize;
+      radius = Math.min(screenWidth, screenHeight) * 0.35;
+    }
+    
+    // 7개 반을 시계 방향으로 배치 (1반이 12시 방향)
+    for (let i = 0; i < classes.length; i++) {
+      // 시계 방향 각도 계산 (12시 방향부터 시작, 시계방향으로 회전)
+      // 1반(0번째) = 12시 방향 (-90도), 2반(1번째) = 2시 방향, ...
+      const angle = (-Math.PI / 2) + (i * 2 * Math.PI) / classes.length;
+      
+      // 원 위의 좌표 계산
+      const x = centerX + Math.cos(angle) * radius - buttonSize / 2;
+      const y = centerY + Math.sin(angle) * radius - buttonSize / 2;
+      
+      positions.push({ x, y });
+    }
+    
+    return positions;
+  }, [classes, screenSize, classExistence]);
+
+  useEffect(() => {
     // 위치 설정
     const positions = generateCircularLayout();
     setClassPositions(positions);
@@ -406,7 +417,7 @@ function App() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [classes]); // classes가 변경될 때마다 위치 재계산
+  }, [generateCircularLayout]); // generateCircularLayout이 변경될 때마다 위치 재계산
 
   return (
     <div className="App">
@@ -501,9 +512,9 @@ function App() {
                             : undefined,
                           position: 'relative',
                           overflow: 'hidden',
-                          width: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 100 : window.innerWidth < 1024 ? 130 : 150)}px`,
-                          height: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 100 : window.innerWidth < 1024 ? 130 : 150)}px`,
-                          fontSize: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 14 : 16)}px`
+                          width: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150)}px`,
+                          height: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150)}px`,
+                          fontSize: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 14 : 16)}px`
                         }}
                       >
                         {classExistence[index + 1]?.imageData && classImageLoaded[index + 1] ? (
@@ -935,10 +946,12 @@ function App() {
                 body: JSON.stringify({ existence }),
               });
               
-              setClassExistence({
+              const updatedClassExistence = {
                 ...classExistence,
                 [classId]: existence
-              });
+              };
+              
+              setClassExistence(updatedClassExistence);
               
               // 이미지가 있으면 사전 로드
               if (existence.imageData && existence.imageData.startsWith('data:image')) {
