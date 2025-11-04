@@ -1743,13 +1743,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           return distance <= nodeSize;
         });
         
-        if (clickedStudent && clickedStudent.id === currentDraggedStudent) {
-          // 약간의 지연을 두어 드래그 상태 초기화 후 클릭 처리
-          setTimeout(() => {
-            // 큰 원 클릭 시 작은 원들 정렬된 목록 표시 (PC와 동일하게)
-            setSelectedStudentForParticles(clickedStudent);
-            setShowParticleListModal(true);
-          }, 100);
+        if (clickedStudent) {
+          // 드래그가 발생했고, 클릭한 학생이 드래그한 학생과 같을 때만 처리
+          // 또는 드래그가 발생하지 않았을 때 처리
+          if (!actualDragged || clickedStudent.id === currentDraggedStudent) {
+            // 약간의 지연을 두어 드래그 상태 초기화 후 클릭 처리
+            setTimeout(() => {
+              // 큰 원 클릭 시 작은 원들 정렬된 목록 표시 (PC와 동일하게)
+              setSelectedStudentForParticles(clickedStudent);
+              setShowParticleListModal(true);
+            }, 100);
+          }
         }
       }
     }
