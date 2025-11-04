@@ -1862,6 +1862,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   };
 
+  const handleEditStudent = (student: Student) => {
+    setSelectedStudent(student);
+    
+    // 관리자 모드가 아닌 경우 비밀번호 입력 요구
+    if (!isAdmin) {
+      setShowPasswordModal(true);
+      setPasswordInput('');
+    } else {
+      // 관리자 모드인 경우 바로 커스터마이징 모달 열기
+      setShowCustomizeModal(true);
+    }
+  };
+
   // 비밀번호 확인 함수
   const handlePasswordSubmit = () => {
     const currentPassword = selectedStudent ? (students.find(s => s.id === selectedStudent.id)?.password || selectedStudent.password) : undefined;
