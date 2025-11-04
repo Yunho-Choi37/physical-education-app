@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link } from 'react-router-dom';
@@ -25,6 +25,8 @@ function App() {
   const [showClassCustomizeModal, setShowClassCustomizeModal] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [positionsInitialized, setPositionsInitialized] = useState(false);
+  const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
+  const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
   const [isAdmin, setIsAdmin] = useState(() => {
     // localStorage에서 관리자 상태 복원
     const savedAdminState = localStorage.getItem('isAdmin');
@@ -73,7 +75,30 @@ function App() {
             return name === defaultName ? '.' : name;
           });
           setClasses(processedClassNames);
-          setClassExistence(classesData.classExistence || {});
+          const existence = classesData.classExistence || {};
+          setClassExistence(existence);
+          
+          // 클래스 이미지 사전 로드
+          Object.keys(existence).forEach((classIdStr) => {
+            const classId = parseInt(classIdStr, 10);
+            const imageData = existence[classId]?.imageData;
+            if (imageData && imageData.startsWith('data:image')) {
+              const cache = classImageCacheRef.current;
+              if (!cache.has(classId)) {
+                const img = new Image();
+                img.onload = () => {
+                  cache.set(classId, img);
+                  setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                };
+                img.onerror = () => {
+                  console.error(`이미지 로드 실패: 클래스 ${classId}`);
+                  setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
+                };
+                img.src = imageData;
+              }
+            }
+          });
+          
           setClassesLoaded(true);
           // localStorage에도 백업 저장
           localStorage.setItem('classNames', JSON.stringify(processedClassNames));
@@ -468,33 +493,65 @@ function App() {
                       <div 
                         className="floating-class-button"
                         style={{
-                          background: classExistence[index + 1]?.imageData 
-                            ? `url(${classExistence[index + 1].imageData}) center/cover`
-                            : classExistence[index + 1]?.color 
+                          background: !classExistence[index + 1]?.imageData && classExistence[index + 1]?.color 
                             ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
-                            : undefined
+                            : undefined,
+                          position: 'relative',
+                          overflow: 'hidden'
                         }}
                       >
-                        {classExistence[index + 1]?.imageData ? null : (
-                          classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
-                            <span style={{ fontSize: '40px' }}>
-                              {classExistence[index + 1].shape === 'square' && '⬜'}
-                              {classExistence[index + 1].shape === 'triangle' && '🔺'}
-                              {classExistence[index + 1].shape === 'star' && '⭐'}
-                              {classExistence[index + 1].shape === 'heart' && '❤️'}
-                              {classExistence[index + 1].shape === 'smile' && '😊'}
-                              {classExistence[index + 1].shape === 'fire' && '🔥'}
-                              {classExistence[index + 1].shape === 'sun' && '☀️'}
-                              {classExistence[index + 1].shape === 'moon' && '🌙'}
-                              {classExistence[index + 1].shape === 'rainbow' && '🌈'}
-                              {classExistence[index + 1].shape === 'flower' && '🌸'}
-                              {classExistence[index + 1].shape === 'butterfly' && '🦋'}
-                              {classExistence[index + 1].shape === 'cat' && '🐱'}
-                              {classExistence[index + 1].shape === 'dog' && '🐶'}
-                              {classExistence[index + 1].shape === 'panda' && '🐼'}
-                            </span>
-                          ) : null
-                        )}
+                        {classExistence[index + 1]?.imageData && classImageLoaded[index + 1] ? (
+                          <img
+                            src={classExistence[index + 1].imageData}
+                            alt="클래스 이미지"
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              borderRadius: '50%'
+                            }}
+                            onError={() => {
+                              setClassImageLoaded(prev => ({ ...prev, [index + 1]: false }));
+                            }}
+                          />
+                        ) : classExistence[index + 1]?.imageData ? (
+                          // 이미지 로딩 중
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: classExistence[index + 1]?.color || '#667eea',
+                            borderRadius: '50%'
+                          }}>
+                            <span style={{ fontSize: '20px', opacity: 0.5 }}>⏳</span>
+                          </div>
+                        ) : null}
+                        {!classExistence[index + 1]?.imageData && classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
+                          <span style={{ fontSize: '40px', position: 'relative', zIndex: 1 }}>
+                            {classExistence[index + 1].shape === 'square' && '⬜'}
+                            {classExistence[index + 1].shape === 'triangle' && '🔺'}
+                            {classExistence[index + 1].shape === 'star' && '⭐'}
+                            {classExistence[index + 1].shape === 'heart' && '❤️'}
+                            {classExistence[index + 1].shape === 'smile' && '😊'}
+                            {classExistence[index + 1].shape === 'fire' && '🔥'}
+                            {classExistence[index + 1].shape === 'sun' && '☀️'}
+                            {classExistence[index + 1].shape === 'moon' && '🌙'}
+                            {classExistence[index + 1].shape === 'rainbow' && '🌈'}
+                            {classExistence[index + 1].shape === 'flower' && '🌸'}
+                            {classExistence[index + 1].shape === 'butterfly' && '🦋'}
+                            {classExistence[index + 1].shape === 'cat' && '🐱'}
+                            {classExistence[index + 1].shape === 'dog' && '🐶'}
+                            {classExistence[index + 1].shape === 'panda' && '🐼'}
+                          </span>
+                        ) : null}
                       </div>
                     </Link>
                     {isAdmin && (
@@ -876,6 +933,27 @@ function App() {
                 ...classExistence,
                 [classId]: existence
               });
+              
+              // 이미지가 있으면 사전 로드
+              if (existence.imageData && existence.imageData.startsWith('data:image')) {
+                const cache = classImageCacheRef.current;
+                if (!cache.has(classId)) {
+                  const img = new Image();
+                  img.onload = () => {
+                    cache.set(classId, img);
+                    setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                  };
+                  img.onerror = () => {
+                    console.error(`이미지 로드 실패: 클래스 ${classId}`);
+                    setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
+                  };
+                  img.src = existence.imageData;
+                } else {
+                  setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                }
+              } else {
+                setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
+              }
               
               setShowClassCustomizeModal(false);
               setSelectedClassIndex(null);
