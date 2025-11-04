@@ -140,6 +140,64 @@ app.get('/api/classes/:classId/positions', (req, res) => {
     res.json(positions);
 });
 
+// API: 클래스 목록 가져오기
+app.get('/api/classes', (req, res) => {
+    const data = readDB();
+    
+    // 클래스 이름 배열 (7개 고정)
+    const classNames = data.classNames || ['1반', '2반', '3반', '4반', '5반', '6반', '7반'];
+    
+    // 클래스 존재 데이터 (커스터마이징 정보)
+    const classExistence = data.classExistence || {};
+    
+    res.json({
+        classNames: classNames,
+        classExistence: classExistence
+    });
+});
+
+// API: 클래스 목록 저장하기
+app.put('/api/classes', (req, res) => {
+    const data = readDB();
+    const { classNames, classExistence } = req.body;
+    
+    if (classNames) {
+        data.classNames = classNames;
+    }
+    
+    if (classExistence) {
+        data.classExistence = classExistence;
+    }
+    
+    writeDB(data);
+    res.json({ success: true, classNames: data.classNames, classExistence: data.classExistence });
+});
+
+// API: 특정 클래스의 존재 데이터 가져오기
+app.get('/api/classes/:classId/existence', (req, res) => {
+    const data = readDB();
+    const classId = parseInt(req.params.classId, 10);
+    const classExistence = data.classExistence || {};
+    
+    res.json(classExistence[classId] || null);
+});
+
+// API: 특정 클래스의 존재 데이터 저장하기
+app.put('/api/classes/:classId/existence', (req, res) => {
+    const data = readDB();
+    const classId = parseInt(req.params.classId, 10);
+    const existence = req.body;
+    
+    if (!data.classExistence) {
+        data.classExistence = {};
+    }
+    
+    data.classExistence[classId] = existence;
+    writeDB(data);
+    
+    res.json({ success: true, existence: data.classExistence[classId] });
+});
+
 // 서버 시작
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);

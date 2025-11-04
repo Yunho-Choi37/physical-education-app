@@ -129,9 +129,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       try {
         const response = await fetch(`${API_URL}/api/classes`);
         if (response.ok) {
-          const classNames = await response.json();
+          const classesData = await response.json();
+          // API 응답이 { classNames: [...], classExistence: {...} } 형태
+          const classNames = classesData.classNames || classesData; // 하위 호환성
           const classIndex = parseInt(classId || '1', 10) - 1;
-          if (classNames[classIndex]) {
+          if (classNames && Array.isArray(classNames) && classNames[classIndex]) {
             // 수정되지 않은 기본 이름이면 "."로 표시
             const defaultName = `${classIndex + 1}반`;
             const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
@@ -146,7 +148,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           if (saved) {
             const classNames = JSON.parse(saved);
             const classIndex = parseInt(classId || '1', 10) - 1;
-            if (classNames[classIndex]) {
+            if (classNames && Array.isArray(classNames) && classNames[classIndex]) {
               const defaultName = `${classIndex + 1}반`;
               const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
               setClassName(displayName);
@@ -165,7 +167,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         if (saved) {
           const classNames = JSON.parse(saved);
           const classIndex = parseInt(classId || '1', 10) - 1;
-          if (classNames[classIndex]) {
+          if (classNames && Array.isArray(classNames) && classNames[classIndex]) {
             const defaultName = `${classIndex + 1}반`;
             const displayName = classNames[classIndex] === defaultName ? '.' : classNames[classIndex];
             setClassName(displayName);
