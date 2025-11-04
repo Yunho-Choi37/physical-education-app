@@ -424,13 +424,15 @@
 }
 
 .particle-info-modal {
-  background: white;
+  background: #2a2a2a;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   max-width: 500px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
 }
 
 .particle-info-header {
@@ -447,7 +449,7 @@
 }
 
 .particle-info-body strong {
-  color: #333;
+  color: #e0e0e0;
   font-weight: 600;
 }
 
@@ -614,13 +616,15 @@
 }
 
 .particle-list-modal {
-  background: white;
+  background: #2a2a2a;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
 }
 
 .particle-list-header {
@@ -628,13 +632,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #424242;
 }
 
 .particle-list-header h3 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
+  color: #e0e0e0;
 }
 
 .particle-list-body {
@@ -647,14 +652,15 @@
   gap: 16px;
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #424242;
   border-radius: 12px;
   transition: all 0.2s ease;
+  background: #1a1a1a;
 }
 
 .particle-list-item:hover {
-  background: #f5f5f5;
-  border-color: #bdbdbd;
+  background: #2a2a2a;
+  border-color: #616161;
 }
 
 .particle-list-image {
@@ -675,13 +681,13 @@
   margin: 0 0 8px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .particle-list-content p {
   margin: 0;
   font-size: 14px;
-  color: #666;
+  color: #bdbdbd;
   white-space: pre-wrap;
 }
 
@@ -689,7 +695,7 @@
   display: flex;
   justify-content: flex-end;
   padding: 16px 24px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #424242;
   margin-top: 16px;
 }
 

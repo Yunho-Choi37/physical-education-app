@@ -502,7 +502,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
           <Card.Header>Shape Selection</Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
-              <Form.Label>색상</Form.Label>
+              <Form.Label>Color</Form.Label>
               <div className="d-flex flex-wrap gap-2">
                 {colors.map(color => {
                   const disabled = isEmojiLike(customization.shape);
@@ -864,7 +864,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group>
-                      <Form.Label>색상</Form.Label>
+                      <Form.Label>Color</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
                         {colors.map(color => (
                           <div
@@ -1049,7 +1049,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </Form.Select>
                     </Form.Group>
                     <Form.Group>
-                      <Form.Label>색상</Form.Label>
+                      <Form.Label>Color</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
                         {colors.map(color => (
                           <div
