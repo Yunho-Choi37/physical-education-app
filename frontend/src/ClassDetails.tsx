@@ -98,6 +98,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [hoveredStudent, setHoveredStudent] = useState<number | null>(null);
+  const [showParticleListModal, setShowParticleListModal] = useState(false);
+  const [selectedStudentForParticles, setSelectedStudentForParticles] = useState<Student | null>(null);
   // 입자 설명 모달 상태
   const [particleInfo, setParticleInfo] = useState<{ type: 'proton' | 'neutron' | 'electron'; keyword?: string; description?: string; emoji?: string; imageData?: string; studentId: number; particleIndex?: number; shellType?: string } | null>(null);
   const [isEditingParticle, setIsEditingParticle] = useState(false);
@@ -114,6 +116,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [studentGroups, setStudentGroups] = useState<Map<number, number>>(new Map());
   // 입자 위치 추적 (클릭 감지용)
   const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number; particleIndex: number; shellType: string }>>([]);
+  // 모든 입자 위치 추적 (겹침 방지용)
+  const allParticlesRef = useRef<Array<{ x: number; y: number; radius: number; studentId: number }>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { classId } = useParams<{ classId: string }>();
@@ -509,25 +513,72 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         }
       }
 
-      const particles: Array<{ item: any; x: number; y: number; scale: number; originalIndex: number }> = items.map((item: any, idx: number) => {
+      // 입자 위치 계산 및 겹침 방지
+      const particles: Array<{ item: any; x: number; y: number; scale: number; originalIndex: number }> = [];
+      
+      for (let idx = 0; idx < items.length; idx++) {
+        const item = items[idx];
         const angle = angleOffset + idx * angleStep;
-        const baseX = x + Math.cos(angle) * adjRadius;
-        const baseY = y + Math.sin(angle) * adjRadius;
+        let baseX = x + Math.cos(angle) * adjRadius;
+        let baseY = y + Math.sin(angle) * adjRadius;
+        
         // 피시아이 효과 계산
         let scale = scaleCap;
         let dx = 0, dy = 0;
         if (mousePos) {
           const dist = Math.hypot(baseX - mousePos.x, baseY - mousePos.y);
           const influence = Math.max(0, 1 - dist / Math.max(60, coreSize * 0.9));
-          scale = scaleCap * (1 + influence * 0.8); // 확대하되 상한 반영
-          const repel = influence * 8;  // 밀어내기
+          scale = scaleCap * (1 + influence * 0.8);
+          const repel = influence * 8;
           const dirX = (baseX - mousePos.x) / (dist || 1);
           const dirY = (baseY - mousePos.y) / (dist || 1);
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        return { item, x: baseX + dx, y: baseY + dy, scale, originalIndex: idx };
-      });
+        
+        const particleRadius = baseParticleSize * scale;
+        let finalX = baseX + dx;
+        let finalY = baseY + dy;
+        
+        // 겹침 방지: 다른 입자들과의 충돌 감지 및 회피
+        const minDistance = particleRadius * 2.2;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (attempts < maxAttempts) {
+          let collision = false;
+          // 모든 기존 입자들과 비교
+          for (const existingParticle of allParticlesRef.current) {
+            if (existingParticle.studentId === studentId) continue; // 같은 학생의 다른 입자는 제외 (같은 궤도 내)
+            
+            const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
+            const requiredDistance = particleRadius + existingParticle.radius;
+            
+            if (distance < requiredDistance && distance > 0) {
+              collision = true;
+              // 충돌 방향으로 밀어내기
+              const angleToParticle = Math.atan2(finalY - existingParticle.y, finalX - existingParticle.x);
+              const pushDistance = requiredDistance - distance + 2; // 여유 공간 추가
+              finalX += Math.cos(angleToParticle) * pushDistance;
+              finalY += Math.sin(angleToParticle) * pushDistance;
+              break;
+            }
+          }
+          
+          if (!collision) break;
+          attempts++;
+        }
+        
+        // 최종 위치 저장
+        allParticlesRef.current.push({
+          x: finalX,
+          y: finalY,
+          radius: particleRadius,
+          studentId: studentId
+        });
+        
+        particles.push({ item, x: finalX, y: finalY, scale, originalIndex: idx });
+      }
 
       particles.sort((a, b): number => a.scale - b.scale); // 작은 것부터 그리고, 큰 것(호버)은 나중에 그려 위로
 
@@ -670,13 +721,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const angleOffset = time * (0.00005 + orbitIndex * 0.00001) + basePhase; // 아주 느린 회전 + 무작위 위상
 
       // 먼저 위치/스케일 계산(피시아이/호버) 후, 스케일이 작은 것부터 그려 큰 것(호버)이 위로 오게
-      const particles: Array<{ electron: any; x: number; y: number; scale: number; originalIndex: number }> = electrons.map((electron: any, electronIndex: number) => {
+      const particles: Array<{ electron: any; x: number; y: number; scale: number; originalIndex: number }> = [];
+      
+      for (let electronIndex = 0; electronIndex < electrons.length; electronIndex++) {
+        const electron = electrons[electronIndex];
         const perElectronPhase = baseRand(seed + (orbitIndex + 1) * 1000 + electronIndex * 97) * (angleStep * 0.3);
         const baseAngle = angleOffset + electronIndex * angleStep + perElectronPhase;
-        const floatOffset = Math.sin(time * 0.0015 + electronIndex * 0.6 + orbitIndex * 0.4) * 4; // 반경 미세 진동 (정렬은 유지)
+        const floatOffset = Math.sin(time * 0.0015 + electronIndex * 0.6 + orbitIndex * 0.4) * 4;
         const radial = orbit.radius + floatOffset;
-        const ex = x + Math.cos(baseAngle) * radial;
-        const ey = y + Math.sin(baseAngle) * radial;
+        let ex = x + Math.cos(baseAngle) * radial;
+        let ey = y + Math.sin(baseAngle) * radial;
 
         // 피시아이 효과
         let scale = 1;
@@ -691,8 +745,48 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        return { electron, x: ex + dx, y: ey + dy, scale, originalIndex: electronIndex };
-      });
+        
+        const electronRadius = (size / 2) * scale;
+        let finalX = ex + dx;
+        let finalY = ey + dy;
+        
+        // 겹침 방지: 다른 입자들과의 충돌 감지 및 회피
+        const minDistance = electronRadius * 2.2;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (attempts < maxAttempts) {
+          let collision = false;
+          for (const existingParticle of allParticlesRef.current) {
+            if (existingParticle.studentId === studentId) continue;
+            
+            const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
+            const requiredDistance = electronRadius + existingParticle.radius;
+            
+            if (distance < requiredDistance && distance > 0) {
+              collision = true;
+              const angleToParticle = Math.atan2(finalY - existingParticle.y, finalX - existingParticle.x);
+              const pushDistance = requiredDistance - distance + 2;
+              finalX += Math.cos(angleToParticle) * pushDistance;
+              finalY += Math.sin(angleToParticle) * pushDistance;
+              break;
+            }
+          }
+          
+          if (!collision) break;
+          attempts++;
+        }
+        
+        // 최종 위치 저장
+        allParticlesRef.current.push({
+          x: finalX,
+          y: finalY,
+          radius: electronRadius,
+          studentId: studentId
+        });
+        
+        particles.push({ electron, x: finalX, y: finalY, scale, originalIndex: electronIndex });
+      }
 
       particles.sort((a, b): number => a.scale - b.scale);
 
@@ -1070,6 +1164,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     // 입자 위치 추적 초기화 (매 프레임마다 다시 계산)
     particlePositionsRef.current = [];
+    allParticlesRef.current = [];
 
     // 고해상도 렌더링을 위한 DPI 스케일링
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -2176,6 +2271,129 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         onHide={() => setShowCustomizeModal(false)} 
         onSave={handleSaveStudent} 
       />
+      
+      {/* 작은 원들 목록 모달 */}
+      {showParticleListModal && selectedStudentForParticles && (
+        <div className="particle-list-modal-overlay" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>
+          <div className="particle-list-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="particle-list-header">
+              <h3>{selectedStudentForParticles.name}</h3>
+              <button className="close-btn" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>×</button>
+            </div>
+            <div className="particle-list-body">
+              {selectedStudentForParticles.existence?.atom && (
+                <>
+                  {/* 양성자 */}
+                  {selectedStudentForParticles.existence.atom.protons && selectedStudentForParticles.existence.atom.protons.map((proton: any, idx: number) => (
+                    <div key={`proton-${idx}`} className="particle-list-item">
+                      <div className="particle-list-image">
+                        {proton.imageData ? (
+                          <img src={proton.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '40px' }}>{proton.emoji || '✨'}</span>
+                        )}
+                      </div>
+                      <div className="particle-list-content">
+                        <h4>{proton.keyword || 'Proton'}</h4>
+                        <p>{proton.description || 'No description'}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {/* 중성자 */}
+                  {selectedStudentForParticles.existence.atom.neutrons && selectedStudentForParticles.existence.atom.neutrons.map((neutron: any, idx: number) => (
+                    <div key={`neutron-${idx}`} className="particle-list-item">
+                      <div className="particle-list-image">
+                        {neutron.imageData ? (
+                          <img src={neutron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '40px' }}>{neutron.emoji || '✨'}</span>
+                        )}
+                      </div>
+                      <div className="particle-list-content">
+                        <h4>{neutron.keyword || 'Neutron'}</h4>
+                        <p>{neutron.description || 'No description'}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {/* 전자 */}
+                  {selectedStudentForParticles.existence.atom.electrons && (
+                    <>
+                      {selectedStudentForParticles.existence.atom.electrons.kShell && selectedStudentForParticles.existence.atom.electrons.kShell.map((electron: any, idx: number) => (
+                        <div key={`electron-k-${idx}`} className="particle-list-item">
+                          <div className="particle-list-image">
+                            {electron.imageData ? (
+                              <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '40px' }}>{electron.emoji || '✨'}</span>
+                            )}
+                          </div>
+                          <div className="particle-list-content">
+                            <h4>{electron.activity || 'Electron'}</h4>
+                            <p>{electron.description || 'No description'}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {selectedStudentForParticles.existence.atom.electrons.lShell && selectedStudentForParticles.existence.atom.electrons.lShell.map((electron: any, idx: number) => (
+                        <div key={`electron-l-${idx}`} className="particle-list-item">
+                          <div className="particle-list-image">
+                            {electron.imageData ? (
+                              <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '40px' }}>{electron.emoji || '✨'}</span>
+                            )}
+                          </div>
+                          <div className="particle-list-content">
+                            <h4>{electron.activity || 'Electron'}</h4>
+                            <p>{electron.description || 'No description'}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {selectedStudentForParticles.existence.atom.electrons.mShell && selectedStudentForParticles.existence.atom.electrons.mShell.map((electron: any, idx: number) => (
+                        <div key={`electron-m-${idx}`} className="particle-list-item">
+                          <div className="particle-list-image">
+                            {electron.imageData ? (
+                              <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '40px' }}>{electron.emoji || '✨'}</span>
+                            )}
+                          </div>
+                          <div className="particle-list-content">
+                            <h4>{electron.activity || 'Electron'}</h4>
+                            <p>{electron.description || 'No description'}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {selectedStudentForParticles.existence.atom.electrons.valence && selectedStudentForParticles.existence.atom.electrons.valence.map((electron: any, idx: number) => (
+                        <div key={`electron-v-${idx}`} className="particle-list-item">
+                          <div className="particle-list-image">
+                            {electron.imageData ? (
+                              <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '40px' }}>{electron.emoji || '✨'}</span>
+                            )}
+                          </div>
+                          <div className="particle-list-content">
+                            <h4>{electron.activity || 'Electron'}</h4>
+                            <p>{electron.description || 'No description'}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  <div className="particle-list-actions">
+                    <button className="btn-edit" onClick={() => {
+                      setShowParticleListModal(false);
+                      handleEditStudent(selectedStudentForParticles);
+                    }}>
+                      Edit
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* 비밀번호 입력 모달 */}
       <div className={`password-modal-overlay ${showPasswordModal ? 'show' : ''}`} onClick={handlePasswordModalClose}>

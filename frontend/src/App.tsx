@@ -357,17 +357,20 @@ function App() {
       // 화면 크기에 따른 설정
       let buttonSize, radius;
       
+      // 기본 사이즈 증가 및 classExistence의 size 적용
+      const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150; // 기본 사이즈 증가
+      
       if (screenWidth < 768) {
         // 모바일: 작은 원
-        buttonSize = 80;
+        buttonSize = baseSize;
         radius = Math.min(screenWidth, screenHeight) * 0.25;
       } else if (screenWidth < 1024) {
         // 태블릿: 중간 원
-        buttonSize = 100;
+        buttonSize = baseSize;
         radius = Math.min(screenWidth, screenHeight) * 0.3;
       } else {
         // 데스크톱: 큰 원
-        buttonSize = 120;
+        buttonSize = baseSize;
         radius = Math.min(screenWidth, screenHeight) * 0.35;
       }
       
@@ -497,7 +500,10 @@ function App() {
                             ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
                             : undefined,
                           position: 'relative',
-                          overflow: 'hidden'
+                          overflow: 'hidden',
+                          width: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 100 : window.innerWidth < 1024 ? 130 : 150)}px`,
+                          height: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 100 : window.innerWidth < 1024 ? 130 : 150)}px`,
+                          fontSize: `${(classExistence[index + 1]?.size || 1.0) * (window.innerWidth < 768 ? 14 : 16)}px`
                         }}
                       >
                         {classExistence[index + 1]?.imageData && classImageLoaded[index + 1] ? (
