@@ -459,7 +459,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   return (
     <Modal show={show} onHide={onHide} size="xl">
       <Modal.Header closeButton>
-        <Modal.Title>실존하기</Modal.Title>
+        <Modal.Title>Existence</Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
         {/* 상단 패널 전환 버튼 */}
@@ -470,28 +470,28 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               size="sm"
               onClick={() => setActivePanel('shape')}
             >
-              모양 편집
+              Shape Edit
             </Button>
             <Button
               variant={activePanel === 'nucleus' ? 'success' : 'outline-success'}
               size="sm"
               onClick={() => setActivePanel('nucleus')}
             >
-              원 편집
+              Circle Edit
             </Button>
             <Button
               variant={activePanel === 'shells' ? 'info' : 'outline-info'}
               size="sm"
               onClick={() => setActivePanel('shells')}
             >
-              원 편집
+              Circle Edit
             </Button>
             <Button
               variant={activePanel === 'records' ? 'warning' : 'outline-warning'}
               size="sm"
               onClick={() => setActivePanel('records')}
             >
-              활동 기록
+              Activity Records
             </Button>
           </div>
           <hr className="mt-3" />

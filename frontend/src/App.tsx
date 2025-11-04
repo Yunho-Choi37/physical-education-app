@@ -49,7 +49,7 @@ function App() {
       setShowAdminLogin(false);
       setAdminPassword('');
     } else {
-      alert('비밀번호가 올바르지 않습니다.');
+      alert('Password is incorrect.');
     }
   };
 
@@ -177,7 +177,7 @@ function App() {
         }));
       } catch (error) {
         console.error('Error saving class name:', error);
-        alert('클래스 이름 저장 중 오류가 발생했습니다.');
+        alert('Error occurred while saving class name.');
       }
       
       setEditingClassIndex(null);
@@ -213,7 +213,7 @@ function App() {
         }));
       } catch (error) {
         console.error('Error adding class:', error);
-        alert('클래스 추가 중 오류가 발생했습니다.');
+        alert('Error occurred while adding class.');
         return;
       }
       
@@ -223,7 +223,7 @@ function App() {
   };
 
   const handleDeleteClass = async (index: number) => {
-    if (window.confirm(`정말로 ${classes[index]}를 삭제하시겠습니까? 이 클래스의 모든 학생도 삭제됩니다.`)) {
+    if (window.confirm(`Are you sure you want to delete ${classes[index]}? All students in this class will also be deleted.`)) {
       const classId = index + 1;
       
       // 해당 클래스의 모든 학생 삭제
@@ -262,7 +262,7 @@ function App() {
         }));
       } catch (error) {
         console.error('Error deleting class:', error);
-        alert('클래스 삭제 중 오류가 발생했습니다.');
+        alert('Error occurred while deleting class.');
       }
     }
   };
@@ -276,7 +276,7 @@ function App() {
       setShowStudentManageModal(index);
     } catch (error) {
       console.error('Error fetching students:', error);
-      alert('학생 목록을 불러오는 중 오류가 발생했습니다.');
+      alert('Error occurred while loading student list.');
     }
   };
 
@@ -300,12 +300,12 @@ function App() {
       setClassStudents(students);
     } catch (error) {
       console.error('Error adding student:', error);
-      alert('원 추가 중 오류가 발생했습니다.');
+      alert('Error occurred while adding circle.');
     }
   };
 
   const handleDeleteStudent = async (studentId: number) => {
-    if (window.confirm('정말로 이 원을 삭제하시겠습니까?')) {
+    if (window.confirm('Are you sure you want to delete this circle?')) {
       try {
         await fetch(`${API_URL}/api/students/${studentId}`, {
           method: 'DELETE'
@@ -313,7 +313,7 @@ function App() {
         setClassStudents(classStudents.filter(s => s.id !== studentId));
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert('원 삭제 중 오류가 발생했습니다.');
+        alert('Error occurred while deleting circle.');
       }
     }
   };
@@ -432,11 +432,11 @@ function App() {
                   onClick={() => setShowAdminLogin(true)}
                   className="admin-login-btn"
                 >
-                  🔐 관리자 로그인
+                  🔐 Admin Login
                 </Button>
               ) : (
                 <div className="admin-status">
-                  <span className="admin-badge">관리자 모드</span>
+                  <span className="admin-badge">Admin Mode</span>
                   <Button 
                     variant="outline-warning"
                     size="sm"
@@ -444,7 +444,7 @@ function App() {
                     className="admin-add-class-btn"
                     style={{ marginRight: '8px' }}
                   >
-                    ➕ 원 추가
+                    ➕ Add Circle
                   </Button>
                   <Button 
                     variant="outline-danger" 
@@ -452,7 +452,7 @@ function App() {
                     onClick={handleAdminLogout}
                     className="admin-logout-btn"
                   >
-                    로그아웃
+                    Logout
                   </Button>
                 </div>
               )}
@@ -680,7 +680,7 @@ function App() {
                             e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="원 편집"
+                          title="Edit Circle"
                         >
                           🎨
                         </button>
@@ -714,7 +714,7 @@ function App() {
                             e.currentTarget.style.background = 'rgba(220, 53, 69, 0.9)';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="원 삭제"
+                          title="Delete Circle"
                         >
                           🗑️
                         </button>
@@ -732,15 +732,15 @@ function App() {
       {/* 관리자 로그인 모달 */}
       <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>🔐 관리자 로그인</Modal.Title>
+          <Modal.Title>🔐 Admin Login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>관리자 비밀번호</Form.Label>
+              <Form.Label>Admin Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="비밀번호를 입력하세요"
+                placeholder="Enter password"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
@@ -750,10 +750,10 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdminLogin(false)}>
-            취소
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleAdminLogin}>
-            로그인
+            Login
           </Button>
         </Modal.Footer>
       </Modal>
@@ -761,15 +761,15 @@ function App() {
       {/* 클래스 추가 모달 */}
       <Modal show={showAddClassModal} onHide={() => setShowAddClassModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>➕ 원 추가</Modal.Title>
+          <Modal.Title>➕ Add Circle</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>원 이름</Form.Label>
+              <Form.Label>Circle Name</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="예: 8반"
+                placeholder="e.g., Circle 8"
                 value={newClassName}
                 onChange={(e) => setNewClassName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddClass()}
@@ -780,10 +780,10 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAddClassModal(false)}>
-            취소
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleAddClass}>
-            추가
+            Add
           </Button>
         </Modal.Footer>
       </Modal>
@@ -797,7 +797,7 @@ function App() {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} 원 이름 관리
+            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} Circle Name Management
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -805,13 +805,13 @@ function App() {
             <>
               <div style={{ marginBottom: '20px' }}>
                 <Form.Group>
-                  <Form.Label>원 추가하기 (개수)</Form.Label>
+                  <Form.Label>Add Circle (Count)</Form.Label>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <Form.Control
                       type="number"
                       min="1"
                       max="50"
-                      placeholder="개수"
+                      placeholder="Count"
                       id="student-count-input"
                       style={{ width: '120px' }}
                     />
@@ -824,7 +824,7 @@ function App() {
                           handleAddStudent(showStudentManageModal, count);
                           input.value = '';
                         } else {
-                          alert('1부터 50 사이의 숫자를 입력하세요.');
+                          alert('Please enter a number between 1 and 50.');
                         }
                       }}
                     >
@@ -846,7 +846,7 @@ function App() {
                 }}>
                   {classStudents.length === 0 ? (
                     <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
-                      원이 없습니다.
+                      No circles available.
                     </div>
                   ) : (
                     classStudents.map((student) => (
@@ -879,7 +879,7 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowStudentManageModal(null)}>
-            닫기
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
@@ -978,7 +978,7 @@ function App() {
               setSelectedClassIndex(null);
             } catch (error) {
               console.error('Error saving class existence:', error);
-              alert('클래스 편집 저장 중 오류가 발생했습니다.');
+              alert('Error occurred while saving class edit.');
             }
           }}
         />

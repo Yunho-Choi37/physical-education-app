@@ -1845,7 +1845,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     });
 
     if (clickedStudent) {
-      handleStudentClick(clickedStudent);
+      // 큰 원 클릭 시 작은 원들 정렬된 목록 표시
+      setSelectedStudentForParticles(clickedStudent);
+      setShowParticleListModal(true);
     }
   };
 
@@ -1883,7 +1885,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       setShowCustomizeModal(true);
       setPasswordInput('');
     } else {
-      alert('비밀번호가 올바르지 않습니다.');
+      alert('Password is incorrect.');
     }
   };
 
@@ -2126,18 +2128,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       <div className="header-controls">
         <Link to="/" className="modern-btn back-btn">
           <span className="btn-icon">←</span>
-          <span className="btn-text">원 선택으로 돌아가기</span>
+          <span className="btn-text">Back to Circle Selection</span>
         </Link>
         {isAdmin && (
           <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
             <span className="btn-icon">+</span>
-            <span className="btn-text">원 추가하기</span>
+            <span className="btn-text">Add Circle</span>
           </button>
         )}
         {isAdmin && (
           <button className="modern-btn reset-btn" onClick={handleReset}>
             <span className="btn-icon">🔄</span>
-            <span className="btn-text">리셋</span>
+            <span className="btn-text">Reset</span>
           </button>
         )}
       </div>
@@ -2412,18 +2414,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       <div className={`password-modal-overlay ${showPasswordModal ? 'show' : ''}`} onClick={handlePasswordModalClose}>
         <div className="password-modal" onClick={(e) => e.stopPropagation()}>
           <div className="password-modal-header">
-            <h3>🔐 비밀번호 입력</h3>
+            <h3>🔐 Enter Password</h3>
             <button className="close-btn" onClick={handlePasswordModalClose}>×</button>
           </div>
           <div className="password-modal-body">
-            <p>학생 <strong>{selectedStudent?.name}</strong>의 비밀번호를 입력하세요</p>
+            <p>Enter password for <strong>{selectedStudent?.name}</strong></p>
             <div className="password-input-group">
               <input
                 type="password"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-                placeholder="4자리 비밀번호"
+                placeholder="4-digit password"
                 maxLength={4}
                 className="password-input"
                 autoFocus
@@ -2432,10 +2434,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
           <div className="password-modal-footer">
             <button className="btn-cancel" onClick={handlePasswordModalClose}>
-              취소
+              Cancel
             </button>
             <button className="btn-submit" onClick={handlePasswordSubmit}>
-              확인
+              Confirm
             </button>
           </div>
         </div>

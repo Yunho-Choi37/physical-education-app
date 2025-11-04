@@ -21,11 +21,11 @@ const AddStudentModal: React.FC<Props> = ({ show, onHide, onSave }) => {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>원 추가하기</Modal.Title>
+        <Modal.Title>Add Circle</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
-          <Form.Label><strong>추가할 학생 수를 입력하세요:</strong></Form.Label>
+          <Form.Label><strong>Enter the number of circles to add:</strong></Form.Label>
           <Form.Control 
             type="number" 
             min="1" 
@@ -38,16 +38,16 @@ const AddStudentModal: React.FC<Props> = ({ show, onHide, onSave }) => {
             style={{ fontSize: '18px', textAlign: 'center', padding: '12px' }}
           />
           <Form.Text className="text-muted">
-            {count}명의 학생이 추가됩니다. (최대 50명)
+            {count} circle(s) will be added. (Max 50)
           </Form.Text>
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" onClick={handleSave}>
-          추가하기
+          Add
         </Button>
         <Button variant="secondary" onClick={onHide}>
-          취소
+          Cancel
         </Button>
       </Modal.Footer>
     </Modal>
