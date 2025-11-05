@@ -100,6 +100,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [hoveredStudent, setHoveredStudent] = useState<number | null>(null);
   const [showParticleListModal, setShowParticleListModal] = useState(false);
   const [selectedStudentForParticles, setSelectedStudentForParticles] = useState<Student | null>(null);
+  // 입자 상세 보기 모달 상태
+  const [selectedParticleDetail, setSelectedParticleDetail] = useState<{ type: 'proton' | 'neutron' | 'electron'; name?: string; description?: string; emoji?: string; imageData?: string } | null>(null);
   // 입자 설명 모달 상태
   const [particleInfo, setParticleInfo] = useState<{ type: 'proton' | 'neutron' | 'electron'; keyword?: string; description?: string; emoji?: string; imageData?: string; studentId: number; particleIndex?: number; shellType?: string } | null>(null);
   const [isEditingParticle, setIsEditingParticle] = useState(false);
@@ -2242,7 +2244,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 <>
                   {/* 양성자 */}
                   {selectedStudentForParticles.existence.atom.protons && selectedStudentForParticles.existence.atom.protons.map((proton: any, idx: number) => (
-                    <div key={`proton-${idx}`} className="particle-list-item">
+                    <div 
+                      key={`proton-${idx}`} 
+                      className="particle-list-item"
+                      onClick={() => {
+                        setSelectedParticleDetail({
+                          type: 'proton',
+                          name: proton.name || proton.keyword || 'Circle',
+                          description: proton.description || '',
+                          emoji: proton.emoji,
+                          imageData: proton.imageData
+                        });
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <div className="particle-list-image">
                         {proton.imageData ? (
                           <img src={proton.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2258,7 +2273,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   ))}
                   {/* 중성자 */}
                   {selectedStudentForParticles.existence.atom.neutrons && selectedStudentForParticles.existence.atom.neutrons.map((neutron: any, idx: number) => (
-                    <div key={`neutron-${idx}`} className="particle-list-item">
+                    <div 
+                      key={`neutron-${idx}`} 
+                      className="particle-list-item"
+                      onClick={() => {
+                        setSelectedParticleDetail({
+                          type: 'neutron',
+                          name: neutron.name || neutron.keyword || 'Circle',
+                          description: neutron.description || '',
+                          emoji: neutron.emoji,
+                          imageData: neutron.imageData
+                        });
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <div className="particle-list-image">
                         {neutron.imageData ? (
                           <img src={neutron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2276,7 +2304,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   {selectedStudentForParticles.existence.atom.electrons && (
                     <>
                       {selectedStudentForParticles.existence.atom.electrons.kShell && selectedStudentForParticles.existence.atom.electrons.kShell.map((electron: any, idx: number) => (
-                        <div key={`electron-k-${idx}`} className="particle-list-item">
+                        <div 
+                          key={`electron-k-${idx}`} 
+                          className="particle-list-item"
+                          onClick={() => {
+                            setSelectedParticleDetail({
+                              type: 'electron',
+                              name: electron.name || electron.activity || 'Circle',
+                              description: electron.description || '',
+                              emoji: electron.emoji,
+                              imageData: electron.imageData
+                            });
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="particle-list-image">
                             {electron.imageData ? (
                               <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2291,7 +2332,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.lShell && selectedStudentForParticles.existence.atom.electrons.lShell.map((electron: any, idx: number) => (
-                        <div key={`electron-l-${idx}`} className="particle-list-item">
+                        <div 
+                          key={`electron-l-${idx}`} 
+                          className="particle-list-item"
+                          onClick={() => {
+                            setSelectedParticleDetail({
+                              type: 'electron',
+                              name: electron.name || electron.activity || 'Circle',
+                              description: electron.description || '',
+                              emoji: electron.emoji,
+                              imageData: electron.imageData
+                            });
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="particle-list-image">
                             {electron.imageData ? (
                               <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2306,7 +2360,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.mShell && selectedStudentForParticles.existence.atom.electrons.mShell.map((electron: any, idx: number) => (
-                        <div key={`electron-m-${idx}`} className="particle-list-item">
+                        <div 
+                          key={`electron-m-${idx}`} 
+                          className="particle-list-item"
+                          onClick={() => {
+                            setSelectedParticleDetail({
+                              type: 'electron',
+                              name: electron.name || electron.activity || 'Circle',
+                              description: electron.description || '',
+                              emoji: electron.emoji,
+                              imageData: electron.imageData
+                            });
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="particle-list-image">
                             {electron.imageData ? (
                               <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2321,7 +2388,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.valence && selectedStudentForParticles.existence.atom.electrons.valence.map((electron: any, idx: number) => (
-                        <div key={`electron-v-${idx}`} className="particle-list-item">
+                        <div 
+                          key={`electron-v-${idx}`} 
+                          className="particle-list-item"
+                          onClick={() => {
+                            setSelectedParticleDetail({
+                              type: 'electron',
+                              name: electron.name || electron.activity || 'Circle',
+                              description: electron.description || '',
+                              emoji: electron.emoji,
+                              imageData: electron.imageData
+                            });
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="particle-list-image">
                             {electron.imageData ? (
                               <img src={electron.imageData} alt="Particle" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
@@ -2339,6 +2419,48 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   )}
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* 입자 상세 보기 모달 */}
+      {selectedParticleDetail && (
+        <div 
+          className="particle-detail-modal-overlay" 
+          onClick={() => setSelectedParticleDetail(null)}
+        >
+          <div 
+            className="particle-detail-modal" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="particle-detail-header">
+              <h3>{selectedParticleDetail.name || 'Circle'}</h3>
+              <button 
+                className="close-btn" 
+                onClick={() => setSelectedParticleDetail(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="particle-detail-body">
+              <div className="particle-detail-image-container">
+                {selectedParticleDetail.imageData ? (
+                  <img 
+                    src={selectedParticleDetail.imageData} 
+                    alt="Particle" 
+                    className="particle-detail-image"
+                  />
+                ) : (
+                  <div className="particle-detail-emoji">
+                    {selectedParticleDetail.emoji || '✨'}
+                  </div>
+                )}
+              </div>
+              <div className="particle-detail-description">
+                <h4>Description</h4>
+                <p>{selectedParticleDetail.description || 'No description'}</p>
+              </div>
             </div>
           </div>
         </div>
