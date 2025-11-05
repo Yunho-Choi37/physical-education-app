@@ -2511,52 +2511,80 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 {(() => {
                   const images = selectedParticleDetail.images || (selectedParticleDetail.imageData ? [selectedParticleDetail.imageData] : []);
                   const hasImages = images.length > 0;
-                  const displayImages = images.slice(currentImageIndex, currentImageIndex + 2);
+                  const displayImages = images.slice(currentImageIndex, currentImageIndex + 4);
                   const canGoPrev = currentImageIndex > 0;
-                  const canGoNext = currentImageIndex + 2 < images.length;
+                  const canGoNext = currentImageIndex + 4 < images.length;
                   
                   if (hasImages) {
-                    return (
-                      <div className="particle-detail-images-grid">
-                        {displayImages.map((img, idx) => (
+                    if (images.length === 1) {
+                      // 이미지가 1개일 때는 전체 크기로 표시
+                      return (
+                        <div className="particle-detail-single-image">
                           <img 
-                            key={idx}
-                            src={img} 
-                            alt={`Particle ${currentImageIndex + idx + 1}`} 
-                            className="particle-detail-image-item"
+                            src={images[0]} 
+                            alt="Particle" 
+                            className="particle-detail-image-full"
                           />
-                        ))}
-                        {images.length > 2 && (
-                          <>
-                            {canGoPrev && (
-                              <button 
-                                className="particle-detail-nav-btn particle-detail-nav-prev"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentImageIndex(Math.max(0, currentImageIndex - 2));
-                                }}
-                              >
-                                ‹
-                              </button>
-                            )}
-                            {canGoNext && (
-                              <button 
-                                className="particle-detail-nav-btn particle-detail-nav-next"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentImageIndex(Math.min(images.length - 2, currentImageIndex + 2));
-                                }}
-                              >
-                                ›
-                              </button>
-                            )}
-                          </>
-                        )}
-                        <div className="particle-detail-image-counter">
-                          {Math.floor(currentImageIndex / 2) + 1} / {Math.ceil(images.length / 2)}
                         </div>
-                      </div>
-                    );
+                      );
+                    } else if (images.length === 2) {
+                      // 이미지가 2개일 때는 2개를 나란히 표시
+                      return (
+                        <div className="particle-detail-images-grid-two">
+                          {images.map((img, idx) => (
+                            <img 
+                              key={idx}
+                              src={img} 
+                              alt={`Particle ${idx + 1}`} 
+                              className="particle-detail-image-item"
+                            />
+                          ))}
+                        </div>
+                      );
+                    } else {
+                      // 이미지가 3개 이상일 때는 2x2 그리드로 표시하고 슬라이더 사용
+                      return (
+                        <div className="particle-detail-images-grid">
+                          {displayImages.map((img, idx) => (
+                            <img 
+                              key={idx}
+                              src={img} 
+                              alt={`Particle ${currentImageIndex + idx + 1}`} 
+                              className="particle-detail-image-item"
+                            />
+                          ))}
+                          {images.length > 4 && (
+                            <>
+                              {canGoPrev && (
+                                <button 
+                                  className="particle-detail-nav-btn particle-detail-nav-prev"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCurrentImageIndex(Math.max(0, currentImageIndex - 4));
+                                  }}
+                                >
+                                  ‹
+                                </button>
+                              )}
+                              {canGoNext && (
+                                <button 
+                                  className="particle-detail-nav-btn particle-detail-nav-next"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCurrentImageIndex(Math.min(images.length - 4, currentImageIndex + 4));
+                                  }}
+                                >
+                                  ›
+                                </button>
+                              )}
+                            </>
+                          )}
+                          <div className="particle-detail-image-counter">
+                            {Math.floor(currentImageIndex / 4) + 1} / {Math.ceil(images.length / 4)}
+                          </div>
+                        </div>
+                      );
+                    }
                   } else {
                     return (
                       <div className="particle-detail-emoji">
