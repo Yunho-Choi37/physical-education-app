@@ -1354,93 +1354,147 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={(e) => {
-                            const file = e.currentTarget.files?.[0];
-                            if (!file) return;
+                            const files = Array.from(e.currentTarget.files || []);
+                            if (files.length === 0) return;
                             
-                            if (file.size > 10 * 1024 * 1024) {
-                              alert('Image size must be 10MB or less.');
-                              return;
-                            }
-                            
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-                              if (dataUrl) {
-                                const img = new Image();
-                                img.onload = () => {
-                                  const maxSize = 400;
-                                  let targetWidth = img.width;
-                                  let targetHeight = img.height;
-                                  
-                                  if (img.width > maxSize || img.height > maxSize) {
-                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                                    targetWidth = Math.floor(img.width * ratio);
-                                    targetHeight = Math.floor(img.height * ratio);
-                                  }
-                                  
-                                  const canvas = document.createElement('canvas');
-                                  canvas.width = targetWidth;
-                                  canvas.height = targetHeight;
-                                  const ctx = canvas.getContext('2d');
-                                  
-                                  if (!ctx) return;
-                                  
-                                  ctx.imageSmoothingEnabled = true;
-                                  ctx.imageSmoothingQuality = 'high';
-                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-                                  
-                                  let quality = 0.8;
-                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  
-                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
-                                    quality -= 0.1;
-                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  }
-                                  
-                                  const newKShell = [...atomModel.electrons.kShell];
-                                  newKShell[index].imageData = compressedDataUrl;
-                                  setAtomModel({
-                                    ...atomModel,
-                                    electrons: { ...atomModel.electrons, kShell: newKShell }
-                                  });
-                                  alert('사진이 업로드되었습니다.');
-                                };
-                                img.src = dataUrl;
+                            const validFiles = files.filter(file => {
+                              if (file.size > 10 * 1024 * 1024) {
+                                alert(`${file.name}: Image size must be 10MB or less.`);
+                                return false;
                               }
+                              return true;
+                            });
+                            
+                            if (validFiles.length === 0) return;
+                            
+                            const processFile = (file: File, fileIndex: number) => {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                                if (dataUrl) {
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    const maxSize = 400;
+                                    let targetWidth = img.width;
+                                    let targetHeight = img.height;
+                                    
+                                    if (img.width > maxSize || img.height > maxSize) {
+                                      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                      targetWidth = Math.floor(img.width * ratio);
+                                      targetHeight = Math.floor(img.height * ratio);
+                                    }
+                                    
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = targetWidth;
+                                    canvas.height = targetHeight;
+                                    const ctx = canvas.getContext('2d');
+                                    
+                                    if (!ctx) return;
+                                    
+                                    ctx.imageSmoothingEnabled = true;
+                                    ctx.imageSmoothingQuality = 'high';
+                                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                    
+                                    let quality = 0.8;
+                                    let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    
+                                    while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                      quality -= 0.1;
+                                      compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    }
+                                    
+                                    const newKShell = [...atomModel.electrons.kShell];
+                                    if (!newKShell[index].images) {
+                                      newKShell[index].images = [];
+                                    }
+                                    newKShell[index].images!.push(compressedDataUrl);
+                                    if (newKShell[index].primaryImageIndex === undefined && newKShell[index].images!.length === 1) {
+                                      newKShell[index].primaryImageIndex = 0;
+                                    }
+                                    setAtomModel({
+                                      ...atomModel,
+                                      electrons: { ...atomModel.electrons, kShell: newKShell }
+                                    });
+                                    
+                                    if (fileIndex === validFiles.length - 1) {
+                                      alert(`${validFiles.length}개의 사진이 업로드되었습니다.`);
+                                    }
+                                  };
+                                  img.src = dataUrl;
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             };
-                            reader.readAsDataURL(file);
+                            
+                            validFiles.forEach((file, idx) => processFile(file, idx));
                           }}
                           style={{ fontSize: '14px', padding: '6px' }}
                         />
-                        {electron.imageData && (
-                          <>
-                            <img
-                              src={electron.imageData}
-                              alt="preview"
-                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
-                            />
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => {
-                                const newKShell = [...atomModel.electrons.kShell];
-                                newKShell[index].imageData = undefined;
-                                setAtomModel({
-                                  ...atomModel,
-                                  electrons: { ...atomModel.electrons, kShell: newKShell }
-                                });
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </>
-                        )}
+                        <div className="d-flex flex-wrap gap-2 align-items-center">
+                          {(electron.images || (electron.imageData ? [electron.imageData] : [])).map((img: string, imgIndex: number) => {
+                            const isPrimary = electron.primaryImageIndex === imgIndex || (electron.primaryImageIndex === undefined && imgIndex === 0);
+                            return (
+                              <div key={imgIndex} className="position-relative" style={{ border: isPrimary ? '3px solid #007bff' : '1px solid #ccc', borderRadius: 4, padding: 2 }}>
+                                <img
+                                  src={img}
+                                  alt={`preview ${imgIndex + 1}`}
+                                  style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 2 }}
+                                />
+                                {isPrimary && (
+                                  <div style={{ position: 'absolute', top: 0, right: 0, background: '#007bff', color: 'white', fontSize: '10px', padding: '2px 4px', borderRadius: '0 2px 0 2px' }}>
+                                    Primary
+                                  </div>
+                                )}
+                                <div className="d-flex gap-1 mt-1">
+                                  <Button
+                                    variant={isPrimary ? "primary" : "outline-primary"}
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newKShell = [...atomModel.electrons.kShell];
+                                      newKShell[index].primaryImageIndex = imgIndex;
+                                      setAtomModel({
+                                        ...atomModel,
+                                        electrons: { ...atomModel.electrons, kShell: newKShell }
+                                      });
+                                    }}
+                                  >
+                                    Set Primary
+                                  </Button>
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newKShell = [...atomModel.electrons.kShell];
+                                      if (newKShell[index].images) {
+                                        newKShell[index].images = newKShell[index].images!.filter((_, i) => i !== imgIndex);
+                                        if (newKShell[index].primaryImageIndex === imgIndex) {
+                                          newKShell[index].primaryImageIndex = newKShell[index].images!.length > 0 ? 0 : undefined;
+                                        } else if (newKShell[index].primaryImageIndex !== undefined && newKShell[index].primaryImageIndex! > imgIndex) {
+                                          newKShell[index].primaryImageIndex = newKShell[index].primaryImageIndex! - 1;
+                                        }
+                                      }
+                                      setAtomModel({
+                                        ...atomModel,
+                                        electrons: { ...atomModel.electrons, kShell: newKShell }
+                                      });
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
