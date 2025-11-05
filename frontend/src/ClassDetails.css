@@ -824,23 +824,102 @@
 }
 
 .particle-detail-body {
-  padding: 28px;
-}
-
-.particle-detail-image-container {
+  padding: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 24px;
-  min-height: 200px;
+  flex-direction: row;
+  height: 85vh;
 }
 
-.particle-detail-image {
-  max-width: 100%;
-  max-height: 250px;
-  border-radius: 12px;
-  object-fit: contain;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+.particle-detail-image-section {
+  flex: 2;
+  position: relative;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.particle-detail-images-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2px;
+  position: relative;
+}
+
+.particle-detail-image-item {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #2a2a2a;
+}
+
+.particle-detail-image-item:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.particle-detail-image-item:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.particle-detail-image-item:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.particle-detail-image-item:nth-child(4) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.particle-detail-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.particle-detail-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.particle-detail-nav-prev {
+  left: 20px;
+}
+
+.particle-detail-nav-next {
+  right: 20px;
+}
+
+.particle-detail-image-counter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 10;
 }
 
 .particle-detail-emoji {
@@ -848,12 +927,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  width: 100%;
+  height: 100%;
 }
 
 .particle-detail-description {
-  border-top: 1px solid #424242;
-  padding-top: 24px;
+  flex: 1;
+  padding: 28px;
+  border-left: 1px solid #424242;
+  overflow-y: auto;
+  background: #2a2a2a;
 }
 
 .particle-detail-description h4 {

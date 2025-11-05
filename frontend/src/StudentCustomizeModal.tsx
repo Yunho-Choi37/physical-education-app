@@ -122,13 +122,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
   // 원자 모델 편집 상태 - 처음에는 모두 빈 배열
   const [atomModel, setAtomModel] = useState<{
-    protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; description?: string; name?: string }>;
-    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; description?: string; name?: string }>;
+    protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string }>;
+    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string }>;
     electrons: {
-      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; name?: string }>;
-      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; name?: string }>;
-      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; name?: string }>;
-      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; name?: string }>;
+      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
+      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
+      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
+      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
     };
   }>({
     protons: [],
@@ -172,14 +172,37 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       // 원자 모델 초기화 (description 필드를 기본값 ''로 보정)
       if (student.existence?.atom) {
         const a = student.existence.atom as any;
+        
+        // imageData를 images 배열로 마이그레이션하는 헬퍼 함수
+        const migrateImageData = (items: any[]) => {
+          return items.map((item: any) => {
+            if (item.imageData && !item.images) {
+              // imageData가 있고 images가 없으면 마이그레이션
+              return {
+                ...item,
+                images: [item.imageData],
+                primaryImageIndex: 0,
+                imageData: undefined // 호환성을 위해 유지하되, 우선순위는 images
+              };
+            } else if (!item.images) {
+              // 둘 다 없으면 빈 배열
+              return {
+                ...item,
+                images: [],
+                primaryImageIndex: undefined
+              };
+            }
+            return item;
+          });
+        };
         setAtomModel({
-          protons: a.protons || [],
-          neutrons: a.neutrons || [],
+          protons: migrateImageData(a.protons || []),
+          neutrons: migrateImageData(a.neutrons || []),
           electrons: {
-            kShell: (a.electrons?.kShell || []).map((e: any) => ({ ...e, description: e.description || '' })),
-            lShell: (a.electrons?.lShell || []).map((e: any) => ({ ...e, description: e.description || '' })),
-            mShell: (a.electrons?.mShell || []).map((e: any) => ({ ...e, description: e.description || '' })),
-            valence: (a.electrons?.valence || []).map((e: any) => ({ ...e, description: e.description || '' })),
+            kShell: migrateImageData((a.electrons?.kShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+            lShell: migrateImageData((a.electrons?.lShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+            mShell: migrateImageData((a.electrons?.mShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+            valence: migrateImageData((a.electrons?.valence || []).map((e: any) => ({ ...e, description: e.description || '' }))),
           }
         });
       }
@@ -856,87 +879,138 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={(e) => {
-                            const file = e.currentTarget.files?.[0];
-                            if (!file) return;
+                            const files = Array.from(e.currentTarget.files || []);
+                            if (files.length === 0) return;
                             
-                            if (file.size > 10 * 1024 * 1024) {
-                              alert('Image size must be 10MB or less.');
-                              return;
-                            }
-                            
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-                              if (dataUrl) {
-                                const img = new Image();
-                                img.onload = () => {
-                                  const maxSize = 400;
-                                  let targetWidth = img.width;
-                                  let targetHeight = img.height;
-                                  
-                                  if (img.width > maxSize || img.height > maxSize) {
-                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                                    targetWidth = Math.floor(img.width * ratio);
-                                    targetHeight = Math.floor(img.height * ratio);
-                                  }
-                                  
-                                  const canvas = document.createElement('canvas');
-                                  canvas.width = targetWidth;
-                                  canvas.height = targetHeight;
-                                  const ctx = canvas.getContext('2d');
-                                  
-                                  if (!ctx) return;
-                                  
-                                  ctx.imageSmoothingEnabled = true;
-                                  ctx.imageSmoothingQuality = 'high';
-                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-                                  
-                                  let quality = 0.8;
-                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  
-                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
-                                    quality -= 0.1;
-                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  }
-                                  
-                                  const newProtons = [...atomModel.protons];
-                                  newProtons[index].imageData = compressedDataUrl;
-                                  setAtomModel({...atomModel, protons: newProtons});
-                                  alert('사진이 업로드되었습니다.');
-                                };
-                                img.src = dataUrl;
+                            const validFiles = files.filter(file => {
+                              if (file.size > 10 * 1024 * 1024) {
+                                alert(`${file.name}: Image size must be 10MB or less.`);
+                                return false;
                               }
+                              return true;
+                            });
+                            
+                            if (validFiles.length === 0) return;
+                            
+                            const processFile = (file: File, fileIndex: number) => {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                                if (dataUrl) {
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    const maxSize = 400;
+                                    let targetWidth = img.width;
+                                    let targetHeight = img.height;
+                                    
+                                    if (img.width > maxSize || img.height > maxSize) {
+                                      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                      targetWidth = Math.floor(img.width * ratio);
+                                      targetHeight = Math.floor(img.height * ratio);
+                                    }
+                                    
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = targetWidth;
+                                    canvas.height = targetHeight;
+                                    const ctx = canvas.getContext('2d');
+                                    
+                                    if (!ctx) return;
+                                    
+                                    ctx.imageSmoothingEnabled = true;
+                                    ctx.imageSmoothingQuality = 'high';
+                                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                    
+                                    let quality = 0.8;
+                                    let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    
+                                    while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                      quality -= 0.1;
+                                      compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    }
+                                    
+                                    const newProtons = [...atomModel.protons];
+                                    if (!newProtons[index].images) {
+                                      newProtons[index].images = [];
+                                    }
+                                    newProtons[index].images!.push(compressedDataUrl);
+                                    if (newProtons[index].primaryImageIndex === undefined && newProtons[index].images!.length === 1) {
+                                      newProtons[index].primaryImageIndex = 0;
+                                    }
+                                    setAtomModel({...atomModel, protons: newProtons});
+                                    
+                                    if (fileIndex === validFiles.length - 1) {
+                                      alert(`${validFiles.length}개의 사진이 업로드되었습니다.`);
+                                    }
+                                  };
+                                  img.src = dataUrl;
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             };
-                            reader.readAsDataURL(file);
+                            
+                            validFiles.forEach((file, idx) => processFile(file, idx));
                           }}
                           style={{ fontSize: '14px', padding: '6px' }}
                         />
-                        {proton.imageData && (
-                          <>
-                            <img
-                              src={proton.imageData}
-                              alt="preview"
-                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
-                            />
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => {
-                                const newProtons = [...atomModel.protons];
-                                newProtons[index].imageData = undefined;
-                                setAtomModel({...atomModel, protons: newProtons});
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </>
-                        )}
+                        <div className="d-flex flex-wrap gap-2 align-items-center">
+                          {(proton.images || (proton.imageData ? [proton.imageData] : [])).map((img: string, imgIndex: number) => {
+                            const isPrimary = proton.primaryImageIndex === imgIndex || (proton.primaryImageIndex === undefined && imgIndex === 0);
+                            return (
+                              <div key={imgIndex} className="position-relative" style={{ border: isPrimary ? '3px solid #007bff' : '1px solid #ccc', borderRadius: 4, padding: 2 }}>
+                                <img
+                                  src={img}
+                                  alt={`preview ${imgIndex + 1}`}
+                                  style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 2 }}
+                                />
+                                {isPrimary && (
+                                  <div style={{ position: 'absolute', top: 0, right: 0, background: '#007bff', color: 'white', fontSize: '10px', padding: '2px 4px', borderRadius: '0 2px 0 2px' }}>
+                                    Primary
+                                  </div>
+                                )}
+                                <div className="d-flex gap-1 mt-1">
+                                  <Button
+                                    variant={isPrimary ? "primary" : "outline-primary"}
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newProtons = [...atomModel.protons];
+                                      newProtons[index].primaryImageIndex = imgIndex;
+                                      setAtomModel({...atomModel, protons: newProtons});
+                                    }}
+                                  >
+                                    Set Primary
+                                  </Button>
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newProtons = [...atomModel.protons];
+                                      if (newProtons[index].images) {
+                                        newProtons[index].images = newProtons[index].images!.filter((_, i) => i !== imgIndex);
+                                        if (newProtons[index].primaryImageIndex === imgIndex) {
+                                          newProtons[index].primaryImageIndex = newProtons[index].images!.length > 0 ? 0 : undefined;
+                                        } else if (newProtons[index].primaryImageIndex !== undefined && newProtons[index].primaryImageIndex! > imgIndex) {
+                                          newProtons[index].primaryImageIndex = newProtons[index].primaryImageIndex! - 1;
+                                        }
+                                      }
+                                      setAtomModel({...atomModel, protons: newProtons});
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
@@ -1038,87 +1112,138 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={(e) => {
-                            const file = e.currentTarget.files?.[0];
-                            if (!file) return;
+                            const files = Array.from(e.currentTarget.files || []);
+                            if (files.length === 0) return;
                             
-                            if (file.size > 10 * 1024 * 1024) {
-                              alert('Image size must be 10MB or less.');
-                              return;
-                            }
-                            
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-                              if (dataUrl) {
-                                const img = new Image();
-                                img.onload = () => {
-                                  const maxSize = 400;
-                                  let targetWidth = img.width;
-                                  let targetHeight = img.height;
-                                  
-                                  if (img.width > maxSize || img.height > maxSize) {
-                                    const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-                                    targetWidth = Math.floor(img.width * ratio);
-                                    targetHeight = Math.floor(img.height * ratio);
-                                  }
-                                  
-                                  const canvas = document.createElement('canvas');
-                                  canvas.width = targetWidth;
-                                  canvas.height = targetHeight;
-                                  const ctx = canvas.getContext('2d');
-                                  
-                                  if (!ctx) return;
-                                  
-                                  ctx.imageSmoothingEnabled = true;
-                                  ctx.imageSmoothingQuality = 'high';
-                                  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-                                  
-                                  let quality = 0.8;
-                                  let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  
-                                  while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
-                                    quality -= 0.1;
-                                    compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                                  }
-                                  
-                                  const newNeutrons = [...atomModel.neutrons];
-                                  newNeutrons[index].imageData = compressedDataUrl;
-                                  setAtomModel({...atomModel, neutrons: newNeutrons});
-                                  alert('사진이 업로드되었습니다.');
-                                };
-                                img.src = dataUrl;
+                            const validFiles = files.filter(file => {
+                              if (file.size > 10 * 1024 * 1024) {
+                                alert(`${file.name}: Image size must be 10MB or less.`);
+                                return false;
                               }
+                              return true;
+                            });
+                            
+                            if (validFiles.length === 0) return;
+                            
+                            const processFile = (file: File, fileIndex: number) => {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                                if (dataUrl) {
+                                  const img = new Image();
+                                  img.onload = () => {
+                                    const maxSize = 400;
+                                    let targetWidth = img.width;
+                                    let targetHeight = img.height;
+                                    
+                                    if (img.width > maxSize || img.height > maxSize) {
+                                      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+                                      targetWidth = Math.floor(img.width * ratio);
+                                      targetHeight = Math.floor(img.height * ratio);
+                                    }
+                                    
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = targetWidth;
+                                    canvas.height = targetHeight;
+                                    const ctx = canvas.getContext('2d');
+                                    
+                                    if (!ctx) return;
+                                    
+                                    ctx.imageSmoothingEnabled = true;
+                                    ctx.imageSmoothingQuality = 'high';
+                                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                                    
+                                    let quality = 0.8;
+                                    let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    
+                                    while (compressedDataUrl.length > 400 * 1024 && quality > 0.5) {
+                                      quality -= 0.1;
+                                      compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                                    }
+                                    
+                                    const newNeutrons = [...atomModel.neutrons];
+                                    if (!newNeutrons[index].images) {
+                                      newNeutrons[index].images = [];
+                                    }
+                                    newNeutrons[index].images!.push(compressedDataUrl);
+                                    if (newNeutrons[index].primaryImageIndex === undefined && newNeutrons[index].images!.length === 1) {
+                                      newNeutrons[index].primaryImageIndex = 0;
+                                    }
+                                    setAtomModel({...atomModel, neutrons: newNeutrons});
+                                    
+                                    if (fileIndex === validFiles.length - 1) {
+                                      alert(`${validFiles.length}개의 사진이 업로드되었습니다.`);
+                                    }
+                                  };
+                                  img.src = dataUrl;
+                                }
+                              };
+                              reader.readAsDataURL(file);
                             };
-                            reader.readAsDataURL(file);
+                            
+                            validFiles.forEach((file, idx) => processFile(file, idx));
                           }}
                           style={{ fontSize: '14px', padding: '6px' }}
                         />
-                        {neutron.imageData && (
-                          <>
-                            <img
-                              src={neutron.imageData}
-                              alt="preview"
-                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
-                            />
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => {
-                                const newNeutrons = [...atomModel.neutrons];
-                                newNeutrons[index].imageData = undefined;
-                                setAtomModel({...atomModel, neutrons: newNeutrons});
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </>
-                        )}
+                        <div className="d-flex flex-wrap gap-2 align-items-center">
+                          {(neutron.images || (neutron.imageData ? [neutron.imageData] : [])).map((img: string, imgIndex: number) => {
+                            const isPrimary = neutron.primaryImageIndex === imgIndex || (neutron.primaryImageIndex === undefined && imgIndex === 0);
+                            return (
+                              <div key={imgIndex} className="position-relative" style={{ border: isPrimary ? '3px solid #007bff' : '1px solid #ccc', borderRadius: 4, padding: 2 }}>
+                                <img
+                                  src={img}
+                                  alt={`preview ${imgIndex + 1}`}
+                                  style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 2 }}
+                                />
+                                {isPrimary && (
+                                  <div style={{ position: 'absolute', top: 0, right: 0, background: '#007bff', color: 'white', fontSize: '10px', padding: '2px 4px', borderRadius: '0 2px 0 2px' }}>
+                                    Primary
+                                  </div>
+                                )}
+                                <div className="d-flex gap-1 mt-1">
+                                  <Button
+                                    variant={isPrimary ? "primary" : "outline-primary"}
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newNeutrons = [...atomModel.neutrons];
+                                      newNeutrons[index].primaryImageIndex = imgIndex;
+                                      setAtomModel({...atomModel, neutrons: newNeutrons});
+                                    }}
+                                  >
+                                    Set Primary
+                                  </Button>
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    style={{ fontSize: '10px', padding: '2px 6px' }}
+                                    onClick={() => {
+                                      const newNeutrons = [...atomModel.neutrons];
+                                      if (newNeutrons[index].images) {
+                                        newNeutrons[index].images = newNeutrons[index].images!.filter((_, i) => i !== imgIndex);
+                                        if (newNeutrons[index].primaryImageIndex === imgIndex) {
+                                          newNeutrons[index].primaryImageIndex = newNeutrons[index].images!.length > 0 ? 0 : undefined;
+                                        } else if (newNeutrons[index].primaryImageIndex !== undefined && newNeutrons[index].primaryImageIndex! > imgIndex) {
+                                          newNeutrons[index].primaryImageIndex = newNeutrons[index].primaryImageIndex! - 1;
+                                        }
+                                      }
+                                      setAtomModel({...atomModel, neutrons: newNeutrons});
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
