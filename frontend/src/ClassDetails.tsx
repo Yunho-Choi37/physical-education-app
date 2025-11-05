@@ -821,9 +821,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         });
 
         // 이미지가 있으면 이미지 렌더링 (원과 같은 방식)
-        if (electron.imageData) {
+        const images = electron.images || (electron.imageData ? [electron.imageData] : []);
+        const primaryIndex = electron.primaryImageIndex !== undefined ? electron.primaryImageIndex : (images.length > 0 ? 0 : -1);
+        const displayImage = primaryIndex >= 0 && primaryIndex < images.length ? images[primaryIndex] : null;
+        
+        if (displayImage) {
           const cache = imageCacheRef.current;
-          let cached = cache.get(electron.imageData);
+          let cached = cache.get(displayImage);
           
           if (!cached) {
             // 캐시에 없으면 새로 로드
@@ -836,14 +840,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             };
             newImage.onerror = (error) => {
               console.error(`❌ 전자 이미지 로드 실패:`, error);
-              cache.delete(electron.imageData);
+              cache.delete(displayImage);
               requestAnimationFrame(() => {
                 drawGraph();
               });
             };
-            newImage.src = electron.imageData;
+            newImage.src = displayImage;
             cached = newImage;
-            cache.set(electron.imageData, newImage);
+            cache.set(displayImage, newImage);
           }
           
           if (cached && cached.complete && cached.naturalWidth > 0) {
