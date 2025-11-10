@@ -80,7 +80,6 @@ function App() {
   const location = useLocation();
   const isClassView = location.pathname.startsWith('/class');
   const isLegacyView = location.pathname === '/being' || isClassView;
-  const isLandingView = location.pathname === '/';
 
   const handleAdminLogin = () => {
     if (adminPassword === '159753') {
