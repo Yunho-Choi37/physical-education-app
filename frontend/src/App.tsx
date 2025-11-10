@@ -637,9 +637,6 @@ function App() {
   );
 
   const LandingPage = () => {
-    const sampleTags = ['#창의력', '#몰입', '#회복', '#협력'];
-    const showTagHints = !hasSearched && !isSearching && !searchError;
-
     const handleLogoClick = () => {
       if (location.pathname !== '/') {
         navigate('/');
@@ -740,10 +737,16 @@ function App() {
       <div className="existence-home">
         <div className="existence-search-container">
           <h1 className="existence-logo" onClick={handleLogoClick}>
-            <span className="existence-letter existence-letter-navy">ex</span>
-            <span className="existence-letter existence-letter-gold">istence</span>
+            <span className="existence-letter existence-letter-red">e</span>
+            <span className="existence-letter existence-letter-green">x</span>
+            <span className="existence-letter existence-letter-yellow">i</span>
+            <span className="existence-letter existence-letter-blue">s</span>
+            <span className="existence-letter existence-letter-red">t</span>
+            <span className="existence-letter existence-letter-green">e</span>
+            <span className="existence-letter existence-letter-yellow">n</span>
+            <span className="existence-letter existence-letter-blue">c</span>
+            <span className="existence-letter existence-letter-red">e</span>
           </h1>
-          <p className="existence-tagline">AI와 함께 기록된 움직임을 발견하세요.</p>
           <form className="existence-search-form" onSubmit={handleSearchSubmit}>
             <div className="existence-search-bar">
               <input
@@ -784,26 +787,6 @@ function App() {
           {searchError && !hasSearched && (
             <div className="existence-feedback existence-feedback--error">
               {searchError}
-            </div>
-          )}
-          {showTagHints && (
-            <div className="existence-tag-hints">
-              <span>예시 태그:&nbsp;</span>
-              {sampleTags.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  className="existence-tag-button"
-                  onClick={() => {
-                    setSearchQuery(tag);
-                    setHasSearched(false);
-                    setSearchError(null);
-                    setSearchResults([]);
-                  }}
-                >
-                  {tag}
-                </button>
-              ))}
             </div>
           )}
           <div className="existence-helper">
@@ -1440,18 +1423,10 @@ function App() {
         .existence-letter {
           display: inline-block;
         }
-        .existence-letter-navy {
-          color: #11224d;
-        }
-        .existence-letter-gold {
-          color: #f4b400;
-        }
-        .existence-tagline {
-          margin: 0;
-          font-size: 18px;
-          color: #3c4043;
-          text-align: center;
-        }
+        .existence-letter-red { color: #d93025; }
+        .existence-letter-green { color: #188038; }
+        .existence-letter-yellow { color: #fbbc04; }
+        .existence-letter-blue { color: #1a73e8; }
         .existence-search-form {
           width: 100%;
           display: flex;
@@ -1516,27 +1491,6 @@ function App() {
         }
         .existence-feedback--empty {
           color: #5f6368;
-        }
-        .existence-tag-hints {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          font-size: 14px;
-          color: #4f5464;
-          justify-content: center;
-        }
-        .existence-tag-button {
-          border: none;
-          background: #e8f0fe;
-          color: #1a73e8;
-          border-radius: 999px;
-          padding: 6px 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-        .existence-tag-button:hover {
-          background: #d2e3fc;
         }
         .existence-helper {
           font-size: 0.85rem;
