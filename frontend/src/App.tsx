@@ -737,15 +737,8 @@ function App() {
       <div className="existence-home">
         <div className="existence-search-container">
           <h1 className="existence-logo" onClick={handleLogoClick}>
-            <span className="existence-letter existence-letter-red">e</span>
-            <span className="existence-letter existence-letter-green">x</span>
-            <span className="existence-letter existence-letter-yellow">i</span>
-            <span className="existence-letter existence-letter-blue">s</span>
-            <span className="existence-letter existence-letter-red">t</span>
-            <span className="existence-letter existence-letter-green">e</span>
-            <span className="existence-letter existence-letter-yellow">n</span>
-            <span className="existence-letter existence-letter-blue">c</span>
-            <span className="existence-letter existence-letter-red">e</span>
+            <span className="existence-letter existence-letter-navy">ex</span>
+            <span className="existence-letter existence-letter-gold">istence</span>
           </h1>
           <form className="existence-search-form" onSubmit={handleSearchSubmit}>
             <div className="existence-search-bar">
@@ -789,9 +782,7 @@ function App() {
               {searchError}
             </div>
           )}
-          <div className="existence-helper">
-            <span className="existence-helper-badge">Built with Cursor</span>
-          </div>
+          <div className="existence-helper" />
         </div>
         <div className="existence-results-container">
           {renderResults()}
@@ -1414,7 +1405,7 @@ function App() {
           gap: 20px;
         }
         .existence-logo {
-          font-size: clamp(42px, 6vw, 64px);
+          font-size: clamp(60px, 8vw, 88px);
           font-weight: 800;
           letter-spacing: -0.04em;
           margin: 0;
@@ -1423,10 +1414,8 @@ function App() {
         .existence-letter {
           display: inline-block;
         }
-        .existence-letter-red { color: #d93025; }
-        .existence-letter-green { color: #188038; }
-        .existence-letter-yellow { color: #fbbc04; }
-        .existence-letter-blue { color: #1a73e8; }
+        .existence-letter-navy { color: #11224d; }
+        .existence-letter-gold { color: #f4b400; }
         .existence-search-form {
           width: 100%;
           display: flex;
@@ -1493,18 +1482,7 @@ function App() {
           color: #5f6368;
         }
         .existence-helper {
-          font-size: 0.85rem;
-          color: #5f6368;
-        }
-        .existence-helper-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          border-radius: 999px;
-          background: rgba(26, 115, 232, 0.12);
-          color: #1a73e8;
-          font-weight: 600;
+          height: 0;
         }
         .existence-results-container {
           width: 100%;
