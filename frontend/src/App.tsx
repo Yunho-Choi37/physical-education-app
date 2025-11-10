@@ -1484,6 +1484,24 @@ function App() {
         .existence-helper {
           height: 0;
         }
+        @media (max-width: 480px) {
+          .existence-buttons {
+            width: 100%;
+            max-width: 360px;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            gap: 0;
+          }
+          .existence-button {
+            flex: 1 1 auto;
+            min-width: auto;
+            padding: 0 10px;
+            margin: 6px 2px;
+            font-size: 12px;
+            height: 34px;
+            line-height: 25px;
+          }
+        }
         .existence-results-container {
           width: 100%;
         }
