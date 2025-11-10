@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
 import StudentCustomizeModal from './StudentCustomizeModal';
@@ -24,7 +24,6 @@ function App() {
   const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(null);
   const [showClassCustomizeModal, setShowClassCustomizeModal] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
-  const [positionsInitialized, setPositionsInitialized] = useState(false);
   const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
   const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
   const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
@@ -398,14 +397,12 @@ function App() {
     }
     
     return positions;
-  }, [classes, screenSize, classExistence]);
+  }, [classes, screenSize]);
 
   useEffect(() => {
     // 위치 설정
     const positions = generateCircularLayout();
     setClassPositions(positions);
-    setPositionsInitialized(true);
-
     // 화면 크기 변경 시 위치 재계산
     const handleResize = () => {
       const newPositions = generateCircularLayout();

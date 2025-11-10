@@ -1,7 +1,7 @@
 
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 import './ClassDetails.css';
 import StudentDetailsModal from './StudentDetailsModal';
 import AddStudentModal from './AddStudentModal';
