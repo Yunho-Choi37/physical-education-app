@@ -993,8 +993,8 @@ function App() {
       <style>{`
         .App {
           min-height: 100vh;
-          background-color: #1a1a1a;
-          color: #e0e0e0;
+          background: radial-gradient(circle at top, #ffffff 0%, #f4f6fb 55%, #eef1f9 100%);
+          color: #202124;
           position: relative;
           overflow: hidden;
           font-family: 'Roboto', sans-serif;
@@ -1010,82 +1010,77 @@ function App() {
           top: 20px;
           right: 20px;
           z-index: 1000;
+          display: flex;
+          gap: 12px;
+          align-items: center;
         }
         .admin-login-btn {
-          background: #424242;
-          border: 1px solid #616161;
-          color: #e0e0e0;
+          background: #ffffff;
+          border: 1px solid #dfe1e5;
+          color: #191970;
           padding: 10px 20px;
-          border-radius: 25px;
+          border-radius: 24px;
           font-weight: 600;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          transition: all 0.3s ease;
+          box-shadow: 0 10px 25px rgba(25, 25, 112, 0.08);
+          transition: all 0.25s ease;
         }
         .admin-login-btn:hover {
-          background: #616161;
-          border-color: #757575;
+          background: #e8f0fe;
+          border-color: #c7d2ff;
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 14px 30px rgba(25, 25, 112, 0.15);
         }
         .admin-status {
           display: flex;
           align-items: center;
           gap: 10px;
+          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.85);
+          border: 1px solid #dfe1e5;
+          border-radius: 18px;
+          box-shadow: 0 10px 25px rgba(66, 133, 244, 0.08);
         }
         .admin-badge {
-          background: #424242;
-          color: #e0e0e0;
-          padding: 8px 16px;
-          border-radius: 20px;
+          background: #191970;
+          color: #ffffff;
+          padding: 6px 14px;
+          border-radius: 16px;
           font-weight: 600;
-          font-size: 0.9rem;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-          border: 1px solid #616161;
+          font-size: 0.85rem;
+          letter-spacing: 0.4px;
         }
-        .admin-logout-btn {
-          border: 1px solid #616161;
-          color: #e0e0e0;
-          background: #424242;
-          padding: 6px 12px;
-          border-radius: 15px;
-          font-size: 0.8rem;
-          transition: all 0.3s ease;
-        }
-        .admin-logout-btn:hover {
-          background: #616161;
-          border-color: #757575;
-          color: #fff;
-          transform: translateY(-1px);
-        }
+        .admin-logout-btn,
         .admin-add-class-btn {
-          border: 1px solid #616161;
-          color: #e0e0e0;
-          background: #424242;
-          padding: 6px 12px;
-          border-radius: 15px;
+          border: 1px solid transparent;
+          color: #191970;
+          background: #ffffff;
+          padding: 6px 14px;
+          border-radius: 16px;
           font-size: 0.8rem;
-          transition: all 0.3s ease;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          box-shadow: 0 6px 18px rgba(25, 25, 112, 0.08);
         }
+        .admin-logout-btn:hover,
         .admin-add-class-btn:hover {
-          background: #616161;
-          border-color: #757575;
-          color: #fff;
+          background: #e8f0fe;
+          color: #0b3d91;
           transform: translateY(-1px);
         }
         .floating-class-button {
-          background: #424242;
-          color: #e0e0e0;
+          background: #ffffff;
+          color: #202124;
           cursor: pointer;
           border-radius: 50%;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 18px 45px rgba(25, 25, 112, 0.18);
           text-align: center;
           position: absolute;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          border: 1px solid #616161;
-          backdrop-filter: blur(20px);
+          transition: all 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+          border: 2px solid rgba(25, 25, 112, 0.12);
+          backdrop-filter: blur(14px);
           overflow: hidden;
           animation: float 3s ease-in-out infinite;
         }
@@ -1096,89 +1091,75 @@ function App() {
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          background: linear-gradient(90deg, transparent, rgba(66, 133, 244, 0.22), transparent);
           transition: left 0.6s;
         }
         .floating-class-button:hover::before {
           left: 100%;
         }
         .floating-class-button:hover {
-          background: #616161;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-          transform: translateY(-8px) scale(1.05);
-          border-color: #757575;
+          background: linear-gradient(135deg, #ffffff 0%, #f3f6ff 100%);
+          box-shadow: 0 22px 60px rgba(25, 25, 112, 0.22);
+          transform: translateY(-10px) scale(1.06);
+          border-color: rgba(25, 25, 112, 0.3);
           animation-play-state: paused;
         }
-        .floating-class-button:hover .edit-hint {
-          opacity: 1;
-        }
         .floating-class-button:active {
-          transform: translateY(-4px) scale(1.02);
-          transition: all 0.1s ease;
+          transform: translateY(-6px) scale(1.02);
+          transition: all 0.15s ease;
         }
-        
-        /* 시계 스타일 Float 애니메이션 */
         @keyframes float {
-          0%, 100% { 
-            transform: translateY(0px) rotate(0deg); 
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
           }
-          25% { 
-            transform: translateY(-8px) rotate(0.5deg); 
+          25% {
+            transform: translateY(-8px) rotate(0.4deg);
           }
-          50% { 
-            transform: translateY(-4px) rotate(0deg); 
+          50% {
+            transform: translateY(-4px) rotate(0deg);
           }
-          75% { 
-            transform: translateY(-12px) rotate(-0.5deg); 
+          75% {
+            transform: translateY(-12px) rotate(-0.4deg);
           }
         }
-        
-        /* 시계 방향 애니메이션 딜레이 (12시부터 시계방향) */
-        .floating-class-button:nth-child(1) { animation-delay: 0s; }    /* 1반 - 12시 */
-        .floating-class-button:nth-child(2) { animation-delay: 0.4s; }  /* 2반 - 2시 */
-        .floating-class-button:nth-child(3) { animation-delay: 0.8s; }  /* 3반 - 4시 */
-        .floating-class-button:nth-child(4) { animation-delay: 1.2s; }  /* 4반 - 6시 */
-        .floating-class-button:nth-child(5) { animation-delay: 1.6s; }  /* 5반 - 8시 */
-        .floating-class-button:nth-child(6) { animation-delay: 2.0s; }  /* 6반 - 10시 */
-        .floating-class-button:nth-child(7) { animation-delay: 2.4s; }  /* 7반 - 12시 근처 */
+        .floating-class-button:nth-child(1) { animation-delay: 0s; }
+        .floating-class-button:nth-child(2) { animation-delay: 0.4s; }
+        .floating-class-button:nth-child(3) { animation-delay: 0.8s; }
+        .floating-class-button:nth-child(4) { animation-delay: 1.2s; }
+        .floating-class-button:nth-child(5) { animation-delay: 1.6s; }
+        .floating-class-button:nth-child(6) { animation-delay: 2.0s; }
+        .floating-class-button:nth-child(7) { animation-delay: 2.4s; }
         .class-text {
-          font-size: 0.9rem;
+          font-size: 0.95rem;
           font-weight: 600;
           letter-spacing: 0.5px;
           font-family: 'Roboto', sans-serif;
-          color: #e0e0e0;
+          color: #191970;
         }
-        
-        /* 원형 배치 반응형 디자인 */
         @media (max-width: 767px) {
           .floating-class-button {
             width: 80px;
             height: 80px;
-            border-radius: 50%;
           }
           .class-text {
             font-size: 0.8rem;
             font-weight: 700;
           }
         }
-        
         @media (min-width: 768px) and (max-width: 1023px) {
           .floating-class-button {
             width: 100px;
             height: 100px;
-            border-radius: 50%;
           }
           .class-text {
             font-size: 0.9rem;
             font-weight: 700;
           }
         }
-        
         @media (min-width: 1024px) {
           .floating-class-button {
             width: 120px;
             height: 120px;
-            border-radius: 50%;
           }
           .class-text {
             font-size: 1rem;
