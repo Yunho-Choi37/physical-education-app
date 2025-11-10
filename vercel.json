@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend",
+  "installCommand": "if [ -d frontend ]; then cd frontend; fi && npm install",
+  "buildCommand": "if [ -d frontend ]; then cd frontend; fi && npm run build",
   "outputDirectory": "frontend/build",
-  "framework": "create-react-app",
-  "installCommand": null
+  "framework": "create-react-app"
 }
 
