@@ -1,6 +1,5 @@
-
 /* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './ClassDetails.css';
 import StudentDetailsModal from './StudentDetailsModal';
@@ -121,6 +120,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number; particleIndex: number; shellType: string }>>([]);
   // 모든 입자 위치 추적 (겹침 방지용)
   const allParticlesRef = useRef<Array<{ x: number; y: number; radius: number; studentId: number }>>([]);
+  const drawGraphRef = useRef<() => void>(() => {});
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { classId } = useParams<{ classId: string }>();
@@ -131,6 +131,84 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [className, setClassName] = useState<string>('');
   const [classNameLoaded, setClassNameLoaded] = useState(false);
   
+  const nodeColors = useMemo(() => (
+    ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9']
+  ), []);
+
+  const savePositionsToServer = useCallback(async (positions: Map<number, {x: number, y: number}>) => {
+    for (const [studentId, pos] of positions.entries()) {
+      try {
+        await fetch(`${API_URL}/api/students/${studentId}/position`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ x: pos.x, y: pos.y }),
+        });
+      } catch (error) {
+        console.error(`Error saving position for student ${studentId}:`, error);
+      }
+    }
+  }, []);
+
+  const updateAutoLayout = useCallback((studentList: Student[]) => {
+    if (studentList.length === 0) return;
+
+    const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
+    const containerHeight = containerRef.current?.clientHeight || window.innerHeight - 200;
+
+    const baseCircleRadius = 50;
+    const spacing = baseCircleRadius * 2.4;
+
+    const cols = Math.ceil(Math.sqrt(studentList.length * 1.2));
+    const rows = Math.ceil(studentList.length / cols);
+
+    const totalWidth = cols * spacing;
+    const totalHeight = rows * spacing;
+
+    const startX = (containerWidth - totalWidth) / 2 + spacing / 2;
+    const startY = (containerHeight - totalHeight) / 2 + spacing / 2;
+
+    const newPositions = new Map<number, {x: number, y: number}>();
+
+    studentList.forEach((student, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+
+      const x = startX + col * spacing;
+      const y = startY + row * spacing;
+
+      newPositions.set(student.id, { x, y });
+    });
+
+    setStudentPositions(newPositions);
+    savePositionsToServer(newPositions);
+  }, [savePositionsToServer]);
+
+  const calculateSimilarity = (str1: string, str2: string): number => {
+    const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i][0] = i;
+    }
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    return matrix[str2.length][str1.length];
+  };
+
   useEffect(() => {
     const updateClassName = async () => {
       try {
@@ -266,7 +344,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     };
 
     fetchStudents();
-  }, [classId]);
+  }, [classId, updateAutoLayout]);
 
   // 화면 크기 감지 및 캔버스 크기 조절 (모바일 최적화)
   useEffect(() => {
@@ -305,23 +383,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     
     return () => window.removeEventListener('resize', updateCanvasSize);
   }, []);
-
-  // 원형(시계) 정렬 위치 생성: 학생 id 오름차순으로 360° 균등 배치
-  const generateOrderedPositions = (students: Student[], canvasWidth: number, canvasHeight: number) => {
-    const positions = new Map<number, {x: number, y: number}>();
-    const cx = canvasWidth / 2;
-    const cy = canvasHeight / 2;
-    const radius = Math.min(canvasWidth, canvasHeight) * 0.35;
-    const sorted = [...students].sort((a, b) => a.id - b.id);
-    const n = Math.max(1, sorted.length);
-    sorted.forEach((student, i) => {
-      const angle = (i / n) * (2 * Math.PI) - Math.PI / 2; // 12시 방향부터 시계방향
-      const x = cx + radius * Math.cos(angle);
-      const y = cy + radius * Math.sin(angle);
-      positions.set(student.id, { x, y });
-    });
-    return positions;
-  };
 
   // 연결된 그룹 찾기 (Union-Find 알고리즘)
   const findConnectedGroups = (students: Student[]) => {
@@ -457,7 +518,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     activities: { name: '활동', emojis: ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🪀', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🪃', '🥅', '⛳', '🪁', '🏹', '🎣', '🤿', '🥊', '🥋', '🎽', '🛹', '🛷', '⛸️', '🥌', '🎿', '⛷️', '🏂', '🪂', '🏋️', '🤼', '🤸', '⛹️', '🤺', '🤾', '🏌️', '🏇', '🧘', '🏄', '🏊', '🤽', '🚣', '🧗', '🚵', '🚴', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🎫', '🎟️', '🎪', '🤹', '🎭', '🩰', '🎨', '🎬', '🎤', '🎧', '🎼', '🎵', '🎶', '🪘', '🥁', '🪗', '🎸', '🪕', '🎺', '🎷', '🪗', '🎻', '🎹', '🪗', '🎸', '🪕', '🎺', '🎷', '🪗', '🎻', '🎹'] },
     objects: { name: '물건', emojis: ['📱', '📲', '☎️', '📞', '📟', '📠', '🔋', '🔌', '💻', '🖥️', '🖨️', '⌨️', '🖱️', '🖲️', '💽', '💾', '💿', '📀', '🧮', '🎥', '📷', '📸', '📹', '🎬', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏲️', '⏰', '🕰️', '⌛', '⏳', '📡', '🔋', '🔌', '💡', '🔦', '🕯️', '🪔', '🧯', '🛢️', '💸', '💵', '💴', '💶', '💷', '🪙', '💰', '💳', '💎', '⚖️', '🧰', '🔧', '🔨', '⚒️', '🛠️', '⛏️', '🪓', '🪚', '🔩', '⚙️', '🪤', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '⚔️', '🛡️', '🚬', '⚰️', '🪦', '⚱️', '🏺', '🔮', '📿', '🧿', '💈', '⚗️', '🧪', '🧫', '🧬', '🦠', '💉', '💊', '🩹', '🩺', '🚪', '🛏️', '🛋️', '🪑', '🚽', '🚿', '🛁', '🪤', '🪒', '🧴', '🧷', '🧹', '🧺', '🧻', '🚰', '🪣', '🪤', '🪒', '🧴', '🧷', '🧹', '🧺', '🧻', '🚰', '🪣'] },
     food: { name: '음식', emojis: ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🫒', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🥐', '🥖', '🍞', '🥨', '🥯', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕', '🫓', '🥙', '🌮', '🌯', '🫔', '🥗', '🥘', '🫕', '🥫', '🍝', '🍜', '🍲', '🍛', '🍣', '🍱', '🥟', '🦪', '🍤', '🍙', '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🌰', '🥜', '🍯'] },
-    symbols: { name: '기호', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕', '🛑', '⛔', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🟰', '♻️', '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', '🔤', 'ℹ️', '🔡', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'] }
+    symbols: { name: '기호', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘', '❌', '⭕', '🛑', '⛔', '📛', '🚫', '💯', '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵', '🚭', '❗', '❕', '❓', '❔', '‼️', '⁉️', '🔅', '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🟰', '♻️', '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠', 'Ⓜ️', '🌀', '💤', '🏧', '🚾', '♿', '🅿️', '🈳', '🈂️', '🛂', '🛃', '🛄', '🛅', '🚹', '🚺', '🚼', '⚧', '🚻', '🚮', '🎦', '📶', '🈁', '🔣', '🔤', '🔠', '🆖', '🆗', '🆙', '🆒', '🆕', '🆓', '0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'] }
   };
 
   // 이모티콘 옵션 (기존 호환성 유지)
@@ -484,8 +545,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     const numN = atom.neutrons?.length || 0;
 
     // 전자 궤도보다 안쪽에서 공전하도록 반지름 설정
-    const protonOrbit = coreSize * 0.95;   // 모양 가장자리 바로 바깥
-    const neutronOrbit = coreSize * 1.25;  // 그 바깥
+    const protonOrbit = coreSize * (0.9 + Math.min(numP, 8) * 0.04);   // 모양 가장자리 바로 바깥
+    const neutronOrbit = coreSize * (1.15 + Math.min(numN, 8) * 0.03);  // 그 바깥
 
     // 기본 원의 1/2 크기로 설정
     const baseParticleSize = Math.max(10, Math.floor(coreSize / 2));
@@ -555,7 +616,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             if (existingParticle.studentId === studentId) continue; // 같은 학생의 다른 입자는 제외 (같은 궤도 내)
             
             const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
-            const requiredDistance = particleRadius + existingParticle.radius;
+            const requiredDistance = Math.max(minDistance, particleRadius + existingParticle.radius);
             
             if (distance < requiredDistance && distance > 0) {
               collision = true;
@@ -768,7 +829,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             if (existingParticle.studentId === studentId) continue;
             
             const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
-            const requiredDistance = electronRadius + existingParticle.radius;
+            const requiredDistance = Math.max(minDistance, electronRadius + existingParticle.radius);
             
             if (distance < requiredDistance && distance > 0) {
               collision = true;
@@ -1092,7 +1153,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   };
 
   // 학생의 존재 생성 (기본값)
-  const generateStudentExistence = (name: string, id: number) => {
+  const generateStudentExistence = (name: string, id: number): NonNullable<Student['existence']> => {
     const baseColors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
@@ -1113,6 +1174,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       energy: 50 + (seed % 40), // 50-90 사이의 에너지 레벨
       personality: personalities[seed % personalities.length],
       customName: '', // 사용자 정의 이름 초기화
+      imageData: '',
       records: [],
       showElectrons: false, // 초기/리셋 시 전자는 보이지 않음
       showProtonsNeutrons: false, // 초기/리셋 시 양성자/중성자는 보이지 않음
@@ -1132,46 +1194,46 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
   // 학생 위치 초기화 및 불러오기
   useEffect(() => {
-    if (students.length > 0 && canvasSize.width > 0 && canvasSize.height > 0) {
-      loadStudentPositions();
+    if (students.length === 0 || canvasSize.width === 0 || canvasSize.height === 0) {
+      return;
     }
-  }, [students, canvasSize]);
 
-  // 저장된 학생 위치 불러오기 (자동 배치 우선)
-  const loadStudentPositions = async () => {
-    try {
-      // 자동 배치 적용 (저장된 위치 무시하고 항상 자동 배치)
-      updateAutoLayout(students);
-      
-      const { groups } = findConnectedGroups(students);
-      setStudentGroups(groups);
-    } catch (error) {
-      console.error('Error loading positions:', error);
-      // 에러 시에도 자동 배치 적용
-      updateAutoLayout(students);
-      
-      const { groups } = findConnectedGroups(students);
-      setStudentGroups(groups);
-    }
-  };
+    const run = async () => {
+      try {
+        updateAutoLayout(students);
+        const { groups } = findConnectedGroups(students);
+        setStudentGroups(groups);
+      } catch (error) {
+        console.error('Error loading positions:', error);
+        updateAutoLayout(students);
+        const { groups } = findConnectedGroups(students);
+        setStudentGroups(groups);
+      }
+    };
+
+    run();
+  }, [students, canvasSize, updateAutoLayout]);
 
   // 그래프 그리기 (애니메이션을 위해 지속적으로 호출)
   useEffect(() => {
+    let animationId: number;
     const animate = () => {
-      drawGraph();
-      requestAnimationFrame(animate);
+      drawGraphRef.current();
+      animationId = requestAnimationFrame(animate);
     };
-    animate();
-  }, [students, hoveredStudent, draggedStudent, canvasSize, studentPositions, studentGroups]);
-
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
 
   // 캔버스 그리기 함수
-  const drawGraph = () => {
+  const drawGraph = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const baseNodeSize = 40;
 
     // 입자 위치 추적 초기화 (매 프레임마다 다시 계산)
     particlePositionsRef.current = [];
@@ -1199,21 +1261,27 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 캔버스 클리어 (투명하게)
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    // 그룹 색상 계산
-    const { groupColors } = findConnectedGroups(students);
-    // 원 크기 고정 (모바일에서도 동일한 크기)
-    const baseNodeSize = 50; // 고정 크기 (픽셀)
+    // 배경 그라데이션 추가 (차분한 톤)
+    const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+    gradient.addColorStop(0, 'rgba(26, 32, 44, 0.85)');
+    gradient.addColorStop(1, 'rgba(17, 24, 39, 0.92)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // 학생 노드 계산
+    const { groups, groupColors } = findConnectedGroups(students);
+    setStudentGroups(groups);
     
     const nodes = students.map((student, index) => {
+      const existence = student.existence || generateStudentExistence(student.name, student.id);
       const position = studentPositions.get(student.id);
-      const groupId = studentGroups.get(student.id);
-      const groupColor = groupColors.get(groupId || student.id);
-      const existence = student.existence;
+      const groupId = groups.get(student.id) || student.id;
+      const groupColor = groupColors.get(groupId);
       
-      // 존재의 특성에 따른 크기 조절 (크기 비율만 적용, 절대 크기는 고정)
-      const existenceSize = existence?.size || 1.0;
-      const energySize = (existence?.energy || 60) / 100;
-      const finalSize = baseNodeSize * existenceSize * energySize;
+      const baseSize = 50;
+      const activityInfluence = existence?.activities?.length ? Math.min(15, existence.activities.length * 2) : 0;
+      const connectionInfluence = student.connections ? Math.min(15, student.connections.length * 1.5) : 0;
+      const finalSize = baseSize + activityInfluence + connectionInfluence;
       
       return {
         id: student.id,
@@ -1221,11 +1289,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         x: position?.x || canvasSize.width / 2,
         y: position?.y || canvasSize.height / 2,
         size: finalSize + (student.connections?.length || 0) * 2,
-        color: existence?.color || groupColor || colors[index % colors.length],
+        color: existence?.color || groupColor || nodeColors[index % nodeColors.length],
         existence,
         student
       };
     });
+
+    const animationTime = performance.now();
 
     // 연결선 그리기 (직접 연결만)
     const drawnConnections = new Set<string>(); // 중복 연결 방지
@@ -1234,25 +1304,35 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const fromNode = nodes.find(n => n.id === student.id);
       if (!fromNode) return;
 
-      // 직접 연결만 표시 (학생이 직접 설정한 연결)
-      if (student.connections && student.connections.length > 0) {
-        student.connections.forEach(connectionId => {
-          const connectionKey = `${Math.min(student.id, connectionId)}-${Math.max(student.id, connectionId)}`;
-          if (!drawnConnections.has(connectionKey)) {
-            const toNode = nodes.find(n => n.id === connectionId);
-            if (toNode) {
-              ctx.beginPath();
-              ctx.moveTo(fromNode.x, fromNode.y);
-              ctx.lineTo(toNode.x, toNode.y);
-              ctx.strokeStyle = '#FF6B6B';
-              ctx.lineWidth = 2;
-              ctx.stroke();
-              drawnConnections.add(connectionKey);
-            }
-          }
-        });
-      }
+      (student.connections || []).forEach(connectionId => {
+        const connectionKey = `${Math.min(student.id, connectionId)}-${Math.max(student.id, connectionId)}`;
+        if (drawnConnections.has(connectionKey)) return;
+
+        const toNode = nodes.find(n => n.id === connectionId);
+        if (!toNode) return;
+
+        drawConnection(ctx, fromNode, toNode, 'direct', '#FF6B6B');
+        drawnConnections.add(connectionKey);
+      });
     });
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const nodeA = nodes[i];
+        const nodeB = nodes[j];
+        const connectionKey = `${Math.min(nodeA.id, nodeB.id)}-${Math.max(nodeA.id, nodeB.id)}`;
+        if (drawnConnections.has(connectionKey)) continue;
+
+        if (shouldConnectByExistence(nodeA.student, nodeB.student)) {
+          const maxLen = Math.max(nodeA.student.name.length, nodeB.student.name.length) || 1;
+          const distance = calculateSimilarity(nodeA.student.name, nodeB.student.name);
+          const similarityScore = Math.max(0, Math.min(1, 1 - distance / maxLen));
+          const alpha = (0.25 + similarityScore * 0.35).toFixed(2);
+          drawConnection(ctx, nodeA, nodeB, 'existence', `rgba(25, 25, 112, ${alpha})`);
+          drawnConnections.add(connectionKey);
+        }
+      }
+    }
 
     // 노드 그리기 (학생 커스터마이징 반영)
     nodes.forEach(node => {
@@ -1554,7 +1634,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       // 그림자 초기화
       ctx.shadowBlur = 0;
     });
-  };
+  }, [draggedStudent, hoveredStudent, students, canvasSize, studentPositions, studentGroups, nodeColors, calculateSimilarity, findConnectedGroups, generateStudentExistence, sessionSeedRef, imageCacheRef, allParticlesRef, drawProtonNeutronSatellites, drawElectronOrbits, drawShape, drawPattern, drawConnection]);
+
+  useEffect(() => {
+    drawGraphRef.current = drawGraph;
+  }, [drawGraph]);
 
   // 좌표를 캔버스 좌표로 변환하는 공통 함수
   const getCanvasCoordinates = (clientX: number, clientY: number) => {
@@ -1809,18 +1893,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     }
   };
 
-  const handleEditStudent = (student: Student) => {
-    setSelectedStudent(student);
-    
-    // 관리자 모드가 아닌 경우 비밀번호 입력 요구
-    if (!isAdmin) {
-      setShowPasswordModal(true);
-      setPasswordInput('');
-    } else {
-      // 관리자 모드인 경우 바로 커스터마이징 모달 열기
-      setShowCustomizeModal(true);
-    }
-  };
+  const handleEditStudent = handleStudentClick;
 
   // 비밀번호 확인 함수
   const handlePasswordSubmit = () => {
@@ -1887,42 +1960,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
   ];
-
-  // 문자열 유사도 계산
-  const calculateSimilarity = (str1: string, str2: string): number => {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    
-    if (longer.length === 0) return 1.0;
-    
-    const distance = levenshteinDistance(longer, shorter);
-    return (longer.length - distance) / longer.length;
-  };
-
-  // 레벤슈타인 거리 계산
-  const levenshteinDistance = (str1: string, str2: string): number => {
-    const matrix = [];
-    for (let i = 0; i <= str2.length; i++) {
-      matrix[i] = [i];
-    }
-    for (let j = 0; j <= str1.length; j++) {
-      matrix[0][j] = j;
-    }
-    for (let i = 1; i <= str2.length; i++) {
-      for (let j = 1; j <= str1.length; j++) {
-        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1,
-            matrix[i][j - 1] + 1,
-            matrix[i - 1][j] + 1
-          );
-        }
-      }
-    }
-    return matrix[str2.length][str1.length];
-  };
 
   const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
@@ -1996,61 +2033,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       }, 100);
     } catch (error) {
       console.error('Error adding student:', error);
-    }
-  };
-
-  // 자동 배치 함수 (원형/격자 배치)
-  const updateAutoLayout = (studentList: Student[]) => {
-    if (studentList.length === 0) return;
-    
-    const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
-    const containerHeight = containerRef.current?.clientHeight || window.innerHeight - 200;
-    
-    // 원 크기 고정 (모바일에서도 동일)
-    const circleRadius = 50; // 고정 크기
-    const spacing = 120; // 원 사이 간격
-    
-    // 격자 배치 계산
-    const cols = Math.ceil(Math.sqrt(studentList.length * 1.2)); // 약간의 여유
-    const rows = Math.ceil(studentList.length / cols);
-    
-    const totalWidth = cols * spacing;
-    const totalHeight = rows * spacing;
-    
-    const startX = (containerWidth - totalWidth) / 2 + spacing / 2;
-    const startY = (containerHeight - totalHeight) / 2 + spacing / 2;
-    
-    const newPositions = new Map<number, {x: number, y: number}>();
-    
-    studentList.forEach((student, index) => {
-      const col = index % cols;
-      const row = Math.floor(index / cols);
-      
-      const x = startX + col * spacing;
-      const y = startY + row * spacing;
-      
-      newPositions.set(student.id, { x, y });
-    });
-    
-    setStudentPositions(newPositions);
-    
-    // 위치를 서버에 저장
-    savePositionsToServer(newPositions);
-  };
-  
-  const savePositionsToServer = async (positions: Map<number, {x: number, y: number}>) => {
-    for (const [studentId, pos] of positions.entries()) {
-      try {
-        await fetch(`${API_URL}/api/students/${studentId}/position`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ x: pos.x, y: pos.y }),
-        });
-      } catch (error) {
-        console.error(`Error saving position for student ${studentId}:`, error);
-      }
     }
   };
 
