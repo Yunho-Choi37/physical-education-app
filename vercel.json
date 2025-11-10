@@ -1,7 +1,7 @@
 {
-  "installCommand": "if [ -f package.json ]; then npm install; elif [ -d frontend ]; then cd frontend && npm install; fi",
-  "buildCommand": "if [ -f package.json ]; then npm run build; elif [ -d frontend ]; then cd frontend && npm run build; fi",
-  "outputDirectory": "build",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/build",
   "framework": "create-react-app"
 }
 

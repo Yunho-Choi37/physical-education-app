@@ -1,0 +1,9 @@
+{
+  "name": "physical-education-app",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix frontend",
+    "build": "npm run build --prefix frontend"
+  }
+}
+
