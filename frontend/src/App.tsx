@@ -159,10 +159,41 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const searchInputCompositionRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isClassView = location.pathname.startsWith('/class');
   const isLegacyView = location.pathname === '/being' || isClassView;
+
+  const updateSearchQuery = useCallback((value: string) => {
+    setSearchQuery(value);
+    if (searchError) {
+      setSearchError(null);
+    }
+  }, [searchError]);
+
+  const handleSearchInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (searchInputCompositionRef.current) {
+      return;
+    }
+    updateSearchQuery(event.target.value);
+  }, [updateSearchQuery]);
+
+  const handleSearchInput = useCallback((event: React.FormEvent<HTMLInputElement>) => {
+    if (searchInputCompositionRef.current) {
+      return;
+    }
+    updateSearchQuery(event.currentTarget.value);
+  }, [updateSearchQuery]);
+
+  const handleCompositionStart = useCallback(() => {
+    searchInputCompositionRef.current = true;
+  }, []);
+
+  const handleCompositionEnd = useCallback((event: React.CompositionEvent<HTMLInputElement>) => {
+    searchInputCompositionRef.current = false;
+    updateSearchQuery(event.currentTarget.value);
+  }, [updateSearchQuery]);
 
   const handleAdminLogin = () => {
     if (adminPassword === '159753') {
@@ -704,7 +735,7 @@ function App() {
       if (location.pathname !== '/') {
         navigate('/');
       }
-      setSearchQuery('');
+      updateSearchQuery('');
       setSearchResults([]);
       setHasSearched(false);
       setSearchError(null);
@@ -814,13 +845,10 @@ function App() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => {
-                  const { value } = e.target;
-                  setSearchQuery(value);
-                  if (searchError) {
-                    setSearchError(null);
-                  }
-                }}
+                onCompositionStart={handleCompositionStart}
+                onCompositionEnd={handleCompositionEnd}
+                onChange={handleSearchInputChange}
+                onInput={handleSearchInput}
                 placeholder="#주제를 입력해주세요"
                 className="existence-search-input"
               />
