@@ -28,8 +28,26 @@ const run = (command, cwd) => {
 const currentDir = process.cwd();
 const currentDirName = path.basename(currentDir);
 const isRunningInsideFrontend = currentDirName === 'frontend';
-const rootDir = isRunningInsideFrontend ? path.resolve(currentDir, '..') : currentDir;
-const frontendDir = isRunningInsideFrontend ? currentDir : path.join(rootDir, 'frontend');
+const isRunningInsideApi = currentDirName === 'api';
+const rootDir = (() => {
+  if (isRunningInsideFrontend) return path.resolve(currentDir, '..');
+  if (isRunningInsideApi) return path.resolve(currentDir, '..');
+  return currentDir;
+})();
+const frontendDir = (() => {
+  if (isRunningInsideFrontend) return currentDir;
+  const candidateFromRoot = path.join(rootDir, 'frontend');
+  if (fs.existsSync(candidateFromRoot)) {
+    return candidateFromRoot;
+  }
+  if (isRunningInsideApi) {
+    const candidateFromApi = path.join(rootDir, '..', 'frontend');
+    if (fs.existsSync(candidateFromApi)) {
+      return candidateFromApi;
+    }
+  }
+  return candidateFromRoot;
+})();
 const destDir = path.join(rootDir, 'build');
 const srcDir = path.join(frontendDir, 'build');
 
