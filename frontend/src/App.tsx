@@ -48,6 +48,89 @@ interface SearchResultItem {
   matchedRecords: ActivityRecord[];
 }
 
+const normalizeTagValue = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const primaryToken = trimmed
+    .split(/[\s,]+/)
+    .find((segment) => segment.replace(/[#\s]/g, '').length > 0);
+
+  if (!primaryToken) {
+    return '';
+  }
+
+  const withHash = primaryToken.startsWith('#') ? primaryToken : `#${primaryToken}`;
+  const cleaned = withHash.replace(/[,.;:!?~\u3001\u3002\uff0c\uff01\uff1f\uff1b\uff1a]+$/gu, '');
+
+  if (cleaned === '#') {
+    return '';
+  }
+
+  return cleaned.toLowerCase();
+};
+
+interface AtomHashtagEntry {
+  tag: string;
+  contexts: string[];
+}
+
+const collectAtomHashtags = (existence: any): AtomHashtagEntry[] => {
+  if (!existence?.atom) return [];
+
+  const contextMap = new Map<string, Set<string>>();
+
+  const registerTags = (items: any[] | undefined, baseContext: string) => {
+    if (!Array.isArray(items)) return;
+    items.forEach((item: any, index: number) => {
+      const rawTags = Array.isArray(item?.hashtags)
+        ? item.hashtags
+        : typeof item?.hashtags === 'string'
+          ? [item.hashtags]
+          : [];
+
+      const contextLabel = item?.name
+        ? `${baseContext} · ${item.name}`
+        : `${baseContext}${typeof index === 'number' ? ` #${index + 1}` : ''}`;
+
+      rawTags.forEach((rawTag: string) => {
+        const normalized = normalizeTagValue(rawTag);
+        if (!normalized) return;
+        if (!contextMap.has(normalized)) {
+          contextMap.set(normalized, new Set());
+        }
+        contextMap.get(normalized)!.add(contextLabel);
+      });
+    });
+  };
+
+  registerTags(existence.atom.protons, 'Proton');
+  registerTags(existence.atom.neutrons, 'Neutron');
+  const electrons = existence.atom.electrons || {};
+  registerTags(electrons.kShell, 'Electron K-shell');
+  registerTags(electrons.lShell, 'Electron L-shell');
+  registerTags(electrons.mShell, 'Electron M-shell');
+  registerTags(electrons.valence, 'Electron Valence');
+
+  return Array.from(contextMap.entries()).map(([tag, contextsSet]) => ({
+    tag,
+    contexts: Array.from(contextsSet)
+  }));
+};
+
+const createAtomMatchRecords = (entries: AtomHashtagEntry[], normalizedTag: string): ActivityRecord[] => {
+  const match = entries.find((entry) => entry.tag === normalizedTag);
+  if (!match) return [];
+
+  return match.contexts.map((context) => ({
+    activity: normalizedTag,
+    notes: `${context} ${normalizedTag}`,
+    description: context,
+    date: '',
+    duration: 0
+  }));
+};
+
 function App() {
   const [classes, setClasses] = useState<string[]>(['.', '.', '.', '.', '.', '.', '.']);
   const [classesLoaded, setClassesLoaded] = useState(false);
@@ -190,27 +273,7 @@ function App() {
     return name;
   }, [classes]);
 
-  const normalizeTag = useCallback((value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return '';
-
-    const primaryToken = trimmed
-      .split(/[\s,]+/)
-      .find((segment) => segment.replace(/[#\s]/g, '').length > 0);
-
-    if (!primaryToken) {
-      return '';
-    }
-
-    const withHash = primaryToken.startsWith('#') ? primaryToken : `#${primaryToken}`;
-    const cleaned = withHash.replace(/[,.;:!?~\u3001\u3002\uff0c\uff01\uff1f\uff1b\uff1a]+$/gu, '');
-
-    if (cleaned === '#') {
-      return '';
-    }
-
-    return cleaned.toLowerCase();
-  }, []);
+  const normalizeTag = useCallback(normalizeTagValue, []);
 
   const handleSearchSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -220,10 +283,6 @@ function App() {
       setSearchResults([]);
       setHasSearched(false);
       return;
-    }
-
-    if (normalized !== searchQuery) {
-      setSearchQuery(normalized);
     }
 
     setIsSearching(true);
@@ -260,7 +319,7 @@ function App() {
 
         const existence = rawStudent.existence || {};
         const records: ActivityRecord[] = Array.isArray(existence.records) ? existence.records : [];
-        const matchedRecords = records.filter((record) => {
+        const recordMatches = records.filter((record) => {
           if (!record) return false;
           const possibleTexts = [record.notes, record.description, record.activity]
             .filter(Boolean)
@@ -268,7 +327,11 @@ function App() {
           return possibleTexts.some((text) => text.includes(normalized));
         });
 
-        if (matchedRecords.length > 0) {
+        const atomHashtagEntries = collectAtomHashtags(existence);
+        const atomMatches = createAtomMatchRecords(atomHashtagEntries, normalized);
+        const combinedMatches = [...recordMatches, ...atomMatches];
+
+        if (combinedMatches.length > 0) {
           const snapshot: StudentSnapshot = {
             id: numericId,
             name: rawStudent.name || `학생 ${numericId}`,
@@ -279,7 +342,7 @@ function App() {
           results.push({
             student: snapshot,
             className: getDisplayClassName(numericClassId),
-            matchedRecords,
+            matchedRecords: combinedMatches,
           });
         }
       });
@@ -737,8 +800,14 @@ function App() {
       <div className="existence-home">
         <div className="existence-search-container">
           <h1 className="existence-logo" onClick={handleLogoClick}>
-            <span className="existence-letter existence-letter-navy">ex</span>
-            <span className="existence-letter existence-letter-gold">istence</span>
+            <span className="existence-letter existence-letter-gray">e</span>
+            <span className="existence-letter existence-letter-dark">x</span>
+            <span className="existence-letter existence-letter-green">i</span>
+            <span className="existence-letter existence-letter-dark">st</span>
+            <span className="existence-letter existence-letter-blue">e</span>
+            <span className="existence-letter existence-letter-dark">n</span>
+            <span className="existence-letter existence-letter-red">c</span>
+            <span className="existence-letter existence-letter-dark">e</span>
           </h1>
           <form className="existence-search-form" onSubmit={handleSearchSubmit}>
             <div className="existence-search-bar">
@@ -1414,8 +1483,11 @@ function App() {
         .existence-letter {
           display: inline-block;
         }
-        .existence-letter-navy { color: #11224d; }
-        .existence-letter-gold { color: #f4b400; }
+        .existence-letter-dark { color: #1f2937; }
+        .existence-letter-gray { color: #5f6368; }
+        .existence-letter-green { color: #188038; }
+        .existence-letter-blue { color: #1a73e8; }
+        .existence-letter-red { color: #d93025; }
         .existence-search-form {
           width: 100%;
           display: flex;
@@ -1426,6 +1498,8 @@ function App() {
         .existence-search-bar {
           width: 100%;
           max-width: 560px;
+          position: relative;
+          z-index: 2;
         }
         .existence-search-input {
           width: 100%;
@@ -1435,6 +1509,8 @@ function App() {
           font-size: 16px;
           box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          position: relative;
+          z-index: 2;
         }
         .existence-search-input:focus {
           outline: none;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Card, Badge } from 'react-bootstrap';
 
 interface Student {
   id: number;
@@ -37,12 +37,14 @@ interface Student {
         strength: number;
         color: string;
         emoji: string;
+        hashtags?: string[];
       }>;
       neutrons: Array<{
         keyword: string;
         category: string;
         color: string;
         emoji: string;
+        hashtags?: string[];
       }>;
       electrons: {
         kShell: Array<{
@@ -50,18 +52,21 @@ interface Student {
           frequency: number;
           emoji: string;
           description?: string;
+          hashtags?: string[];
         }>;
         lShell: Array<{
           activity: string;
           frequency: number;
           emoji: string;
           description?: string;
+          hashtags?: string[];
         }>;
         mShell: Array<{
           activity: string;
           frequency: number;
           emoji: string;
           description?: string;
+          hashtags?: string[];
         }>;
         valence: Array<{
           activity: string;
@@ -69,6 +74,7 @@ interface Student {
           social: boolean;
           emoji: string;
           description?: string;
+          hashtags?: string[];
         }>;
       };
     };
@@ -82,12 +88,94 @@ interface StudentCustomizeModalProps {
   onSave: (updatedStudent: Student) => void;
 }
 
+const normalizeHashtagValue = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+
+  const primaryToken = trimmed
+    .split(/[\s,]+/)
+    .find(segment => segment.replace(/[#\s]/g, '').length > 0);
+
+  if (!primaryToken) {
+    return '';
+  }
+
+  const withHash = primaryToken.startsWith('#') ? primaryToken : `#${primaryToken}`;
+  const cleaned = withHash.replace(/[,.;:!?~\u3001\u3002\uff0c\uff01\uff1f\uff1b\uff1a]+$/gu, '');
+
+  if (cleaned === '#') {
+    return '';
+  }
+
+  return cleaned.toLowerCase();
+};
+
+const normalizeHashtagArray = (input: unknown): string[] => {
+  if (!input) return [];
+  const raw = Array.isArray(input) ? input : [input];
+  const normalized = raw
+    .map(item => typeof item === 'string' ? normalizeHashtagValue(item) : '')
+    .filter((tag): tag is string => Boolean(tag));
+  return Array.from(new Set(normalized));
+};
+
 const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   student,
   show,
   onHide,
   onSave
 }) => {
+  const hashtagPlaceholder = '#태그 입력 후 Enter';
+
+  const addHashtag = (current: string[] | undefined, value: string): string[] => {
+    const tag = normalizeHashtagValue(value);
+    if (!tag) return current || [];
+    const set = new Set(current || []);
+    set.add(tag);
+    return Array.from(set);
+  };
+
+  const handleHashtagKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    onAdd: (tag: string) => void
+  ) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === 'Enter' || event.key === ',' || event.key === ' ') {
+      event.preventDefault();
+      const input = event.currentTarget;
+      const normalized = normalizeHashtagValue(input.value);
+      if (normalized) {
+        onAdd(normalized);
+        input.value = '';
+      }
+    }
+  };
+
+  const renderHashtagChips = (tags: string[], onRemove: (index: number) => void) => (
+    <div className="d-flex flex-wrap gap-2 mb-2">
+      {tags.map((tag, index) => (
+        <Badge
+          key={`${tag}-${index}`}
+          bg="light"
+          text="dark"
+          className="d-inline-flex align-items-center gap-1"
+        >
+          {tag}
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="p-0 text-muted text-decoration-none"
+            onClick={() => onRemove(index)}
+            aria-label={`${tag} 삭제`}
+          >
+            ×
+          </Button>
+        </Badge>
+      ))}
+    </div>
+  );
+
   const [customization, setCustomization] = useState({
     color: '#FF6B6B',
     shape: 'circle',
@@ -177,23 +265,28 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         // imageData를 images 배열로 마이그레이션하는 헬퍼 함수
         const migrateImageData = (items: any[]) => {
           return items.map((item: any) => {
-            if (item.imageData && !item.images) {
-              // imageData가 있고 images가 없으면 마이그레이션
-              return {
-                ...item,
-                images: [item.imageData],
+            const normalizedHashtags = normalizeHashtagArray(item?.hashtags);
+            let migrated = {
+              ...item,
+              hashtags: normalizedHashtags
+            };
+
+            if (migrated.imageData && !migrated.images) {
+              migrated = {
+                ...migrated,
+                images: [migrated.imageData],
                 primaryImageIndex: 0,
-                imageData: undefined // 호환성을 위해 유지하되, 우선순위는 images
+                imageData: undefined
               };
-            } else if (!item.images) {
-              // 둘 다 없으면 빈 배열
-              return {
-                ...item,
+            } else if (!migrated.images) {
+              migrated = {
+                ...migrated,
                 images: [],
                 primaryImageIndex: undefined
               };
             }
-            return item;
+
+            return migrated;
           });
         };
         setAtomModel({
@@ -1029,6 +1122,26 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(proton.hashtags || [], (tagIndex) => {
+                        const newProtons = [...atomModel.protons];
+                        const currentTags = newProtons[index].hashtags || [];
+                        newProtons[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({ ...atomModel, protons: newProtons });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newProtons = [...atomModel.protons];
+                            newProtons[index].hashtags = addHashtag(newProtons[index].hashtags, tag);
+                            setAtomModel({ ...atomModel, protons: newProtons });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={proton.emoji}
@@ -1059,7 +1172,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   onClick={() => {
                     setAtomModel({
                       ...atomModel,
-                      protons: [...atomModel.protons, { keyword: '', strength: 3, color: '#FF6B6B', emoji: '✨', name: '' }]
+                      protons: [...atomModel.protons, { keyword: '', strength: 3, color: '#FF6B6B', emoji: '✨', name: '', hashtags: [] }]
                     });
                   }}
                 >
@@ -1262,6 +1375,26 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(neutron.hashtags || [], (tagIndex) => {
+                        const newNeutrons = [...atomModel.neutrons];
+                        const currentTags = newNeutrons[index].hashtags || [];
+                        newNeutrons[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({ ...atomModel, neutrons: newNeutrons });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newNeutrons = [...atomModel.neutrons];
+                            newNeutrons[index].hashtags = addHashtag(newNeutrons[index].hashtags, tag);
+                            setAtomModel({ ...atomModel, neutrons: newNeutrons });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={neutron.emoji}
@@ -1292,7 +1425,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   onClick={() => {
                     setAtomModel({
                       ...atomModel,
-                      neutrons: [...atomModel.neutrons, { keyword: '', category: '취미', color: '#96CEB4', emoji: '🌟', name: '' }]
+                      neutrons: [...atomModel.neutrons, { keyword: '', category: '취미', color: '#96CEB4', emoji: '🌟', name: '', hashtags: [] }]
                     });
                   }}
                 >
@@ -1516,6 +1649,32 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                        const newKShell = [...atomModel.electrons.kShell];
+                        const currentTags = newKShell[index].hashtags || [];
+                        newKShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, kShell: newKShell }
+                        });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newKShell = [...atomModel.electrons.kShell];
+                            newKShell[index].hashtags = addHashtag(newKShell[index].hashtags, tag);
+                            setAtomModel({
+                              ...atomModel,
+                              electrons: { ...atomModel.electrons, kShell: newKShell }
+                            });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
@@ -1554,7 +1713,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       ...atomModel,
                       electrons: {
                         ...atomModel.electrons,
-                        kShell: [...atomModel.electrons.kShell, { activity: '', frequency: 4, emoji: '📖', description: '', name: '' }]
+                        kShell: [...atomModel.electrons.kShell, { activity: '', frequency: 4, emoji: '📖', description: '', name: '', hashtags: [] }]
                       }
                     });
                   }}
@@ -1702,6 +1861,32 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                        const newLShell = [...atomModel.electrons.lShell];
+                        const currentTags = newLShell[index].hashtags || [];
+                        newLShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, lShell: newLShell }
+                        });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newLShell = [...atomModel.electrons.lShell];
+                            newLShell[index].hashtags = addHashtag(newLShell[index].hashtags, tag);
+                            setAtomModel({
+                              ...atomModel,
+                              electrons: { ...atomModel.electrons, lShell: newLShell }
+                            });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
@@ -1740,7 +1925,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       ...atomModel,
                       electrons: {
                         ...atomModel.electrons,
-                        lShell: [...atomModel.electrons.lShell, { activity: '', frequency: 4, emoji: '🏃', description: '', name: '' }]
+                        lShell: [...atomModel.electrons.lShell, { activity: '', frequency: 4, emoji: '🏃', description: '', name: '', hashtags: [] }]
                       }
                     });
                   }}
@@ -1888,6 +2073,32 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                        const newMShell = [...atomModel.electrons.mShell];
+                        const currentTags = newMShell[index].hashtags || [];
+                        newMShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, mShell: newMShell }
+                        });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newMShell = [...atomModel.electrons.mShell];
+                            newMShell[index].hashtags = addHashtag(newMShell[index].hashtags, tag);
+                            setAtomModel({
+                              ...atomModel,
+                              electrons: { ...atomModel.electrons, mShell: newMShell }
+                            });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
@@ -1926,7 +2137,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       ...atomModel,
                       electrons: {
                         ...atomModel.electrons,
-                        mShell: [...atomModel.electrons.mShell, { activity: '', frequency: 2, emoji: '🤝', description: '', name: '' }]
+                        mShell: [...atomModel.electrons.mShell, { activity: '', frequency: 2, emoji: '🤝', description: '', name: '', hashtags: [] }]
                       }
                     });
                   }}
@@ -2074,6 +2285,32 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>Hashtags</Form.Label>
+                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                        const newValence = [...atomModel.electrons.valence];
+                        const currentTags = newValence[index].hashtags || [];
+                        newValence[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        setAtomModel({
+                          ...atomModel,
+                          electrons: { ...atomModel.electrons, valence: newValence }
+                        });
+                      })}
+                      <Form.Control
+                        type="text"
+                        placeholder={hashtagPlaceholder}
+                        onKeyDown={(e) =>
+                          handleHashtagKeyDown(e, (tag) => {
+                            const newValence = [...atomModel.electrons.valence];
+                            newValence[index].hashtags = addHashtag(newValence[index].hashtags, tag);
+                            setAtomModel({
+                              ...atomModel,
+                              electrons: { ...atomModel.electrons, valence: newValence }
+                            });
+                          })
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
                       <Form.Label>Select Emoji</Form.Label>
                       <EmojiSelector
                         selectedEmoji={electron.emoji}
@@ -2112,7 +2349,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       ...atomModel,
                       electrons: {
                         ...atomModel.electrons,
-                        valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '', name: '' }]
+                        valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '', name: '', hashtags: [] }]
                       }
                     });
                   }}
