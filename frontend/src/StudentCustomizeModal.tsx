@@ -135,14 +135,16 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     return Array.from(set);
   };
 
+  type InputLikeElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
   const handleHashtagKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
+    event: React.KeyboardEvent<InputLikeElement>,
     onAdd: (tag: string) => void
   ) => {
     if (event.nativeEvent.isComposing) return;
     if (event.key === 'Enter' || event.key === ',' || event.key === ' ') {
       event.preventDefault();
-      const input = event.currentTarget;
+      const input = event.currentTarget as HTMLInputElement | HTMLTextAreaElement;
       const normalized = normalizeHashtagValue(input.value);
       if (normalized) {
         onAdd(normalized);
@@ -211,13 +213,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
   // 원자 모델 편집 상태 - 처음에는 모두 빈 배열
   const [atomModel, setAtomModel] = useState<{
-    protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string }>;
-    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string }>;
+    protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string; hashtags?: string[] }>;
+    neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string; hashtags?: string[] }>;
     electrons: {
-      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
-      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
-      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
-      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string }>;
+      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
+      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
+      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
+      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
     };
   }>({
     protons: [],
@@ -1123,10 +1125,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(proton.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(proton.hashtags ?? [], (tagIndex) => {
                         const newProtons = [...atomModel.protons];
-                        const currentTags = newProtons[index].hashtags || [];
-                        newProtons[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newProtons[index].hashtags ?? [];
+                        newProtons[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({ ...atomModel, protons: newProtons });
                       })}
                       <Form.Control
@@ -1376,10 +1378,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(neutron.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(neutron.hashtags ?? [], (tagIndex) => {
                         const newNeutrons = [...atomModel.neutrons];
-                        const currentTags = newNeutrons[index].hashtags || [];
-                        newNeutrons[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newNeutrons[index].hashtags ?? [];
+                        newNeutrons[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({ ...atomModel, neutrons: newNeutrons });
                       })}
                       <Form.Control
@@ -1650,10 +1652,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newKShell = [...atomModel.electrons.kShell];
-                        const currentTags = newKShell[index].hashtags || [];
-                        newKShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newKShell[index].hashtags ?? [];
+                        newKShell[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({
                           ...atomModel,
                           electrons: { ...atomModel.electrons, kShell: newKShell }
@@ -1862,10 +1864,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newLShell = [...atomModel.electrons.lShell];
-                        const currentTags = newLShell[index].hashtags || [];
-                        newLShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newLShell[index].hashtags ?? [];
+                        newLShell[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({
                           ...atomModel,
                           electrons: { ...atomModel.electrons, lShell: newLShell }
@@ -2074,10 +2076,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newMShell = [...atomModel.electrons.mShell];
-                        const currentTags = newMShell[index].hashtags || [];
-                        newMShell[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newMShell[index].hashtags ?? [];
+                        newMShell[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({
                           ...atomModel,
                           electrons: { ...atomModel.electrons, mShell: newMShell }
@@ -2286,10 +2288,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
-                      {renderHashtagChips(electron.hashtags || [], (tagIndex) => {
+                      {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newValence = [...atomModel.electrons.valence];
-                        const currentTags = newValence[index].hashtags || [];
-                        newValence[index].hashtags = currentTags.filter((_, i) => i !== tagIndex);
+                        const currentTags = newValence[index].hashtags ?? [];
+                        newValence[index].hashtags = currentTags.filter((_tag, i) => i !== tagIndex);
                         setAtomModel({
                           ...atomModel,
                           electrons: { ...atomModel.electrons, valence: newValence }
