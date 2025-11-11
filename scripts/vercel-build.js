@@ -1,3 +1,16 @@
+const ensureDependencies = (directory) => {
+  const packageJsonPath = path.join(directory, 'package.json');
+  const nodeModulesPath = path.join(directory, 'node_modules');
+  if (!fs.existsSync(packageJsonPath)) {
+    console.error(`[vercel-build] no package.json found in ${directory}`);
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(nodeModulesPath) || fs.readdirSync(nodeModulesPath).length === 0) {
+    log(`installing dependencies in ${directory}`);
+    execSync('npm install', { cwd: directory, stdio: 'inherit' });
+  }
+};
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -35,18 +48,22 @@ const rootDir = (() => {
   return currentDir;
 })();
 const frontendDir = (() => {
-  if (isRunningInsideFrontend) return currentDir;
-  const candidateFromRoot = path.join(rootDir, 'frontend');
-  if (fs.existsSync(candidateFromRoot)) {
-    return candidateFromRoot;
+  const candidates = [];
+  if (isRunningInsideFrontend) {
+    candidates.push(currentDir);
+  } else {
+    candidates.push(path.join(currentDir, 'frontend'));
+    candidates.push(path.join(rootDir, 'frontend'));
+    candidates.push(path.join(rootDir, '..', 'frontend'));
   }
-  if (isRunningInsideApi) {
-    const candidateFromApi = path.join(rootDir, '..', 'frontend');
-    if (fs.existsSync(candidateFromApi)) {
-      return candidateFromApi;
+
+  for (const candidate of candidates) {
+    if (candidate && fs.existsSync(candidate)) {
+      return candidate;
     }
   }
-  return candidateFromRoot;
+
+  return candidates[candidates.length - 1];
 })();
 const destDir = path.join(rootDir, 'build');
 const srcDir = path.join(frontendDir, 'build');
@@ -56,6 +73,7 @@ if (!fs.existsSync(frontendDir)) {
   process.exit(1);
 }
 
+ensureDependencies(frontendDir);
 run('npm run build', frontendDir);
 
 if (!fs.existsSync(srcDir)) {
