@@ -1,7 +1,7 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": "frontend/build",
+  "buildCommand": "npm run build --prefix frontend && node scripts/copy-build.js",
+  "outputDirectory": "build",
   "framework": "create-react-app"
 }
 
