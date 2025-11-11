@@ -146,14 +146,6 @@ function App() {
     };
   }, []);
 
-  const getDisplayClassName = useCallback((classId: number) => {
-    const name = classes[classId - 1];
-    if (!name || name === '.') {
-      return `${classId}반`;
-    }
-    return name;
-  }, [classes]);
-
   const handleSaveClassName = async (index: number) => {
     if (editingClassName.trim()) {
       const newClasses = [...classes];
