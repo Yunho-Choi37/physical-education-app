@@ -821,12 +821,9 @@ function App() {
                   setSearchQuery(e.currentTarget.value);
                 }}
                 onChange={(e) => {
-                  if (isComposing) {
-                    return;
-                  }
                   const { value } = e.target;
                   setSearchQuery(value);
-                  if (searchError) {
+                  if (!isComposing && searchError) {
                     setSearchError(null);
                   }
                 }}
