@@ -800,7 +800,7 @@ function App() {
       <div className="existence-home">
         <div className="existence-search-container">
           <h1 className="existence-logo" onClick={handleLogoClick}>
-            <span className="existence-letter existence-letter-gray">e</span>
+            <span className="existence-letter existence-letter-red">e</span>
             <span className="existence-letter existence-letter-dark">x</span>
             <span className="existence-letter existence-letter-green">i</span>
             <span className="existence-letter existence-letter-dark">st</span>
