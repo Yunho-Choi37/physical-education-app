@@ -66,6 +66,7 @@ const frontendDir = (() => {
   return candidates[candidates.length - 1];
 })();
 const destDir = path.join(rootDir, 'build');
+const cwdDestDir = path.join(currentDir, 'build');
 const srcDir = path.join(frontendDir, 'build');
 
 if (!fs.existsSync(frontendDir)) {
@@ -85,4 +86,11 @@ fs.rmSync(destDir, { recursive: true, force: true });
 fs.mkdirSync(destDir, { recursive: true });
 copyRecursive(srcDir, destDir);
 log(`copied ${srcDir} -> ${destDir}`);
+
+if (path.resolve(destDir) !== path.resolve(cwdDestDir)) {
+  fs.rmSync(cwdDestDir, { recursive: true, force: true });
+  fs.mkdirSync(cwdDestDir, { recursive: true });
+  copyRecursive(srcDir, cwdDestDir);
+  log(`mirrored ${srcDir} -> ${cwdDestDir}`);
+}
 
