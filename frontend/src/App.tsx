@@ -17,120 +17,6 @@ interface ClassExistence {
   imageData?: string;
 }
 
-interface ActivityRecord {
-  activity?: string;
-  duration?: number;
-  notes?: string;
-  description?: string;
-  date?: string;
-}
-
-interface StudentSnapshot {
-  id: number;
-  name: string;
-  classId: number;
-  existence?: {
-    color?: string;
-    shape?: string;
-    pattern?: string;
-    size?: number;
-    glow?: boolean;
-    border?: string;
-    customName?: string;
-    imageData?: string;
-    records?: ActivityRecord[];
-  };
-}
-
-interface SearchResultItem {
-  student: StudentSnapshot;
-  className: string;
-  matchedRecords: ActivityRecord[];
-}
-
-const normalizeTagValue = (value: string): string => {
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-
-  const primaryToken = trimmed
-    .split(/[\s,]+/)
-    .find((segment) => segment.replace(/[#\s]/g, '').length > 0);
-
-  if (!primaryToken) {
-    return '';
-  }
-
-  const withHash = primaryToken.startsWith('#') ? primaryToken : `#${primaryToken}`;
-  const cleaned = withHash.replace(/[,.;:!?~\u3001\u3002\uff0c\uff01\uff1f\uff1b\uff1a]+$/gu, '');
-
-  if (cleaned === '#') {
-    return '';
-  }
-
-  return cleaned.toLowerCase();
-};
-
-interface AtomHashtagEntry {
-  tag: string;
-  contexts: string[];
-}
-
-const collectAtomHashtags = (existence: any): AtomHashtagEntry[] => {
-  if (!existence?.atom) return [];
-
-  const contextMap = new Map<string, Set<string>>();
-
-  const registerTags = (items: any[] | undefined, baseContext: string) => {
-    if (!Array.isArray(items)) return;
-    items.forEach((item: any, index: number) => {
-      const rawTags = Array.isArray(item?.hashtags)
-        ? item.hashtags
-        : typeof item?.hashtags === 'string'
-          ? [item.hashtags]
-          : [];
-
-      const contextLabel = item?.name
-        ? `${baseContext} · ${item.name}`
-        : `${baseContext}${typeof index === 'number' ? ` #${index + 1}` : ''}`;
-
-      rawTags.forEach((rawTag: string) => {
-        const normalized = normalizeTagValue(rawTag);
-        if (!normalized) return;
-        if (!contextMap.has(normalized)) {
-          contextMap.set(normalized, new Set());
-        }
-        contextMap.get(normalized)!.add(contextLabel);
-      });
-    });
-  };
-
-  registerTags(existence.atom.protons, 'Proton');
-  registerTags(existence.atom.neutrons, 'Neutron');
-  const electrons = existence.atom.electrons || {};
-  registerTags(electrons.kShell, 'Electron K-shell');
-  registerTags(electrons.lShell, 'Electron L-shell');
-  registerTags(electrons.mShell, 'Electron M-shell');
-  registerTags(electrons.valence, 'Electron Valence');
-
-  return Array.from(contextMap.entries()).map(([tag, contextsSet]) => ({
-    tag,
-    contexts: Array.from(contextsSet)
-  }));
-};
-
-const createAtomMatchRecords = (entries: AtomHashtagEntry[], normalizedTag: string): ActivityRecord[] => {
-  const match = entries.find((entry) => entry.tag === normalizedTag);
-  if (!match) return [];
-
-  return match.contexts.map((context) => ({
-    activity: normalizedTag,
-    notes: `${context} ${normalizedTag}`,
-    description: context,
-    date: '',
-    duration: 0
-  }));
-};
-
 function App() {
   const [classes, setClasses] = useState<string[]>(['.', '.', '.', '.', '.', '.', '.']);
   const [classesLoaded, setClassesLoaded] = useState(false);
@@ -154,46 +40,10 @@ function App() {
   const [newClassName, setNewClassName] = useState('');
   const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
   const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const searchInputCompositionRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isClassView = location.pathname.startsWith('/class');
   const isLegacyView = location.pathname === '/being' || isClassView;
-
-  const updateSearchQuery = useCallback((value: string) => {
-    setSearchQuery(value);
-    if (searchError) {
-      setSearchError(null);
-    }
-  }, [searchError]);
-
-  const handleSearchInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (searchInputCompositionRef.current) {
-      return;
-    }
-    updateSearchQuery(event.target.value);
-  }, [updateSearchQuery]);
-
-  const handleSearchInput = useCallback((event: React.FormEvent<HTMLInputElement>) => {
-    if (searchInputCompositionRef.current) {
-      return;
-    }
-    updateSearchQuery(event.currentTarget.value);
-  }, [updateSearchQuery]);
-
-  const handleCompositionStart = useCallback(() => {
-    searchInputCompositionRef.current = true;
-  }, []);
-
-  const handleCompositionEnd = useCallback((event: React.CompositionEvent<HTMLInputElement>) => {
-    searchInputCompositionRef.current = false;
-    updateSearchQuery(event.currentTarget.value);
-  }, [updateSearchQuery]);
 
   const handleAdminLogin = () => {
     if (adminPassword === '159753') {
@@ -303,96 +153,6 @@ function App() {
     }
     return name;
   }, [classes]);
-
-  const normalizeTag = useCallback(normalizeTagValue, []);
-
-  const handleSearchSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalized = normalizeTag(searchQuery);
-    if (!normalized) {
-      setSearchError('검색어를 입력해주세요.');
-      setSearchResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    setIsSearching(true);
-    setHasSearched(true);
-    setSearchError(null);
-
-    try {
-      const response = await fetch(`${API_URL}/api/data`);
-      if (!response.ok) {
-        throw new Error('학생 데이터를 불러오지 못했습니다.');
-      }
-
-      const payload = await response.json();
-      let rawStudents: any = Array.isArray(payload?.students)
-        ? payload.students
-        : Array.isArray(payload)
-          ? payload
-          : Array.isArray(payload?.data?.students)
-            ? payload.data.students
-            : Array.isArray(payload?.data)
-              ? payload.data
-              : [];
-
-      if (!Array.isArray(rawStudents)) {
-        rawStudents = [];
-      }
-
-      const results: SearchResultItem[] = [];
-      (rawStudents as any[]).forEach((rawStudent) => {
-        if (!rawStudent) return;
-        const numericId = typeof rawStudent.id === 'string' ? parseInt(rawStudent.id, 10) : Number(rawStudent.id);
-        const numericClassId = typeof rawStudent.classId === 'string' ? parseInt(rawStudent.classId, 10) : Number(rawStudent.classId);
-        if (!numericId || !numericClassId) return;
-
-        const existence = rawStudent.existence || {};
-        const records: ActivityRecord[] = Array.isArray(existence.records) ? existence.records : [];
-        const recordMatches = records.filter((record) => {
-          if (!record) return false;
-          const possibleTexts = [record.notes, record.description, record.activity]
-            .filter(Boolean)
-            .map((text) => (typeof text === 'string' ? text.toLowerCase() : ''));
-          return possibleTexts.some((text) => text.includes(normalized));
-        });
-
-        const atomHashtagEntries = collectAtomHashtags(existence);
-        const atomMatches = createAtomMatchRecords(atomHashtagEntries, normalized);
-        const combinedMatches = [...recordMatches, ...atomMatches];
-
-        if (combinedMatches.length > 0) {
-          const snapshot: StudentSnapshot = {
-            id: numericId,
-            name: rawStudent.name || `학생 ${numericId}`,
-            classId: numericClassId,
-            existence,
-          };
-
-          results.push({
-            student: snapshot,
-            className: getDisplayClassName(numericClassId),
-            matchedRecords: combinedMatches,
-          });
-        }
-      });
-
-      results.sort((a, b) => {
-        const aDate = a.matchedRecords[0]?.date ? new Date(a.matchedRecords[0].date).getTime() : 0;
-        const bDate = b.matchedRecords[0]?.date ? new Date(b.matchedRecords[0].date).getTime() : 0;
-        return bDate - aDate;
-      });
-
-      setSearchResults(results);
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchError('검색 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [getDisplayClassName, normalizeTag, searchQuery]);
 
   const handleSaveClassName = async (index: number) => {
     if (editingClassName.trim()) {
@@ -668,163 +428,11 @@ function App() {
     };
   }, [generateCircularLayout]); // generateCircularLayout이 변경될 때마다 위치 재계산
 
-  const getPreviewEmoji = (shape?: string | null) => {
-    switch (shape) {
-      case 'square':
-        return '⬜';
-      case 'triangle':
-        return '🔺';
-      case 'star':
-        return '⭐';
-      case 'heart':
-        return '❤️';
-      case 'smile':
-        return '😊';
-      case 'fire':
-        return '🔥';
-      case 'sun':
-        return '☀️';
-      case 'moon':
-        return '🌙';
-      case 'rainbow':
-        return '🌈';
-      case 'flower':
-        return '🌸';
-      case 'butterfly':
-        return '🦋';
-      case 'cat':
-        return '🐱';
-      case 'dog':
-        return '🐶';
-      case 'panda':
-        return '🐼';
-      default:
-        return null;
-    }
-  };
-
-  const renderCirclePreview = (existence?: StudentSnapshot['existence']) => {
-    const color = existence?.color || '#4ECDC4';
-    const imageData = existence?.imageData;
-    const emoji = getPreviewEmoji(existence?.shape);
-
-    return (
-      <div
-        className="existence-circle-preview"
-        style={{
-          background: `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`,
-        }}
-      >
-        {imageData ? (
-          <img src={imageData} alt="existence preview" />
-        ) : emoji ? (
-          <span>{emoji}</span>
-        ) : (
-          <span>◎</span>
-        )}
-      </div>
-    );
-  };
-
-  const truncate = (text: string, length = 140) => (
-    text.length > length ? `${text.slice(0, length)}…` : text
-  );
-
   const LandingPage = () => {
     const handleLogoClick = () => {
       if (location.pathname !== '/') {
         navigate('/');
       }
-      updateSearchQuery('');
-      setSearchResults([]);
-      setHasSearched(false);
-      setSearchError(null);
-      setIsSearching(false);
-    };
-
-    const renderResults = () => {
-      if (!hasSearched) {
-        if (searchError && !isSearching) {
-          return (
-            <div className="existence-feedback existence-feedback--error">
-              {searchError}
-            </div>
-          );
-        }
-        return null;
-      }
-
-      if (isSearching) {
-        return <div className="existence-feedback">검색 중입니다...</div>;
-      }
-
-      if (searchError) {
-        return (
-          <div className="existence-feedback existence-feedback--error">
-            {searchError}
-          </div>
-        );
-      }
-
-      if (searchResults.length === 0) {
-        return (
-          <div className="existence-feedback existence-feedback--empty">
-            검색 결과가 없습니다.
-          </div>
-        );
-      }
-
-      return (
-        <div className="existence-result-grid">
-          {searchResults.map((result) => {
-            const primaryRecord = result.matchedRecords[0];
-            const snippetSource =
-              typeof primaryRecord?.notes === 'string'
-                ? primaryRecord.notes
-                : typeof primaryRecord?.description === 'string'
-                  ? primaryRecord.description
-                  : typeof primaryRecord?.activity === 'string'
-                    ? primaryRecord.activity
-                    : '';
-            const snippet = snippetSource
-              ? truncate(snippetSource, 140)
-              : `${normalizeTag(searchQuery) || '#주제'} 기록을 확인해 보세요.`;
-
-            return (
-              <div
-                className="existence-result-card"
-                key={`${result.student.id}-${result.className}`}
-              >
-                <div className="existence-result-avatar">
-                  {renderCirclePreview(result.student.existence)}
-                </div>
-                <div className="existence-result-body">
-                  <div className="existence-result-header">
-                    <h3>{result.student.name}</h3>
-                    <span>{result.className}</span>
-                  </div>
-                  <p className="existence-result-snippet">{snippet}</p>
-                  <div className="existence-result-meta">
-                    {primaryRecord?.date && <span>{primaryRecord.date}</span>}
-                    {typeof primaryRecord?.duration === 'number' && primaryRecord.duration > 0 && (
-                      <span>{primaryRecord.duration}분</span>
-                    )}
-                  </div>
-                  <div className="existence-result-actions">
-                    <button
-                      type="button"
-                      className="primary-action"
-                      onClick={() => navigate(`/class/${result.student.classId}`)}
-                    >
-                      원 보기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      );
     };
 
     return (
@@ -840,50 +448,23 @@ function App() {
             <span className="existence-letter existence-letter-red">c</span>
             <span className="existence-letter existence-letter-dark">e</span>
           </h1>
-          <form className="existence-search-form" onSubmit={handleSearchSubmit}>
-            <div className="existence-search-bar">
-              <input
-                type="text"
-                value={searchQuery}
-                onCompositionStart={handleCompositionStart}
-                onCompositionEnd={handleCompositionEnd}
-                onChange={handleSearchInputChange}
-                onInput={handleSearchInput}
-                placeholder="#주제를 입력해주세요"
-                className="existence-search-input"
-              />
-            </div>
-            <div className="existence-buttons">
-              <button type="submit" className="existence-button">
-                검색
-              </button>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={() => {
-                  navigate('/being');
-                }}
-              >
-                Being
-              </button>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={() => navigate('/purpose')}
-              >
-                Purpose
-              </button>
-            </div>
-          </form>
-          {searchError && !hasSearched && (
-            <div className="existence-feedback existence-feedback--error">
-              {searchError}
-            </div>
-          )}
-          <div className="existence-helper" />
-        </div>
-        <div className="existence-results-container">
-          {renderResults()}
+          <p className="existence-subtitle">움직임을 기록하는 새로운 방식, 언제든 Being으로 이동해 보세요.</p>
+          <div className="existence-buttons">
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => navigate('/being')}
+            >
+              Being
+            </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => navigate('/purpose')}
+            >
+              Purpose
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1509,6 +1090,12 @@ function App() {
           margin: 0;
           cursor: pointer;
         }
+        .existence-subtitle {
+          margin: 0;
+          font-size: 1rem;
+          color: #5f6368;
+          text-align: center;
+        }
         .existence-letter {
           display: inline-block;
         }
@@ -1517,35 +1104,6 @@ function App() {
         .existence-letter-green { color: #188038; }
         .existence-letter-blue { color: #1a73e8; }
         .existence-letter-red { color: #d93025; }
-        .existence-search-form {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 16px;
-        }
-        .existence-search-bar {
-          width: 100%;
-          max-width: 560px;
-          position: relative;
-          z-index: 2;
-        }
-        .existence-search-input {
-          width: 100%;
-          padding: 16px 20px;
-          border-radius: 28px;
-          border: 1px solid #dfe1e5;
-          font-size: 16px;
-          box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-          position: relative;
-          z-index: 2;
-        }
-        .existence-search-input:focus {
-          outline: none;
-          border-color: #1a73e8;
-          box-shadow: 0 6px 18px rgba(26, 115, 232, 0.18);
-        }
         .existence-buttons {
           display: flex;
           flex-wrap: wrap;
@@ -1573,22 +1131,6 @@ function App() {
           box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
           transform: translateY(-1px);
         }
-        .existence-feedback {
-          margin-top: 12px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          text-align: center;
-          color: #1f2937;
-        }
-        .existence-feedback--error {
-          color: #d93025;
-        }
-        .existence-feedback--empty {
-          color: #5f6368;
-        }
-        .existence-helper {
-          height: 0;
-        }
         @media (max-width: 480px) {
           .existence-buttons {
             width: 100%;
@@ -1607,9 +1149,6 @@ function App() {
             line-height: 25px;
           }
         }
-        .existence-results-container {
-          width: 100%;
-        }
         @media (max-width: 768px) {
           .App.landing-view {
             padding: 64px 0 80px;
@@ -1618,101 +1157,6 @@ function App() {
             padding: 0 16px;
             gap: 40px;
           }
-        }
-        .existence-result-grid {
-          display: grid;
-          gap: 24px;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-        .existence-result-card {
-          background: #ffffff;
-          border-radius: 24px;
-          padding: 24px;
-          box-shadow: 0 12px 30px rgba(17, 36, 77, 0.12);
-          display: flex;
-          gap: 20px;
-          align-items: center;
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .existence-result-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 24px 45px rgba(17, 36, 77, 0.16);
-        }
-        .existence-result-avatar {
-          flex-shrink: 0;
-        }
-        .existence-circle-preview {
-          width: 72px;
-          height: 72px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #ffffff;
-          font-size: 28px;
-          overflow: hidden;
-          box-shadow: 0 10px 24px rgba(17, 36, 77, 0.18);
-        }
-        .existence-circle-preview img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .existence-result-body {
-          flex: 1;
-          text-align: left;
-        }
-        .existence-result-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 8px;
-          color: #11224d;
-        }
-        .existence-result-header h3 {
-          font-size: 1.25rem;
-          font-weight: 700;
-          margin: 0;
-        }
-        .existence-result-header span {
-          font-size: 0.85rem;
-          color: #5f6368;
-          white-space: nowrap;
-        }
-        .existence-result-snippet {
-          margin: 0 0 12px;
-          color: #3c4043;
-          line-height: 1.5;
-          font-size: 0.95rem;
-        }
-        .existence-result-meta {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-          font-size: 0.85rem;
-          color: #5f6368;
-          margin-bottom: 12px;
-        }
-        .existence-result-actions {
-          display: flex;
-          gap: 12px;
-        }
-        .primary-action {
-          background: #1a73e8;
-          border: none;
-          color: #ffffff;
-          border-radius: 999px;
-          padding: 10px 20px;
-          font-weight: 600;
-          cursor: pointer;
-          box-shadow: 0 8px 18px rgba(26, 115, 232, 0.25);
-          transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-        .primary-action:hover {
-          background: #1558b0;
-          box-shadow: 0 16px 28px rgba(26, 115, 232, 0.28);
-          transform: translateY(-1px);
         }
         .purpose-wrapper {
           min-height: 100vh;
@@ -1728,13 +1172,6 @@ function App() {
         @media (max-width: 600px) {
           .existence-home {
             padding-top: 64px;
-          }
-          .existence-result-card {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .existence-result-avatar {
-            align-self: center;
           }
         }
         .floating-classes-container {
