@@ -155,7 +155,6 @@ function App() {
   const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
   const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -822,15 +821,6 @@ function App() {
                   if (searchError) {
                     setSearchError(null);
                   }
-                  requestAnimationFrame(() => {
-                    const inputEl = searchInputRef.current;
-                    if (!inputEl) return;
-                    if (document.activeElement !== inputEl) {
-                      inputEl.focus({ preventScroll: true });
-                      const caret = inputEl.value.length;
-                      inputEl.setSelectionRange(caret, caret);
-                    }
-                  });
                 }}
                 placeholder="#주제를 입력해주세요"
                 className="existence-search-input"
