@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "node scripts/vercel-build.js",
+  "buildCommand": "node scripts/vercel-build.js || node ../scripts/vercel-build.js",
   "outputDirectory": "build",
   "framework": "create-react-app"
 }
