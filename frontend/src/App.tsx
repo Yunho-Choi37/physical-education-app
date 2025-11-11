@@ -155,6 +155,7 @@ function App() {
   const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
   const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isComposing, setIsComposing] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResultItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -814,7 +815,15 @@ function App() {
               <input
                 type="text"
                 value={searchQuery}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={(e) => {
+                  setIsComposing(false);
+                  setSearchQuery(e.currentTarget.value);
+                }}
                 onChange={(e) => {
+                  if (isComposing) {
+                    return;
+                  }
                   const { value } = e.target;
                   setSearchQuery(value);
                   if (searchError) {
