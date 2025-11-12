@@ -1091,7 +1091,7 @@ function App() {
         .existence-letter {
           display: inline-block;
         }
-        .existence-letter-dark { color: #1f2937; }
+        .existence-letter-dark { color: #FFD700; } /* 노란색으로 변경 */
         .existence-letter-gray { color: #5f6368; }
         .existence-letter-green { color: #188038; }
         .existence-letter-blue { color: #1a73e8; }
