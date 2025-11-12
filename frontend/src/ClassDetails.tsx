@@ -5,7 +5,7 @@ import './ClassDetails.css';
 import StudentDetailsModal from './StudentDetailsModal';
 import AddStudentModal from './AddStudentModal';
 import StudentCustomizeModal from './StudentCustomizeModal';
-import { API_URL } from './config';
+import { getApiUrl } from './config';
 
 interface Student {
   id: number;
@@ -138,7 +138,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const savePositionsToServer = useCallback(async (positions: Map<number, {x: number, y: number}>) => {
     for (const [studentId, pos] of positions.entries()) {
       try {
-        await fetch(`${API_URL}/api/students/${studentId}/position`, {
+        await fetch(`${getApiUrl()}/api/students/${studentId}/position`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -212,7 +212,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   useEffect(() => {
     const updateClassName = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/classes`);
+        const response = await fetch(`${getApiUrl()}/api/classes`);
         if (response.ok) {
           const classesData = await response.json();
           // API 응답이 { classNames: [...], classExistence: {...} } 형태
@@ -288,7 +288,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const url = `${API_URL}/api/classes/${classId}/students`;
+        const url = `${getApiUrl()}/api/classes/${classId}/students`;
         console.log('🔄 학생 목록 가져오기:', url);
         
         const response = await fetch(url);
@@ -336,7 +336,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         }, 100);
       } catch (error) {
         console.error('❌ Error fetching students:', error);
-        console.error('API_URL:', API_URL);
+        console.error('getApiUrl():', getApiUrl());
         console.error('classId:', classId);
         // 에러가 발생해도 빈 배열로 설정하여 화면이 깨지지 않도록
         setStudents([]);
@@ -1842,7 +1842,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 학생 위치 저장
   const saveStudentPosition = async (studentId: number, x: number, y: number) => {
     try {
-      await fetch(`${API_URL}/api/students/${studentId}/position`, {
+      await fetch(`${getApiUrl()}/api/students/${studentId}/position`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1932,13 +1932,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         setStudents(resetStudents);
         
         // 서버에서도 위치 데이터 삭제
-        await fetch(`${API_URL}/api/classes/${classId}/positions`, {
+        await fetch(`${getApiUrl()}/api/classes/${classId}/positions`, {
           method: 'DELETE'
         });
         
         // 각 학생의 existence 데이터도 서버에서 초기화
         for (const student of resetStudents) {
-          await fetch(`${API_URL}/api/students/${student.id}`, {
+          await fetch(`${getApiUrl()}/api/students/${student.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -1972,7 +1972,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
       console.log('📏 크기:', updatedStudent.existence?.size);
       
-      const response = await fetch(`${API_URL}/api/students/${updatedStudent.id}`, {
+      const response = await fetch(`${getApiUrl()}/api/students/${updatedStudent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2014,7 +2014,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     try {
       const newStudents: Student[] = [];
       for (let i = 0; i < count; i++) {
-        const response = await fetch(`${API_URL}/api/classes/${classId}/students`, {
+        const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2039,7 +2039,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handleDeleteStudent = async (studentId: number) => {
     if (window.confirm('Are you sure you want to delete this student?')) {
       try {
-        await fetch(`${API_URL}/api/students/${studentId}`, {
+        await fetch(`${getApiUrl()}/api/students/${studentId}`, {
           method: 'DELETE',
         });
         setStudents(students.filter(student => student.id !== studentId));

@@ -1,5 +1,5 @@
 // API 및 환경 설정
-const resolveApiUrl = (): string => {
+export const getApiUrl = (): string => {
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
@@ -10,7 +10,5 @@ const resolveApiUrl = (): string => {
 
   return 'http://localhost:3001';
 };
-
-export const API_URL = resolveApiUrl();
 
 

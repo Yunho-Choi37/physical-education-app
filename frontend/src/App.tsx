@@ -4,7 +4,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
 import StudentCustomizeModal from './StudentCustomizeModal';
-import { API_URL } from './config';
+import { getApiUrl } from './config';
 
 interface ClassExistence {
   color: string;
@@ -70,7 +70,7 @@ function App() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/classes`);
+        const response = await fetch(`${getApiUrl()}/api/classes`);
         if (response.ok) {
           const classesData = await response.json();
           // 기본 이름(1반, 2반 등)이 있으면 "."로 변환
@@ -154,7 +154,7 @@ function App() {
       const nameToSave = savedName === '.' ? `${index + 1}반` : savedName;
       
       // API에 저장할 때는 원본 이름 저장
-      const allClassNames = await fetch(`${API_URL}/api/classes`).then(r => r.json()).catch(() => classes.map((name, i) => name === '.' ? `${i + 1}반` : name));
+      const allClassNames = await fetch(`${getApiUrl()}/api/classes`).then(r => r.json()).catch(() => classes.map((name, i) => name === '.' ? `${i + 1}반` : name));
       allClassNames[index] = nameToSave;
       
       // 화면에 표시할 때는 "." 처리
@@ -163,7 +163,7 @@ function App() {
       
       // API에 저장
       try {
-        await fetch(`${API_URL}/api/classes`, {
+        await fetch(`${getApiUrl()}/api/classes`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ function App() {
       
       // API에 저장
       try {
-        await fetch(`${API_URL}/api/classes`, {
+        await fetch(`${getApiUrl()}/api/classes`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -231,11 +231,11 @@ function App() {
       
       // 해당 클래스의 모든 학생 삭제
       try {
-        const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+        const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`);
         const students = await response.json();
         
         for (const student of students) {
-          await fetch(`${API_URL}/api/students/${student.id}`, {
+          await fetch(`${getApiUrl()}/api/students/${student.id}`, {
             method: 'DELETE'
           });
         }
@@ -249,7 +249,7 @@ function App() {
       
       // API에 저장
       try {
-        await fetch(`${API_URL}/api/classes`, {
+        await fetch(`${getApiUrl()}/api/classes`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ function App() {
   const handleOpenStudentManage = async (index: number) => {
     const classId = index + 1;
     try {
-      const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+      const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`);
       const students = await response.json();
       setClassStudents(students);
       setShowStudentManageModal(index);
@@ -289,7 +289,7 @@ function App() {
       const students = [...classStudents];
       
       for (let i = 0; i < count; i++) {
-        const response = await fetch(`${API_URL}/api/classes/${classId}/students`, {
+        const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -310,7 +310,7 @@ function App() {
   const handleDeleteStudent = async (studentId: number) => {
     if (window.confirm('Are you sure you want to delete this circle?')) {
       try {
-        await fetch(`${API_URL}/api/students/${studentId}`, {
+        await fetch(`${getApiUrl()}/api/students/${studentId}`, {
           method: 'DELETE'
         });
         setClassStudents(classStudents.filter(s => s.id !== studentId));
@@ -328,7 +328,7 @@ function App() {
       if (showStudentManageModal !== null) {
         const classId = showStudentManageModal + 1;
         try {
-          const response = await fetch(`${API_URL}/api/classes/${classId}/students`);
+          const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`);
           const students = await response.json();
           setClassStudents(students);
         } catch (error) {
@@ -993,7 +993,7 @@ function App() {
             };
             
             try {
-              await fetch(`${API_URL}/api/classes/${classId}/existence`, {
+              await fetch(`${getApiUrl()}/api/classes/${classId}/existence`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
