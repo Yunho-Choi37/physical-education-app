@@ -361,7 +361,6 @@ function App() {
     
     // 화면 크기에 따라 버튼 크기 조정
     const screenWidth = screenSize.width;
-    const screenHeight = screenSize.height;
     
     // 기본 사이즈
     const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150;
