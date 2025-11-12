@@ -355,47 +355,33 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 겹치지 않는 위치 생성 함수
+  // 겹치지 않는 위치 생성 함수 (그리드 레이아웃)
   const generateCircularLayout = useCallback(() => {
     const positions: Array<{x: number, y: number}> = [];
     
-    // 화면 크기에 따라 버튼 크기와 원 반지름 조정
+    // 화면 크기에 따라 버튼 크기 조정
     const screenWidth = screenSize.width;
     const screenHeight = screenSize.height;
     
-    // 화면 중앙 좌표
-    const centerX = screenWidth / 2;
-    const centerY = screenHeight / 2;
+    // 기본 사이즈
+    const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150;
+    const buttonSize = baseSize;
     
-    // 화면 크기에 따른 설정
-    let buttonSize, radius;
+    // 그리드 설정: 가로로 배치할 원의 개수
+    const itemsPerRow = screenWidth < 768 ? 2 : screenWidth < 1024 ? 3 : 4;
+    const spacing = buttonSize * 1.2; // 원 사이 간격
     
-    // 기본 사이즈 증가 및 classExistence의 size 적용
-    const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150; // 기본 사이즈 증가
+    // 시작 위치 (왼쪽 상단부터)
+    const startX = spacing;
+    const startY = spacing;
     
-    if (screenWidth < 768) {
-      // 모바일: 작은 원
-      buttonSize = baseSize;
-      radius = Math.min(screenWidth, screenHeight) * 0.25;
-    } else if (screenWidth < 1024) {
-      // 태블릿: 중간 원
-      buttonSize = baseSize;
-      radius = Math.min(screenWidth, screenHeight) * 0.3;
-    } else {
-      // 데스크톱: 큰 원
-      buttonSize = baseSize;
-      radius = Math.min(screenWidth, screenHeight) * 0.35;
-    }
-    
-    // 7개 반을 시계 방향으로 배치 (1반이 12시 방향)
+    // 각 클래스를 그리드로 배치
     for (let i = 0; i < classes.length; i++) {
-      // 시계 방향 각도 계산 (12시 방향부터 시작, 시계방향으로 회전)
-      // 1반(0번째) = 12시 방향 (-90도), 2반(1번째) = 2시 방향, ...
-      const angle = (-Math.PI / 2) + (i * 2 * Math.PI) / classes.length;
+      const col = i % itemsPerRow;
+      const row = Math.floor(i / itemsPerRow);
       
-      // 원 위의 좌표 계산
-      const x = centerX + Math.cos(angle) * radius - buttonSize / 2;
-      const y = centerY + Math.sin(angle) * radius - buttonSize / 2;
+      const x = startX + col * spacing;
+      const y = startY + row * spacing;
       
       positions.push({ x, y });
     }

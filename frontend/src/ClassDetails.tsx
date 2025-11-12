@@ -1261,11 +1261,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 캔버스 클리어 (투명하게)
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    // 배경 그라데이션 추가 (차분한 톤)
-    const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    gradient.addColorStop(0, 'rgba(26, 32, 44, 0.85)');
-    gradient.addColorStop(1, 'rgba(17, 24, 39, 0.92)');
-    ctx.fillStyle = gradient;
+    // 배경을 하얀색으로 설정
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, rect.width, rect.height);
 
     // 학생 노드 계산
@@ -1297,42 +1294,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     const animationTime = performance.now();
 
-    // 연결선 그리기 (직접 연결만)
-    const drawnConnections = new Set<string>(); // 중복 연결 방지
-    
-    students.forEach(student => {
-      const fromNode = nodes.find(n => n.id === student.id);
-      if (!fromNode) return;
-
-      (student.connections || []).forEach(connectionId => {
-        const connectionKey = `${Math.min(student.id, connectionId)}-${Math.max(student.id, connectionId)}`;
-        if (drawnConnections.has(connectionKey)) return;
-
-        const toNode = nodes.find(n => n.id === connectionId);
-        if (!toNode) return;
-
-        drawConnection(ctx, fromNode, toNode, 'direct', '#FF6B6B');
-        drawnConnections.add(connectionKey);
-      });
-    });
-
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const nodeA = nodes[i];
-        const nodeB = nodes[j];
-        const connectionKey = `${Math.min(nodeA.id, nodeB.id)}-${Math.max(nodeA.id, nodeB.id)}`;
-        if (drawnConnections.has(connectionKey)) continue;
-
-        if (shouldConnectByExistence(nodeA.student, nodeB.student)) {
-          const maxLen = Math.max(nodeA.student.name.length, nodeB.student.name.length) || 1;
-          const distance = calculateSimilarity(nodeA.student.name, nodeB.student.name);
-          const similarityScore = Math.max(0, Math.min(1, 1 - distance / maxLen));
-          const alpha = (0.25 + similarityScore * 0.35).toFixed(2);
-          drawConnection(ctx, nodeA, nodeB, 'existence', `rgba(25, 25, 112, ${alpha})`);
-          drawnConnections.add(connectionKey);
-        }
-      }
-    }
+    // 연결선 그리기 제거됨 (자동 연결선 비활성화)
 
     // 노드 그리기 (학생 커스터마이징 반영)
     nodes.forEach(node => {
