@@ -16,6 +16,10 @@ app.use(cors({ origin: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Firebase Functions는 이미 /api 경로로 배포되므로, Express 앱 내부에서는 /api 없이 라우트 정의
+// 하지만 프론트엔드가 /api/...를 호출하므로, Express 앱에 /api prefix 추가
+const apiRouter = express.Router();
+
 // Firestore 연결 확인
 const checkFirestoreConnection = () => {
   if (!db) {
@@ -91,12 +95,12 @@ app.get('/', (req, res) => {
 });
 
 // 헬스 체크 (배포 상태 확인용)
-app.get('/api/health', (req, res) => {
+apiRouter.get('/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now() });
 });
 
 // Firestore 연결 상태 확인
-app.get('/api/health/firestore', (req, res) => {
+apiRouter.get('/health/firestore', (req, res) => {
   if (!db) {
     return res.status(503).json({ 
       ok: false, 
@@ -107,7 +111,7 @@ app.get('/api/health/firestore', (req, res) => {
 });
 
 // API: 모든 데이터 가져오기
-app.get('/api/data', async (req, res) => {
+apiRouter.get('/data', async (req, res) => {
   try {
     if (!db) {
       return res.status(503).json({ 
@@ -126,7 +130,7 @@ app.get('/api/data', async (req, res) => {
 });
 
 // API: 특정 반의 학생들 가져오기
-app.get('/api/classes/:classId/students', async (req, res) => {
+apiRouter.get('/classes/:classId/students', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -139,7 +143,7 @@ app.get('/api/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 추가
-app.post('/api/classes/:classId/students', async (req, res) => {
+apiRouter.post('/classes/:classId/students', async (req, res) => {
   try {
     const { name } = req.body;
     const classId = parseInt(req.params.classId, 10);
@@ -193,7 +197,7 @@ app.post('/api/classes/:classId/students', async (req, res) => {
 });
 
 // API: 학생 정보 수정
-app.put('/api/students/:studentId', async (req, res) => {
+apiRouter.put('/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -212,7 +216,7 @@ app.put('/api/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 삭제
-app.delete('/api/students/:studentId', async (req, res) => {
+apiRouter.delete('/students/:studentId', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const existingStudent = await getStudentById(studentId);
@@ -230,7 +234,7 @@ app.delete('/api/students/:studentId', async (req, res) => {
 });
 
 // API: 학생 위치 저장
-app.post('/api/students/:studentId/position', async (req, res) => {
+apiRouter.post('/students/:studentId/position', async (req, res) => {
   try {
     const studentId = parseInt(req.params.studentId, 10);
     const { x, y } = req.body;
@@ -254,7 +258,7 @@ app.post('/api/students/:studentId/position', async (req, res) => {
 });
 
 // API: 클래스 목록 조회
-app.get('/api/classes', async (req, res) => {
+apiRouter.get('/classes', async (req, res) => {
   try {
     const classNames = await getClasses();
     res.json(classNames);
@@ -265,7 +269,7 @@ app.get('/api/classes', async (req, res) => {
 });
 
 // API: 클래스 목록 저장
-app.put('/api/classes', async (req, res) => {
+apiRouter.put('/classes', async (req, res) => {
   try {
     const { classNames, classExistence } = req.body;
     if (!Array.isArray(classNames)) {
@@ -280,7 +284,7 @@ app.put('/api/classes', async (req, res) => {
 });
 
 // API: 특정 클래스 existence 조회
-app.get('/api/classes/:classId/existence', async (req, res) => {
+apiRouter.get('/classes/:classId/existence', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const classesData = await getClasses();
@@ -293,7 +297,7 @@ app.get('/api/classes/:classId/existence', async (req, res) => {
 });
 
 // API: 특정 클래스 existence 저장
-app.put('/api/classes/:classId/existence', async (req, res) => {
+apiRouter.put('/classes/:classId/existence', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const { existence } = req.body;
@@ -308,7 +312,7 @@ app.put('/api/classes/:classId/existence', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 조회
-app.get('/api/classes/:classId/positions', async (req, res) => {
+apiRouter.get('/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -332,7 +336,7 @@ app.get('/api/classes/:classId/positions', async (req, res) => {
 });
 
 // API: 클래스별 학생 위치 삭제 (리셋용)
-app.delete('/api/classes/:classId/positions', async (req, res) => {
+apiRouter.delete('/classes/:classId/positions', async (req, res) => {
   try {
     const classId = parseInt(req.params.classId, 10);
     const allStudents = await getStudents();
@@ -351,6 +355,9 @@ app.delete('/api/classes/:classId/positions', async (req, res) => {
     res.status(500).json({ error: '위치를 삭제하는 중 오류가 발생했습니다.' });
   }
 });
+
+// API 라우터를 /api 경로에 마운트
+app.use('/api', apiRouter);
 
 // 전역 에러 핸들러
 app.use((err, req, res, next) => {
