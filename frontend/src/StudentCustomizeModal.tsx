@@ -194,8 +194,8 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   // 간소화된 편집 패널 전환: shape | nucleus | shells | records
   const [activePanel, setActivePanel] = useState<'shape' | 'nucleus' | 'shells' | 'records'>('shape');
 
-  const [selectedActivity, setSelectedActivity] = useState('');
   const [activityRecord, setActivityRecord] = useState({
+    activity: '',
     duration: 30,
     notes: ''
   });
@@ -247,8 +247,8 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         imageData: student.existence?.imageData || ''
       });
       setPassword(student.password || '0000');
-      setSelectedActivity(student.existence?.activity || '');
       setActivityRecord({
+        activity: student.existence?.activity || '',
         duration: 30,
         notes: ''
       });
@@ -405,7 +405,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         size: customization.size, // 크기 저장 확인
         glow: customization.glow,
         border: customization.border,
-        activity: selectedActivity,
+        activity: activityRecord.activity,
         activities: [], // activities 배열은 더 이상 사용하지 않음
         energy: student.existence?.energy || 60,
         personality: student.existence?.personality || 'active',
@@ -428,11 +428,11 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   };
 
   const handleAddRecord = () => {
-    if (!student || !selectedActivity) return;
+    if (!student || !activityRecord.activity) return;
 
     const record = {
       date: new Date().toISOString().split('T')[0], // 오늘 날짜 자동 저장
-      activity: selectedActivity,
+      activity: activityRecord.activity,
       duration: activityRecord.duration,
       notes: activityRecord.notes
     };
@@ -451,7 +451,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         size: student.existence?.size || 1.0,
         glow: student.existence?.glow || false,
         border: student.existence?.border || 'normal',
-        activity: selectedActivity,
+        activity: activityRecord.activity,
         activities: [], // activities 배열은 더 이상 사용하지 않음
         energy: student.existence?.energy || 60,
         personality: student.existence?.personality || 'active',
@@ -462,7 +462,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     };
 
     onSave(updatedStudent);
-    setActivityRecord({ duration: 30, notes: '' });
+    setActivityRecord({ activity: '', duration: 30, notes: '' });
     // 모달을 닫지 않고 기록만 추가
   };
 
@@ -2264,7 +2264,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
                 <Button 
                   onClick={handleAddRecord} 
-                  disabled={!selectedActivity}
+                  disabled={!activityRecord.activity}
                   size="lg"
                   style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold' }}
                 >
