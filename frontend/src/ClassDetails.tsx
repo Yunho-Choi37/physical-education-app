@@ -1153,14 +1153,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   };
 
   // 학생의 존재 생성 (기본값)
-  const generateStudentExistence = (name: string, id: number): NonNullable<Student['existence']> => {
+  const generateStudentExistence = (name: string | undefined, id: number | undefined): NonNullable<Student['existence']> => {
     const baseColors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
     ];
     
     const personalities = ['active', 'calm', 'creative', 'friendly', 'energetic', 'thoughtful'];
-    const seed = name.charCodeAt(0) + id;
+    const seed = (name && name.length > 0 ? name.charCodeAt(0) : 0) + (id || 0);
     
     return {
       color: baseColors[seed % baseColors.length],

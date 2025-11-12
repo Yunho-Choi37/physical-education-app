@@ -6,6 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const admin = require('firebase-admin');
+const serverless = require('serverless-http');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -413,8 +414,13 @@ app.use((req, res) => {
 });
 
 // Vercel 서버리스 함수용 export
-// Vercel에서는 Express 앱을 직접 export하면 자동으로 서버리스 함수로 처리됨
-module.exports = app;
+// Vercel에서는 serverless-http를 사용하여 Express 앱을 래핑
+if (process.env.VERCEL) {
+  module.exports = serverless(app);
+} else {
+  // 로컬 개발에서는 Express 앱을 직접 export
+  module.exports = app;
+}
 
 // 로컬 개발 서버 (Vercel 환경이 아닐 때만 실행)
 if (!process.env.VERCEL) {
