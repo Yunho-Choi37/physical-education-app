@@ -42,9 +42,15 @@ const currentDir = process.cwd();
 const currentDirName = path.basename(currentDir);
 const isRunningInsideFrontend = currentDirName === 'frontend';
 const isRunningInsideApi = currentDirName === 'api';
+
+// 백엔드 프로젝트에서는 빌드하지 않음
+if (isRunningInsideApi) {
+  console.log('[vercel-build] Skipping build for API project (serverless functions do not need build)');
+  process.exit(0);
+}
+
 const rootDir = (() => {
   if (isRunningInsideFrontend) return path.resolve(currentDir, '..');
-  if (isRunningInsideApi) return path.resolve(currentDir, '..');
   return currentDir;
 })();
 const frontendDir = (() => {
@@ -87,10 +93,20 @@ fs.mkdirSync(destDir, { recursive: true });
 copyRecursive(srcDir, destDir);
 log(`copied ${srcDir} -> ${destDir}`);
 
+// 현재 디렉토리가 frontend가 아니고, build 폴더가 다른 위치에 있으면 복사
+// 단, api 폴더로는 복사하지 않음 (백엔드 프로젝트 보호)
 if (path.resolve(destDir) !== path.resolve(cwdDestDir)) {
-  fs.rmSync(cwdDestDir, { recursive: true, force: true });
-  fs.mkdirSync(cwdDestDir, { recursive: true });
-  copyRecursive(srcDir, cwdDestDir);
-  log(`mirrored ${srcDir} -> ${cwdDestDir}`);
+  const cwdDestParent = path.dirname(cwdDestDir);
+  const cwdDestParentName = path.basename(cwdDestParent);
+  
+  // api 폴더로 복사하지 않음
+  if (cwdDestParentName !== 'api') {
+    fs.rmSync(cwdDestDir, { recursive: true, force: true });
+    fs.mkdirSync(cwdDestDir, { recursive: true });
+    copyRecursive(srcDir, cwdDestDir);
+    log(`mirrored ${srcDir} -> ${cwdDestDir}`);
+  } else {
+    log(`skipped copying to ${cwdDestDir} (API project protection)`);
+  }
 }
 
