@@ -514,64 +514,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     electron: Object.values(emojiCategories).flatMap(category => category.emojis).slice(60, 90)
   };
 
-  // 이모티콘 선택 컴포넌트 (카테고리별)
-  const EmojiSelector = ({ 
-    selectedEmoji, 
-    onEmojiSelect, 
-    type 
-  }: { 
-    selectedEmoji: string; 
-    onEmojiSelect: (emoji: string) => void; 
-    type: 'proton' | 'neutron' | 'electron';
-  }) => {
-    const [selectedCategory, setSelectedCategory] = useState<string>('faces');
-    
-    return (
-      <div className="emoji-selector">
-        {/* 카테고리 선택 버튼들 */}
-        <div className="d-flex flex-wrap gap-1 mb-3">
-          {Object.entries(emojiCategories).map(([key, category]) => (
-            <button
-              key={key}
-              type="button"
-              className={`btn btn-sm ${selectedCategory === key ? 'btn-primary' : 'btn-outline-secondary'}`}
-              onClick={() => setSelectedCategory(key)}
-              style={{ fontSize: '12px', padding: '4px 8px' }}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-        
-        {/* 선택된 카테고리의 이모티콘들 - 3줄 고정 그리드, 스크롤 가능 */}
-        <div
-          className="mb-2"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, 32px)',
-            gap: '6px',
-            height: '110px', // 3줄 (32px) + 여백
-            overflowY: 'auto',
-            paddingRight: '4px',
-            WebkitOverflowScrolling: 'touch',
-            cursor: 'grab'
-          }}
-        >
-          {emojiCategories[selectedCategory as keyof typeof emojiCategories].emojis.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              className={`btn btn-sm ${selectedEmoji === emoji ? 'btn-success' : 'btn-outline-secondary'}`}
-              onClick={() => onEmojiSelect(emoji)}
-              style={{ fontSize: '16px', width: '32px', height: '32px' }}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  // 이모티콘 선택 컴포넌트 삭제됨
 
   if (!student) return null;
 
@@ -788,15 +731,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               <Form.Text className="text-muted">Uploaded photos take priority over emoji/shape.</Form.Text>
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Shape Emoji</Form.Label>
-              <EmojiSelector
-                selectedEmoji={customization.shape}
-                onEmojiSelect={(emoji) => setCustomization(prev => ({ ...prev, shape: emoji }))}
-                type="proton"
-              />
-              <div className="mt-1 small text-muted">Selected emoji will be used as the circle shape.</div>
-            </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Pattern</Form.Label>
@@ -1143,18 +1077,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }
                       />
                     </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={proton.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newProtons = [...atomModel.protons];
-                          newProtons[index].emoji = emoji;
-                          setAtomModel({...atomModel, protons: newProtons});
-                        }}
-                        type="proton"
-                      />
-                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -1394,18 +1316,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             setAtomModel({ ...atomModel, neutrons: newNeutrons });
                           })
                         }
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={neutron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newNeutrons = [...atomModel.neutrons];
-                          newNeutrons[index].emoji = emoji;
-                          setAtomModel({...atomModel, neutrons: newNeutrons});
-                        }}
-                        type="neutron"
                       />
                     </Form.Group>
                     <Button 
@@ -1677,20 +1587,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newKShell = [...atomModel.electrons.kShell];
-                          newKShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, kShell: newKShell }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -1886,21 +1782,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             });
                           })
                         }
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newLShell = [...atomModel.electrons.lShell];
-                          newLShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, lShell: newLShell }
-                          });
-                        }}
-                        type="electron"
                       />
                     </Form.Group>
                     <Button 
@@ -2100,21 +1981,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }
                       />
                     </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newMShell = [...atomModel.electrons.mShell];
-                          newMShell[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, mShell: newMShell }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -2312,21 +2178,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }
                       />
                     </Form.Group>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Select Emoji</Form.Label>
-                      <EmojiSelector
-                        selectedEmoji={electron.emoji}
-                        onEmojiSelect={(emoji) => {
-                          const newValence = [...atomModel.electrons.valence];
-                          newValence[index].emoji = emoji;
-                          setAtomModel({
-                            ...atomModel,
-                            electrons: { ...atomModel.electrons, valence: newValence }
-                          });
-                        }}
-                        type="electron"
-                      />
-                    </Form.Group>
                     <Button 
                       variant="outline-danger" 
                       size="sm"
@@ -2372,16 +2223,15 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               <Card.Body>
                 <Form.Group className="mb-4">
                   <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    활동 이모티콘 선택
+                    활동
                   </Form.Label>
-                  <EmojiSelector
-                    selectedEmoji={selectedActivity}
-                    onEmojiSelect={(emoji) => setSelectedActivity(emoji)}
-                    type="electron"
+                  <Form.Control
+                    type="text"
+                    value={activityRecord.activity}
+                    onChange={(e) => setActivityRecord(prev => ({ ...prev, activity: e.target.value }))}
+                    placeholder="활동을 입력하세요"
+                    style={{ fontSize: '16px', padding: '10px' }}
                   />
-                  <Form.Text className="text-muted mt-2 d-block">
-                    활동을 나타내는 이모티콘을 선택하세요
-                  </Form.Text>
                 </Form.Group>
 
                 <Form.Group className="mb-4">
