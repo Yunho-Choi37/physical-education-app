@@ -58,7 +58,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 // Firestore 연결 확인
 const checkFirestoreConnection = () => {
   if (!db) {
-    throw new Error('Firestore가 초기화되지 않았습니다. 환경 변수를 확인하세요.');
+    const error = new Error('Firestore가 초기화되지 않았습니다. FIREBASE_SERVICE_ACCOUNT_JSON 환경 변수를 확인하세요.');
+    error.statusCode = 503;
+    throw error;
   }
 };
 
@@ -391,12 +393,31 @@ app.delete('/api/classes/:classId/positions', async (req, res) => {
   }
 });
 
+// 전역 에러 핸들러 (모든 라우트 정의 후에 배치)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({ 
+    error: '서버 오류가 발생했습니다.',
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
+// 404 핸들러
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not Found',
+    message: `경로를 찾을 수 없습니다: ${req.path}`
+  });
+});
+
 // Vercel 서버리스 함수용 export
-// Vercel에서는 포트 바인딩 없이 app만 export 해야 함
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
-  // 로컬 개발 서버에서만 포트 바인딩
+// Vercel에서는 Express 앱을 직접 export하면 자동으로 서버리스 함수로 처리됨
+module.exports = app;
+
+// 로컬 개발 서버 (Vercel 환경이 아닐 때만 실행)
+if (!process.env.VERCEL) {
   const server = app.listen(PORT, () => {
     console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
     console.log(`환경: ${process.env.NODE_ENV || 'development'}`);
