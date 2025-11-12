@@ -1586,7 +1586,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         }
                       />
                     </Form.Group>
-                    <Form.Group className="mb-2">
                     <Button 
                       variant="outline-danger" 
                       size="sm"
