@@ -3,10 +3,18 @@ export const getApiUrl = (): string => {
   // Firebase Functions URL (환경 변수 우선)
   if (process.env.REACT_APP_FIREBASE_FUNCTIONS_URL) {
     const apiUrl = process.env.REACT_APP_FIREBASE_FUNCTIONS_URL;
-    if (typeof window !== 'undefined') {
+    
+    // 잘못된 Firebase Console URL 감지 및 차단
+    if (apiUrl.includes('console.firebase.google.com')) {
+      console.error('❌ 잘못된 Firebase Console URL이 감지되었습니다:', apiUrl);
+      console.error('💡 올바른 Firebase Functions URL 형식: https://[region]-[project-id].cloudfunctions.net/api');
+      console.warn('⚠️ 기본 Firebase Functions URL을 사용합니다.');
+    } else if (typeof window !== 'undefined') {
       console.log('🔗 API URL (Firebase Functions):', apiUrl);
+      return apiUrl;
+    } else {
+      return apiUrl;
     }
-    return apiUrl;
   }
 
   // 기존 API URL (호환성)
