@@ -595,7 +595,7 @@ function App() {
       setShowAdminLogin(false);
       setAdminPassword('');
     } else {
-      alert('Password is incorrect.');
+      alert('비밀번호가 올바르지 않습니다.');
     }
   };
 
@@ -975,14 +975,14 @@ function App() {
               className="existence-button"
               onClick={() => navigate('/being')}
             >
-              Being
+              존재
             </button>
             <button
               type="button"
               className="existence-button"
               onClick={() => navigate('/purpose')}
             >
-              Purpose
+              목적
             </button>
           </div>
         </div>
@@ -1020,7 +1020,7 @@ function App() {
                     className="existence-button"
                     onClick={() => navigate('/purpose')}
                   >
-                    Purpose
+                    목적
                   </button>
                 </div>
                 {!isAdmin ? (
@@ -1052,7 +1052,7 @@ function App() {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    🔐 Admin Login
+                    🔐 관리자 로그인
                   </Button>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -1064,7 +1064,7 @@ function App() {
                       fontWeight: 600,
                       fontSize: '0.85rem'
                     }}>
-                      Admin Mode
+                      관리자 모드
                     </span>
                     <button
                       type="button"
@@ -1072,7 +1072,7 @@ function App() {
                       onClick={() => setShowAddClassModal(true)}
                       style={{ minWidth: 'auto', padding: '0 12px' }}
                     >
-                      ➕ Add Circle
+                      ➕ 원 추가
                     </button>
                     <button
                       type="button"
@@ -1080,7 +1080,7 @@ function App() {
                       onClick={handleAdminLogout}
                       style={{ minWidth: 'auto', padding: '0 12px' }}
                     >
-                      Logout
+                      로그아웃
                     </button>
                   </div>
                 )}
@@ -1243,7 +1243,7 @@ function App() {
                             e.currentTarget.style.borderColor = '#616161';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="Edit Circle Name"
+                          title="원 이름 수정"
                         >
                           ✏️
                         </button>
@@ -1314,7 +1314,7 @@ function App() {
                             e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="Edit Circle"
+                          title="원 편집"
                         >
                           🎨
                         </button>
@@ -1350,7 +1350,7 @@ function App() {
                             e.currentTarget.style.borderColor = '#616161';
                             e.currentTarget.style.transform = 'scale(1)';
                           }}
-                          title="Delete Circle"
+                          title="원 삭제"
                         >
                           🗑️
                         </button>
@@ -1371,15 +1371,15 @@ function App() {
       {/* 관리자 로그인 모달 */}
       <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>🔐 Admin Login</Modal.Title>
+          <Modal.Title>🔐 관리자 로그인</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Admin Password</Form.Label>
+              <Form.Label>관리자 비밀번호</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Enter password"
+                placeholder="비밀번호를 입력하세요"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
@@ -1389,10 +1389,10 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdminLogin(false)}>
-            Cancel
+            취소
           </Button>
           <Button variant="primary" onClick={handleAdminLogin}>
-            Login
+            로그인
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1400,15 +1400,15 @@ function App() {
       {/* 클래스 추가 모달 */}
       <Modal show={showAddClassModal} onHide={() => setShowAddClassModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>➕ Add Circle</Modal.Title>
+          <Modal.Title>➕ 원 추가</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Circle Name</Form.Label>
+              <Form.Label>원 이름</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="e.g., Circle 8"
+                placeholder="예: 원 8"
                 value={newClassName}
                 onChange={(e) => setNewClassName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddClass()}
@@ -1419,10 +1419,10 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAddClassModal(false)}>
-            Cancel
+            취소
           </Button>
           <Button variant="primary" onClick={handleAddClass}>
-            Add
+            추가
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1436,7 +1436,7 @@ function App() {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} Circle Name Management
+            👥 {showStudentManageModal !== null && classes[showStudentManageModal]} 원 이름 관리
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -1444,13 +1444,13 @@ function App() {
             <>
               <div style={{ marginBottom: '20px' }}>
                 <Form.Group>
-                  <Form.Label>Add Circle (Count)</Form.Label>
+                  <Form.Label>원 추가 (개수)</Form.Label>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <Form.Control
                       type="number"
                       min="1"
                       max="50"
-                      placeholder="Count"
+                      placeholder="개수"
                       id="student-count-input"
                       style={{ width: '120px' }}
                     />
@@ -1463,18 +1463,18 @@ function App() {
                           handleAddStudent(showStudentManageModal, count);
                           input.value = '';
                         } else {
-                          alert('Please enter a number between 1 and 50.');
+                          alert('1과 50 사이의 숫자를 입력하세요.');
                         }
                       }}
                     >
-                      Add
+                      추가
                     </Button>
                   </div>
                 </Form.Group>
               </div>
               
               <div>
-                <strong>Current Circle List ({classStudents.length})</strong>
+                <strong>현재 원 목록 ({classStudents.length})</strong>
                 <div style={{ 
                   maxHeight: '400px', 
                   overflowY: 'auto',
@@ -1485,7 +1485,7 @@ function App() {
                 }}>
                   {classStudents.length === 0 ? (
                     <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
-                      No circles available.
+                      사용 가능한 원이 없습니다.
                     </div>
                   ) : (
                     classStudents.map((student) => (
@@ -1506,7 +1506,7 @@ function App() {
                           size="sm"
                           onClick={() => handleDeleteStudent(student.id)}
                         >
-                          Delete
+                          삭제
                         </Button>
                       </div>
                     ))
@@ -1518,7 +1518,7 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowStudentManageModal(null)}>
-            Close
+            닫기
           </Button>
         </Modal.Footer>
       </Modal>

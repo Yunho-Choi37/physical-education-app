@@ -2018,26 +2018,26 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link to="/being" className="modern-btn back-btn">
             <span className="btn-icon">←</span>
-            <span className="btn-text">Back to Circle Selection</span>
+            <span className="btn-text">원 선택으로 돌아가기</span>
           </Link>
           <Link to="/" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
             <span className="btn-text">홈</span>
           </Link>
           <Link to="/purpose" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
-            <span className="btn-text">Purpose</span>
+            <span className="btn-text">목적</span>
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           {isAdmin && (
             <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
               <span className="btn-icon">+</span>
-              <span className="btn-text">Add Circle</span>
+              <span className="btn-text">원 추가</span>
             </button>
           )}
           {isAdmin && (
             <button className="modern-btn reset-btn" onClick={handleReset}>
               <span className="btn-icon">🔄</span>
-              <span className="btn-text">Reset</span>
+              <span className="btn-text">초기화</span>
             </button>
           )}
         </div>
@@ -2197,7 +2197,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   setShowParticleListModal(false);
                   handleEditStudent(selectedStudentForParticles);
                 }}>
-                  Edit
+                  수정
                 </button>
                 <button className="close-btn" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>×</button>
               </div>

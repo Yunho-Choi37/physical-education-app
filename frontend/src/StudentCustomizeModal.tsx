@@ -578,28 +578,28 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               size="sm"
               onClick={() => setActivePanel('shape')}
             >
-              Shape Edit
+              모양 편집
             </Button>
             <Button
               variant={activePanel === 'nucleus' ? 'success' : 'outline-success'}
               size="sm"
               onClick={() => setActivePanel('nucleus')}
             >
-              Circle Edit
+              원 편집
             </Button>
             <Button
               variant={activePanel === 'shells' ? 'info' : 'outline-info'}
               size="sm"
               onClick={() => setActivePanel('shells')}
             >
-              Circle Edit
+              원 편집
             </Button>
             <Button
               variant={activePanel === 'records' ? 'warning' : 'outline-warning'}
               size="sm"
               onClick={() => setActivePanel('records')}
             >
-              Activity Records
+              활동 기록
             </Button>
           </div>
           <hr className="mt-3" />
@@ -607,10 +607,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 원 모양 선택 - 패널 전환: shape */}
         {activePanel === 'shape' && (
         <Card className="mb-3">
-          <Card.Header>Shape Selection</Card.Header>
+          <Card.Header>모양 선택</Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
+              <Form.Label>색상</Form.Label>
               <div className="d-flex flex-wrap gap-2">
                 {colors.map(color => {
                   const disabled = isEmojiLike(customization.shape);
@@ -647,7 +647,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
             {/* 이미지 업로드 */}
             <Form.Group className="mb-3">
-              <Form.Label>Upload Photo (Use as Circle Shape)</Form.Label>
+              <Form.Label>사진 업로드 (원 모양으로 사용)</Form.Label>
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <input
                   key={`image-upload-${student?.id || 'new'}`}
@@ -779,7 +779,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
 
 
             <Form.Group className="mb-3">
-              <Form.Label>Pattern</Form.Label>
+              <Form.Label>패턴</Form.Label>
               <Form.Select
                 value={customization.pattern}
                 onChange={(e) => setCustomization(prev => ({ ...prev, pattern: e.target.value }))}
@@ -817,7 +817,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Border</Form.Label>
+              <Form.Label>테두리</Form.Label>
               <Form.Select
                 value={customization.border}
                 onChange={(e) => setCustomization(prev => ({ ...prev, border: e.target.value }))}
@@ -848,10 +848,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               <Card.Header>Circle Name Settings</Card.Header>
               <Card.Body>
                 <Form.Group>
-                  <Form.Label>Name to display inside circle</Form.Label>
+                  <Form.Label>원 안에 표시할 이름</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Enter name (e.g., John, nickname, etc.)"
+                    placeholder="이름을 입력하세요 (예: 홍길동, 별명 등)"
                     value={customization.customName}
                     onChange={(e) => setCustomization(prev => ({ ...prev, customName: e.target.value }))}
                     maxLength={10}
@@ -928,7 +928,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={proton.name || ''}
                         onChange={(e) => {
                           const newProtons = [...atomModel.protons];
@@ -938,7 +938,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group>
-                      <Form.Label>Color</Form.Label>
+                      <Form.Label>색상</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
                         {colors.map(color => (
                           <div
@@ -955,7 +955,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <Form.Label>사진 업로드 (여러 개)</Form.Label>
                       <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
@@ -1090,7 +1090,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -1104,7 +1104,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(proton.hashtags ?? [], (tagIndex) => {
                         const newProtons = [...atomModel.protons];
                         const currentTags = newProtons[index].hashtags ?? [];
@@ -1169,7 +1169,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={neutron.name || ''}
                         onChange={(e) => {
                           const newNeutrons = [...atomModel.neutrons];
@@ -1179,7 +1179,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group>
-                      <Form.Label>Color</Form.Label>
+                      <Form.Label>색상</Form.Label>
                       <div className="d-flex flex-wrap gap-2">
                         {colors.map(color => (
                           <div
@@ -1196,7 +1196,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <Form.Label>사진 업로드 (여러 개)</Form.Label>
                       <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
@@ -1331,7 +1331,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -1345,7 +1345,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(neutron.hashtags ?? [], (tagIndex) => {
                         const newNeutrons = [...atomModel.neutrons];
                         const currentTags = newNeutrons[index].hashtags ?? [];
@@ -1433,7 +1433,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={electron.name || ''}
                         onChange={(e) => {
                           const newKShell = [...atomModel.electrons.kShell];
@@ -1446,7 +1446,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photos (Multiple)</Form.Label>
+                      <Form.Label>사진 업로드 (여러 개)</Form.Label>
                       <div className="d-flex flex-column gap-2">
                         <input
                           type="file"
@@ -1590,7 +1590,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -1710,7 +1710,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </Col>
                     </Row>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newKShell = [...atomModel.electrons.kShell];
                         const currentTags = newKShell[index].hashtags ?? [];
@@ -1789,7 +1789,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={electron.name || ''}
                         onChange={(e) => {
                           const newLShell = [...atomModel.electrons.lShell];
@@ -1802,7 +1802,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
+                      <Form.Label>사진 업로드</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -1892,7 +1892,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -2012,7 +2012,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </Col>
                     </Row>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newLShell = [...atomModel.electrons.lShell];
                         const currentTags = newLShell[index].hashtags ?? [];
@@ -2091,7 +2091,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={electron.name || ''}
                         onChange={(e) => {
                           const newMShell = [...atomModel.electrons.mShell];
@@ -2104,7 +2104,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
+                      <Form.Label>사진 업로드</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -2194,7 +2194,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -2314,7 +2314,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </Col>
                     </Row>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newMShell = [...atomModel.electrons.mShell];
                         const currentTags = newMShell[index].hashtags ?? [];
@@ -2393,7 +2393,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                       <Form.Control
                         type="text"
-                        placeholder="Name"
+                        placeholder="이름"
                         value={electron.name || ''}
                         onChange={(e) => {
                           const newValence = [...atomModel.electrons.valence];
@@ -2406,7 +2406,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </div>
                     <Form.Group className="mb-2">
-                      <Form.Label>Upload Photo</Form.Label>
+                      <Form.Label>사진 업로드</Form.Label>
                       <div className="d-flex align-items-center gap-2 flex-wrap">
                         <input
                           type="file"
@@ -2496,7 +2496,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-2">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>설명</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={6}
@@ -2616,7 +2616,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       </Col>
                     </Row>
                     <Form.Group className="mb-2">
-                      <Form.Label>Hashtags</Form.Label>
+                      <Form.Label>해시태그</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newValence = [...atomModel.electrons.valence];
                         const currentTags = newValence[index].hashtags ?? [];
@@ -2805,10 +2805,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       </Modal.Body>
       <Modal.Footer>
         <Button variant="success" onClick={handleSave}>
-          Save and Exit
+          저장하고 나가기
         </Button>
         <Button variant="outline-secondary" onClick={onHide}>
-          Exit
+          나가기
         </Button>
       </Modal.Footer>
     </Modal>
