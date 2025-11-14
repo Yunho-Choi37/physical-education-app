@@ -995,51 +995,100 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/being" element={
-          <div className="floating-classes-container">
-            {/* 관리자 로그인 버튼 및 네비게이션 */}
-            <div className="admin-controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 20px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  type="button"
-                  className="existence-button"
-                  onClick={() => navigate('/')}
-                  style={{ padding: '8px 16px', fontSize: '14px' }}
-                >
-                  홈
-                </button>
-              </div>
-              {!isAdmin ? (
-                <Button 
-                  variant="outline-primary" 
-                  onClick={() => setShowAdminLogin(true)}
-                  className="admin-login-btn"
-                >
-                  🔐 Admin Login
-                </Button>
-              ) : (
-                <div className="admin-status" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className="admin-badge">Admin Mode</span>
-                  <Button 
-                    variant="outline-warning"
-                    size="sm"
-                    onClick={() => setShowAddClassModal(true)}
-                    className="admin-add-class-btn"
+          <div className="existence-home">
+            <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px', position: 'relative', minHeight: '80vh' }}>
+              {/* 네비게이션 및 관리자 컨트롤 */}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '40px',
+                width: '100%',
+                flexWrap: 'wrap',
+                gap: '16px'
+              }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="existence-button"
+                    onClick={() => navigate('/')}
                   >
-                    ➕ Add Circle
-                  </Button>
-                  <Button 
-                    variant="outline-danger" 
-                    size="sm"
-                    onClick={handleAdminLogout}
-                    className="admin-logout-btn"
+                    홈
+                  </button>
+                  <button
+                    type="button"
+                    className="existence-button"
+                    onClick={() => navigate('/purpose')}
                   >
-                    Logout
-                  </Button>
+                    Purpose
+                  </button>
                 </div>
-              )}
-            </div>
+                {!isAdmin ? (
+                  <Button 
+                    variant="outline-primary" 
+                    onClick={() => setShowAdminLogin(true)}
+                    className="admin-login-btn"
+                    style={{ 
+                      background: '#f8f9fa',
+                      border: '1px solid #f8f9fa',
+                      borderRadius: '4px',
+                      color: '#3c4043',
+                      fontFamily: 'Arial, sans-serif',
+                      fontSize: '14px',
+                      padding: '0 16px',
+                      height: '36px',
+                      minWidth: '120px',
+                      cursor: 'pointer',
+                      transition: 'box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#dadce0';
+                      e.currentTarget.style.boxShadow = '0 1px 6px rgba(32, 33, 36, 0.28)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#f8f9fa';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    🔐 Admin Login
+                  </Button>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ 
+                      background: '#191970',
+                      color: '#ffffff',
+                      padding: '6px 14px',
+                      borderRadius: '16px',
+                      fontWeight: 600,
+                      fontSize: '0.85rem'
+                    }}>
+                      Admin Mode
+                    </span>
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={() => setShowAddClassModal(true)}
+                      style={{ minWidth: 'auto', padding: '0 12px' }}
+                    >
+                      ➕ Add Circle
+                    </button>
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={handleAdminLogout}
+                      style={{ minWidth: 'auto', padding: '0 12px' }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
 
-            {classesLoaded && classes.map((className, index) => (
+              {/* 원들 컨테이너 */}
+              <div className="floating-classes-container" style={{ position: 'relative', width: '100%', minHeight: '60vh' }}>
+                {classesLoaded && classes.map((className, index) => (
               <div
                 key={`class-${index}`}
                 style={{ 
@@ -1701,9 +1750,9 @@ function App() {
         }
         .floating-classes-container {
           position: relative;
-          width: 100vw;
-          height: 100vh;
-          overflow: hidden;
+          width: 100%;
+          min-height: 60vh;
+          overflow: visible;
         }
         .admin-controls {
           position: absolute;
