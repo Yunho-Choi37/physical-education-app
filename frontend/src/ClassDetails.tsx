@@ -2015,22 +2015,32 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   return (
     <div className="class-details">
       <div className="header-controls">
-        <Link to="/" className="modern-btn back-btn">
-          <span className="btn-icon">←</span>
-          <span className="btn-text">Back to Circle Selection</span>
-        </Link>
-        {isAdmin && (
-          <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
-            <span className="btn-icon">+</span>
-            <span className="btn-text">Add Circle</span>
-          </button>
-        )}
-        {isAdmin && (
-          <button className="modern-btn reset-btn" onClick={handleReset}>
-            <span className="btn-icon">🔄</span>
-            <span className="btn-text">Reset</span>
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link to="/being" className="modern-btn back-btn">
+            <span className="btn-icon">←</span>
+            <span className="btn-text">Back to Circle Selection</span>
+          </Link>
+          <Link to="/" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
+            <span className="btn-text">홈</span>
+          </Link>
+          <Link to="/purpose" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
+            <span className="btn-text">Purpose</span>
+          </Link>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {isAdmin && (
+            <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
+              <span className="btn-icon">+</span>
+              <span className="btn-text">Add Circle</span>
+            </button>
+          )}
+          {isAdmin && (
+            <button className="modern-btn reset-btn" onClick={handleReset}>
+              <span className="btn-icon">🔄</span>
+              <span className="btn-text">Reset</span>
+            </button>
+          )}
+        </div>
       </div>
       <h2 className="class-title">{classNameLoaded ? className : ''}</h2>
       
