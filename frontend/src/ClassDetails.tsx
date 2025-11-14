@@ -2519,37 +2519,37 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             <div className="particle-detail-body">
               {/* 활동 정보를 상단에 배치 */}
               {(selectedParticleDetail.goalItem || selectedParticleDetail.date || selectedParticleDetail.activityTime !== undefined || selectedParticleDetail.attemptCount !== undefined || selectedParticleDetail.successCount !== undefined) && (
-                <div style={{ padding: '20px 28px', background: '#1a1a1a', borderBottom: '1px solid #424242' }}>
-                  <h4 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', color: '#e0e0e0', fontWeight: '600' }}>활동 정보</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                <div className="particle-detail-activity-info">
+                  <h4 className="particle-detail-activity-title">활동 정보</h4>
+                  <div className="particle-detail-activity-grid">
                     {selectedParticleDetail.goalItem && (
-                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px', border: '1px solid #1a73e8' }}>
-                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>목표 항목</div>
-                        <div style={{ fontSize: '15px', color: '#1a73e8', fontWeight: '600' }}>🎯 {selectedParticleDetail.goalItem}</div>
+                      <div className="particle-detail-activity-card particle-detail-activity-card-goal">
+                        <div className="particle-detail-activity-label">목표 항목</div>
+                        <div className="particle-detail-activity-value particle-detail-activity-value-goal">🎯 {selectedParticleDetail.goalItem}</div>
                       </div>
                     )}
                     {selectedParticleDetail.date && (
-                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>날짜</div>
-                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>📅 {selectedParticleDetail.date}</div>
+                      <div className="particle-detail-activity-card">
+                        <div className="particle-detail-activity-label">날짜</div>
+                        <div className="particle-detail-activity-value">📅 {selectedParticleDetail.date}</div>
                       </div>
                     )}
                     {selectedParticleDetail.activityTime !== undefined && (
-                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>활동 시간</div>
-                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>⏱️ {selectedParticleDetail.activityTime}분</div>
+                      <div className="particle-detail-activity-card">
+                        <div className="particle-detail-activity-label">활동 시간</div>
+                        <div className="particle-detail-activity-value">⏱️ {selectedParticleDetail.activityTime}분</div>
                       </div>
                     )}
                     {selectedParticleDetail.attemptCount !== undefined && (
-                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>시도 횟수</div>
-                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>🔄 {selectedParticleDetail.attemptCount}</div>
+                      <div className="particle-detail-activity-card">
+                        <div className="particle-detail-activity-label">시도 횟수</div>
+                        <div className="particle-detail-activity-value">🔄 {selectedParticleDetail.attemptCount}</div>
                       </div>
                     )}
                     {selectedParticleDetail.successCount !== undefined && (
-                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
-                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>성공 횟수</div>
-                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>✅ {selectedParticleDetail.successCount}</div>
+                      <div className="particle-detail-activity-card">
+                        <div className="particle-detail-activity-label">성공 횟수</div>
+                        <div className="particle-detail-activity-value">✅ {selectedParticleDetail.successCount}</div>
                       </div>
                     )}
                   </div>

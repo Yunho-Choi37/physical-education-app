@@ -985,3 +985,108 @@
   box-sizing: border-box;
   min-height: 200px;
 }
+
+/* 활동 정보 영역 스타일 */
+.particle-detail-activity-info {
+  padding: 20px 28px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #424242;
+}
+
+.particle-detail-activity-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.particle-detail-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.particle-detail-activity-card {
+  padding: 12px;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.particle-detail-activity-card-goal {
+  border: 1px solid #1a73e8;
+}
+
+.particle-detail-activity-label {
+  font-size: 12px;
+  color: #bdbdbd;
+  margin-bottom: 4px;
+}
+
+.particle-detail-activity-value {
+  font-size: 15px;
+  color: #e0e0e0;
+}
+
+.particle-detail-activity-value-goal {
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+/* 모바일 환경에서 활동 정보 영역 최적화 */
+@media (max-width: 768px) {
+  .particle-detail-activity-info {
+    padding: 12px 16px;
+  }
+
+  .particle-detail-activity-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .particle-detail-activity-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .particle-detail-activity-card {
+    padding: 8px;
+  }
+
+  .particle-detail-activity-label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .particle-detail-activity-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .particle-detail-activity-info {
+    padding: 10px 12px;
+  }
+
+  .particle-detail-activity-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .particle-detail-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .particle-detail-activity-card {
+    padding: 8px 10px;
+  }
+
+  .particle-detail-activity-label {
+    font-size: 10px;
+  }
+
+  .particle-detail-activity-value {
+    font-size: 12px;
+  }
+}
