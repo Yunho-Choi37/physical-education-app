@@ -21,7 +21,7 @@ export const getApiUrl = (): string => {
     }
   }
 
-  // 기존 API URL (호환성)
+  // 기존 API URL (호환성 - 사용 중단 예정)
   if (process.env.REACT_APP_API_URL) {
     const apiUrl = process.env.REACT_APP_API_URL;
     if (typeof window !== 'undefined') {
@@ -30,24 +30,19 @@ export const getApiUrl = (): string => {
     return apiUrl;
   }
 
-  // 로컬 개발용 Express 서버 (우선순위)
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    // Express 서버가 실행 중인 경우 (포트 3001)
-    const expressUrl = 'http://localhost:3001';
-    console.log('🔗 API URL (로컬 Express 서버):', expressUrl);
-    return expressUrl;
-  }
-
   // 프로덕션 기본값 (Firebase Functions)
-  // 배포 후 실제 URL로 교체 필요
-  // Firebase Functions URL에서 끝의 /api 제거 (Express 앱이 이미 /api 경로를 사용하므로)
+  // 로컬 개발에서도 Firebase Functions 사용 (에뮬레이터 사용 가능)
   let defaultUrl = 'https://us-central1-l-existence-precede-l-essence.cloudfunctions.net/api';
   if (defaultUrl.endsWith('/api')) {
     defaultUrl = defaultUrl.slice(0, -4);
   }
   if (typeof window !== 'undefined') {
-    console.warn('⚠️ REACT_APP_FIREBASE_FUNCTIONS_URL이 설정되지 않았습니다. 기본값 사용:', defaultUrl);
-    console.warn('💡 Vercel 대시보드에서 REACT_APP_FIREBASE_FUNCTIONS_URL을 설정하세요');
+    if (window.location.hostname === 'localhost') {
+      console.log('🔗 API URL (Firebase Functions - 로컬 개발):', defaultUrl);
+      console.log('💡 로컬 개발 시 Firebase Functions 에뮬레이터를 사용하려면 REACT_APP_FIREBASE_FUNCTIONS_URL을 설정하세요');
+    } else {
+      console.warn('⚠️ REACT_APP_FIREBASE_FUNCTIONS_URL이 설정되지 않았습니다. 기본값 사용:', defaultUrl);
+    }
   }
   return defaultUrl;
 };
