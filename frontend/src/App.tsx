@@ -27,6 +27,7 @@ interface Goal {
 }
 
 const PurposePage = () => {
+  const navigate = useNavigate();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -209,25 +210,31 @@ const PurposePage = () => {
   return (
     <div className="existence-home">
       <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
-        <h1 className="existence-logo" style={{ marginBottom: '40px' }}>
-          <span className="existence-letter existence-letter-red">P</span>
-          <span className="existence-letter existence-letter-dark">u</span>
-          <span className="existence-letter existence-letter-green">r</span>
-          <span className="existence-letter existence-letter-dark">p</span>
-          <span className="existence-letter existence-letter-blue">o</span>
-          <span className="existence-letter existence-letter-dark">s</span>
-          <span className="existence-letter existence-letter-red">e</span>
-        </h1>
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
           marginBottom: '40px',
-          width: '100%'
+          width: '100%',
+          flexWrap: 'wrap',
+          gap: '16px'
         }}>
-          <p className="existence-subtitle" style={{ margin: 0 }}>
-            목표를 설정하고 관리하세요
-          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => navigate('/')}
+            >
+              홈
+            </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => navigate('/being')}
+            >
+              Being
+            </button>
+          </div>
           <button
             type="button"
             className="existence-button"
