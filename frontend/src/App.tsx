@@ -70,26 +70,36 @@ const PurposePage = () => {
     }
     try {
       const goalData = {
-        title: newGoal.title,
-        description: newGoal.description,
+        title: newGoal.title.trim(),
+        description: newGoal.description.trim(),
         items: newGoal.items.filter(item => item.trim() !== '')
       };
+      
+      console.log('목표 생성 요청:', goalData);
+      console.log('API URL:', apiUrlRef.current);
+      
       const response = await fetch(`${apiUrlRef.current}/api/goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(goalData)
       });
+      
+      console.log('응답 상태:', response.status);
+      
       if (response.ok) {
         const newGoalData = await response.json();
+        console.log('생성된 목표:', newGoalData);
         setGoals(prev => [newGoalData, ...prev]);
         setShowCreateModal(false);
         setNewGoal({ title: '', description: '', itemCount: 1, items: [''] });
       } else {
-        alert('목표 생성에 실패했습니다.');
+        const errorData = await response.json().catch(() => ({ error: '알 수 없는 오류' }));
+        console.error('목표 생성 실패:', errorData);
+        alert(`목표 생성에 실패했습니다: ${errorData.error || response.statusText}`);
       }
     } catch (error) {
       console.error('목표 생성 오류:', error);
-      alert('목표 생성 중 오류가 발생했습니다.');
+      alert(`목표 생성 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 
