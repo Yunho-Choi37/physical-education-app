@@ -10,10 +10,8 @@ export const getApiUrl = (): string => {
       console.error('💡 올바른 Firebase Functions URL 형식: https://[region]-[project-id].cloudfunctions.net/api');
       console.warn('⚠️ 기본 Firebase Functions URL을 사용합니다.');
     } else {
-      // Firebase Functions URL에서 끝의 /api 제거 (Express 앱이 이미 /api 경로를 사용하므로)
-      if (apiUrl.endsWith('/api')) {
-        apiUrl = apiUrl.slice(0, -4);
-      }
+      // Firebase Functions URL 그대로 사용 (함수 이름이 'api'이고 Express 앱이 /api에 마운트됨)
+      // 전체 경로: ...cloudfunctions.net/api/api/goals
       if (typeof window !== 'undefined') {
         console.log('🔗 API URL (Firebase Functions):', apiUrl);
       }
@@ -32,10 +30,8 @@ export const getApiUrl = (): string => {
 
   // 프로덕션 기본값 (Firebase Functions)
   // 로컬 개발에서도 Firebase Functions 사용 (에뮬레이터 사용 가능)
-  let defaultUrl = 'https://us-central1-l-existence-precede-l-essence.cloudfunctions.net/api';
-  if (defaultUrl.endsWith('/api')) {
-    defaultUrl = defaultUrl.slice(0, -4);
-  }
+  // 함수 이름이 'api'이고 Express 앱이 /api에 마운트되므로 URL에 /api 포함
+  const defaultUrl = 'https://us-central1-l-existence-precede-l-essence.cloudfunctions.net/api';
   if (typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost') {
       console.log('🔗 API URL (Firebase Functions - 로컬 개발):', defaultUrl);
