@@ -525,7 +525,9 @@ function App() {
           body: JSON.stringify(goalData)
         });
         if (response.ok) {
-          await fetchGoals();
+          const newGoalData = await response.json();
+          // 목록에 직접 추가하여 불필요한 리렌더링 방지
+          setGoals(prev => [newGoalData, ...prev]);
           setShowCreateModal(false);
           setNewGoal({ title: '', description: '', itemCount: 1, items: [''] });
         } else {
@@ -553,7 +555,9 @@ function App() {
           })
         });
         if (response.ok) {
-          await fetchGoals();
+          const updatedGoal = await response.json();
+          // 목록에서 직접 업데이트하여 불필요한 리렌더링 방지
+          setGoals(prev => prev.map(goal => goal.id === updatedGoal.id ? updatedGoal : goal));
           setShowEditModal(false);
           setEditingGoal(null);
         } else {
@@ -574,7 +578,8 @@ function App() {
           method: 'DELETE'
         });
         if (response.ok) {
-          await fetchGoals();
+          // 목록에서 직접 제거하여 불필요한 리렌더링 방지
+          setGoals(prev => prev.filter(goal => goal.id !== goalId));
         } else {
           alert('목표 삭제에 실패했습니다.');
         }
