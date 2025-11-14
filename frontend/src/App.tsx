@@ -481,8 +481,32 @@ function App() {
     }, []);
 
     useEffect(() => {
-      fetchGoals();
-    }, [fetchGoals]);
+      let mounted = true;
+      const loadGoals = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`${apiUrlRef.current}/api/goals`);
+          if (response.ok && mounted) {
+            const data = await response.json();
+            setGoals(data);
+          }
+        } catch (error) {
+          if (mounted) {
+            console.error('목표를 가져오는 중 오류:', error);
+          }
+        } finally {
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      };
+      
+      loadGoals();
+      
+      return () => {
+        mounted = false;
+      };
+    }, []);
 
     const handleCreateGoal = async () => {
       if (!newGoal.title.trim()) {
