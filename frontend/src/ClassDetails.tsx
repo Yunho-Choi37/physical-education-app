@@ -2517,6 +2517,44 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               </button>
             </div>
             <div className="particle-detail-body">
+              {/* 활동 정보를 상단에 배치 */}
+              {(selectedParticleDetail.goalItem || selectedParticleDetail.date || selectedParticleDetail.activityTime !== undefined || selectedParticleDetail.attemptCount !== undefined || selectedParticleDetail.successCount !== undefined) && (
+                <div style={{ padding: '20px 28px', background: '#1a1a1a', borderBottom: '1px solid #424242' }}>
+                  <h4 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', color: '#e0e0e0', fontWeight: '600' }}>활동 정보</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                    {selectedParticleDetail.goalItem && (
+                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px', border: '1px solid #1a73e8' }}>
+                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>목표 항목</div>
+                        <div style={{ fontSize: '15px', color: '#1a73e8', fontWeight: '600' }}>🎯 {selectedParticleDetail.goalItem}</div>
+                      </div>
+                    )}
+                    {selectedParticleDetail.date && (
+                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>날짜</div>
+                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>📅 {selectedParticleDetail.date}</div>
+                      </div>
+                    )}
+                    {selectedParticleDetail.activityTime !== undefined && (
+                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>활동 시간</div>
+                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>⏱️ {selectedParticleDetail.activityTime}분</div>
+                      </div>
+                    )}
+                    {selectedParticleDetail.attemptCount !== undefined && (
+                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>시도 횟수</div>
+                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>🔄 {selectedParticleDetail.attemptCount}</div>
+                      </div>
+                    )}
+                    {selectedParticleDetail.successCount !== undefined && (
+                      <div style={{ padding: '12px', background: '#2a2a2a', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#bdbdbd', marginBottom: '4px' }}>성공 횟수</div>
+                        <div style={{ fontSize: '15px', color: '#e0e0e0' }}>✅ {selectedParticleDetail.successCount}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="particle-detail-image-section">
                 {(() => {
                   const images = selectedParticleDetail.images || (selectedParticleDetail.imageData ? [selectedParticleDetail.imageData] : []);
@@ -2607,36 +2645,6 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               <div className="particle-detail-description">
                 <h4>Description</h4>
                 <p>{selectedParticleDetail.description || 'No description'}</p>
-                {(selectedParticleDetail.goalItem || selectedParticleDetail.date || selectedParticleDetail.activityTime !== undefined || selectedParticleDetail.attemptCount !== undefined || selectedParticleDetail.successCount !== undefined) && (
-                  <div style={{ marginTop: '20px', padding: '16px', background: '#1a1a1a', borderRadius: '8px' }}>
-                    <h4 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px', color: '#e0e0e0' }}>활동 정보</h4>
-                    {selectedParticleDetail.goalItem && (
-                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
-                        <strong style={{ color: '#1a73e8' }}>🎯 목표 항목:</strong> {selectedParticleDetail.goalItem}
-                      </div>
-                    )}
-                    {selectedParticleDetail.date && (
-                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
-                        <strong>📅 날짜:</strong> {selectedParticleDetail.date}
-                      </div>
-                    )}
-                    {selectedParticleDetail.activityTime !== undefined && (
-                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
-                        <strong>⏱️ 활동 시간:</strong> {selectedParticleDetail.activityTime}분
-                      </div>
-                    )}
-                    {selectedParticleDetail.attemptCount !== undefined && (
-                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
-                        <strong>🔄 시도 횟수:</strong> {selectedParticleDetail.attemptCount}
-                      </div>
-                    )}
-                    {selectedParticleDetail.successCount !== undefined && (
-                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
-                        <strong>✅ 성공 횟수:</strong> {selectedParticleDetail.successCount}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>

@@ -830,15 +830,15 @@
 }
 
 .particle-detail-image-section {
-  flex: 2;
+  flex: 1;
   position: relative;
   background: #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 400px;
-  max-height: 60vh;
+  min-height: 250px;
+  max-height: 40vh;
 }
 
 .particle-detail-single-image {
