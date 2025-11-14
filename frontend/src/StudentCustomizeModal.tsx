@@ -242,10 +242,10 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     protons: Array<{ keyword: string; strength: number; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string; hashtags?: string[] }>;
     neutrons: Array<{ keyword: string; category: string; color: string; emoji: string; imageData?: string; images?: string[]; primaryImageIndex?: number; description?: string; name?: string; hashtags?: string[] }>;
     electrons: {
-      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
-      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
-      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
-      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[] }>;
+      kShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[]; goalItem?: string; attemptCount?: number; successCount?: number; activityTime?: number; date?: string }>;
+      lShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[]; goalItem?: string; attemptCount?: number; successCount?: number; activityTime?: number; date?: string }>;
+      mShell: Array<{ activity: string; frequency: number; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[]; goalItem?: string; attemptCount?: number; successCount?: number; activityTime?: number; date?: string }>;
+      valence: Array<{ activity: string; cooperation: number; social: boolean; emoji: string; description: string; imageData?: string; images?: string[]; primaryImageIndex?: number; name?: string; hashtags?: string[]; goalItem?: string; attemptCount?: number; successCount?: number; activityTime?: number; date?: string }>;
     };
   }>({
     protons: [],
