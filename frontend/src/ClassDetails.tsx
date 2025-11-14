@@ -100,7 +100,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [showParticleListModal, setShowParticleListModal] = useState(false);
   const [selectedStudentForParticles, setSelectedStudentForParticles] = useState<Student | null>(null);
   // 입자 상세 보기 모달 상태
-  const [selectedParticleDetail, setSelectedParticleDetail] = useState<{ type: 'proton' | 'neutron' | 'electron'; name?: string; description?: string; emoji?: string; imageData?: string; images?: string[]; primaryImageIndex?: number } | null>(null);
+  const [selectedParticleDetail, setSelectedParticleDetail] = useState<{ type: 'proton' | 'neutron' | 'electron'; name?: string; description?: string; emoji?: string; imageData?: string; images?: string[]; primaryImageIndex?: number; goalItem?: string; date?: string; activityTime?: number; attemptCount?: number; successCount?: number } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // 입자 설명 모달 상태
   const [particleInfo, setParticleInfo] = useState<{ type: 'proton' | 'neutron' | 'electron'; keyword?: string; description?: string; emoji?: string; imageData?: string; studentId: number; particleIndex?: number; shellType?: string } | null>(null);
@@ -2297,7 +2297,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               emoji: electron.emoji,
                               imageData: electron.imageData,
                               images: images,
-                              primaryImageIndex: electron.primaryImageIndex
+                              primaryImageIndex: electron.primaryImageIndex,
+                              goalItem: electron.goalItem,
+                              date: electron.date,
+                              activityTime: electron.activityTime,
+                              attemptCount: electron.attemptCount,
+                              successCount: electron.successCount
                             });
                             setCurrentImageIndex(0);
                           }}
@@ -2318,8 +2323,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
-                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                            {(electron.goalItem || electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
                               <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.goalItem && <div style={{ fontWeight: '600', color: '#1a73e8', marginBottom: '4px' }}>🎯 목표: {electron.goalItem}</div>}
                                 {electron.date && <div>📅 날짜: {electron.date}</div>}
                                 {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
                                 {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
@@ -2342,7 +2348,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               emoji: electron.emoji,
                               imageData: electron.imageData,
                               images: images,
-                              primaryImageIndex: electron.primaryImageIndex
+                              primaryImageIndex: electron.primaryImageIndex,
+                              goalItem: electron.goalItem,
+                              date: electron.date,
+                              activityTime: electron.activityTime,
+                              attemptCount: electron.attemptCount,
+                              successCount: electron.successCount
                             });
                             setCurrentImageIndex(0);
                           }}
@@ -2363,8 +2374,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
-                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                            {(electron.goalItem || electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
                               <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.goalItem && <div style={{ fontWeight: '600', color: '#1a73e8', marginBottom: '4px' }}>🎯 목표: {electron.goalItem}</div>}
                                 {electron.date && <div>📅 날짜: {electron.date}</div>}
                                 {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
                                 {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
@@ -2387,7 +2399,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               emoji: electron.emoji,
                               imageData: electron.imageData,
                               images: images,
-                              primaryImageIndex: electron.primaryImageIndex
+                              primaryImageIndex: electron.primaryImageIndex,
+                              goalItem: electron.goalItem,
+                              date: electron.date,
+                              activityTime: electron.activityTime,
+                              attemptCount: electron.attemptCount,
+                              successCount: electron.successCount
                             });
                             setCurrentImageIndex(0);
                           }}
@@ -2408,8 +2425,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
-                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                            {(electron.goalItem || electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
                               <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.goalItem && <div style={{ fontWeight: '600', color: '#1a73e8', marginBottom: '4px' }}>🎯 목표: {electron.goalItem}</div>}
                                 {electron.date && <div>📅 날짜: {electron.date}</div>}
                                 {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
                                 {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
@@ -2432,7 +2450,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                               emoji: electron.emoji,
                               imageData: electron.imageData,
                               images: images,
-                              primaryImageIndex: electron.primaryImageIndex
+                              primaryImageIndex: electron.primaryImageIndex,
+                              goalItem: electron.goalItem,
+                              date: electron.date,
+                              activityTime: electron.activityTime,
+                              attemptCount: electron.attemptCount,
+                              successCount: electron.successCount
                             });
                             setCurrentImageIndex(0);
                           }}
@@ -2453,8 +2476,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
-                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                            {(electron.goalItem || electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
                               <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.goalItem && <div style={{ fontWeight: '600', color: '#1a73e8', marginBottom: '4px' }}>🎯 목표: {electron.goalItem}</div>}
                                 {electron.date && <div>📅 날짜: {electron.date}</div>}
                                 {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
                                 {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
@@ -2583,6 +2607,36 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               <div className="particle-detail-description">
                 <h4>Description</h4>
                 <p>{selectedParticleDetail.description || 'No description'}</p>
+                {(selectedParticleDetail.goalItem || selectedParticleDetail.date || selectedParticleDetail.activityTime !== undefined || selectedParticleDetail.attemptCount !== undefined || selectedParticleDetail.successCount !== undefined) && (
+                  <div style={{ marginTop: '20px', padding: '16px', background: '#1a1a1a', borderRadius: '8px' }}>
+                    <h4 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px', color: '#e0e0e0' }}>활동 정보</h4>
+                    {selectedParticleDetail.goalItem && (
+                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
+                        <strong style={{ color: '#1a73e8' }}>🎯 목표 항목:</strong> {selectedParticleDetail.goalItem}
+                      </div>
+                    )}
+                    {selectedParticleDetail.date && (
+                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
+                        <strong>📅 날짜:</strong> {selectedParticleDetail.date}
+                      </div>
+                    )}
+                    {selectedParticleDetail.activityTime !== undefined && (
+                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
+                        <strong>⏱️ 활동 시간:</strong> {selectedParticleDetail.activityTime}분
+                      </div>
+                    )}
+                    {selectedParticleDetail.attemptCount !== undefined && (
+                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
+                        <strong>🔄 시도 횟수:</strong> {selectedParticleDetail.attemptCount}
+                      </div>
+                    )}
+                    {selectedParticleDetail.successCount !== undefined && (
+                      <div style={{ marginBottom: '8px', fontSize: '14px', color: '#e0e0e0' }}>
+                        <strong>✅ 성공 횟수:</strong> {selectedParticleDetail.successCount}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
