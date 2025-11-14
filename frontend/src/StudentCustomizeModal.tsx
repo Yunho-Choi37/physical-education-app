@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Card, Badge } from 'react-bootstrap';
+import { getApiUrl } from './config';
 
 interface Student {
   id: number;
@@ -210,6 +211,11 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   const [showElectrons, setShowElectrons] = useState(false);
   // 양성자/중성자 표시 여부 상태
   const [showProtonsNeutrons, setShowProtonsNeutrons] = useState(false);
+  
+  // 목표 선택 관련 상태
+  const [goals, setGoals] = useState<Array<{ id: string; title: string; description: string; items: string[] }>>([]);
+  const [showGoalSelectModal, setShowGoalSelectModal] = useState(false);
+  const [selectedShellType, setSelectedShellType] = useState<'kShell' | 'lShell' | 'mShell' | 'valence' | null>(null);
 
   // 원자 모델 편집 상태 - 처음에는 모두 빈 배열
   const [atomModel, setAtomModel] = useState<{
@@ -231,6 +237,25 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       valence: []
     }
   });
+
+  // 목표 목록 가져오기
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const apiUrl = getApiUrl();
+        const response = await fetch(`${apiUrl}/api/goals`);
+        if (response.ok) {
+          const data = await response.json();
+          setGoals(data);
+        }
+      } catch (error) {
+        console.error('목표를 가져오는 중 오류:', error);
+      }
+    };
+    if (show) {
+      fetchGoals();
+    }
+  }, [show]);
 
   // 학생이 변경될 때마다 상태 초기화
   useEffect(() => {
@@ -519,6 +544,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   if (!student) return null;
 
   return (
+    <>
     <Modal show={show} onHide={onHide} size="xl">
       <Modal.Header closeButton>
         <Modal.Title>Existence</Modal.Title>
@@ -1602,21 +1628,33 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Button>
                   </div>
                 ))}
-                <Button 
-                  variant="outline-warning" 
-                  size="sm"
-                  onClick={() => {
-                    setAtomModel({
-                      ...atomModel,
-                      electrons: {
-                        ...atomModel.electrons,
-                        kShell: [...atomModel.electrons.kShell, { activity: '', frequency: 4, emoji: '📖', description: '', name: '', hashtags: [] }]
-                      }
-                    });
-                  }}
-                >
-                  + Add
-                </Button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button 
+                    variant="outline-warning" 
+                    size="sm"
+                    onClick={() => {
+                      setAtomModel({
+                        ...atomModel,
+                        electrons: {
+                          ...atomModel.electrons,
+                          kShell: [...atomModel.electrons.kShell, { activity: '', frequency: 4, emoji: '📖', description: '', name: '', hashtags: [] }]
+                        }
+                      });
+                    }}
+                  >
+                    + 직접 추가
+                  </Button>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedShellType('kShell');
+                      setShowGoalSelectModal(true);
+                    }}
+                  >
+                    목표에서 선택
+                  </Button>
+                </div>
               </Col>
 
               <Col md={3}>
@@ -1799,21 +1837,33 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Button>
                   </div>
                 ))}
-                <Button 
-                  variant="outline-info" 
-                  size="sm"
-                  onClick={() => {
-                    setAtomModel({
-                      ...atomModel,
-                      electrons: {
-                        ...atomModel.electrons,
-                        lShell: [...atomModel.electrons.lShell, { activity: '', frequency: 4, emoji: '🏃', description: '', name: '', hashtags: [] }]
-                      }
-                    });
-                  }}
-                >
-                  + Add
-                </Button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button 
+                    variant="outline-info" 
+                    size="sm"
+                    onClick={() => {
+                      setAtomModel({
+                        ...atomModel,
+                        electrons: {
+                          ...atomModel.electrons,
+                          lShell: [...atomModel.electrons.lShell, { activity: '', frequency: 4, emoji: '🏃', description: '', name: '', hashtags: [] }]
+                        }
+                      });
+                    }}
+                  >
+                    + 직접 추가
+                  </Button>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedShellType('lShell');
+                      setShowGoalSelectModal(true);
+                    }}
+                  >
+                    목표에서 선택
+                  </Button>
+                </div>
               </Col>
 
               <Col md={3}>
@@ -1996,21 +2046,33 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Button>
                   </div>
                 ))}
-                <Button 
-                  variant="outline-success" 
-                  size="sm"
-                  onClick={() => {
-                    setAtomModel({
-                      ...atomModel,
-                      electrons: {
-                        ...atomModel.electrons,
-                        mShell: [...atomModel.electrons.mShell, { activity: '', frequency: 2, emoji: '🤝', description: '', name: '', hashtags: [] }]
-                      }
-                    });
-                  }}
-                >
-                  + Add
-                </Button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button 
+                    variant="outline-success" 
+                    size="sm"
+                    onClick={() => {
+                      setAtomModel({
+                        ...atomModel,
+                        electrons: {
+                          ...atomModel.electrons,
+                          mShell: [...atomModel.electrons.mShell, { activity: '', frequency: 2, emoji: '🤝', description: '', name: '', hashtags: [] }]
+                        }
+                      });
+                    }}
+                  >
+                    + 직접 추가
+                  </Button>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedShellType('mShell');
+                      setShowGoalSelectModal(true);
+                    }}
+                  >
+                    목표에서 선택
+                  </Button>
+                </div>
               </Col>
 
               <Col md={3}>
@@ -2193,21 +2255,33 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     </Button>
                   </div>
                 ))}
-                <Button 
-                  variant="outline-primary" 
-                  size="sm"
-                  onClick={() => {
-                    setAtomModel({
-                      ...atomModel,
-                      electrons: {
-                        ...atomModel.electrons,
-                        valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '', name: '', hashtags: [] }]
-                      }
-                    });
-                  }}
-                >
-                  + Add
-                </Button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm"
+                    onClick={() => {
+                      setAtomModel({
+                        ...atomModel,
+                        electrons: {
+                          ...atomModel.electrons,
+                          valence: [...atomModel.electrons.valence, { activity: '', cooperation: 3, social: true, emoji: '🔧', description: '', name: '', hashtags: [] }]
+                        }
+                      });
+                    }}
+                  >
+                    + 직접 추가
+                  </Button>
+                  <Button 
+                    variant="success" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedShellType('valence');
+                      setShowGoalSelectModal(true);
+                    }}
+                  >
+                    목표에서 선택
+                  </Button>
+                </div>
               </Col>
             </Row>
           </Card.Body>
@@ -2346,6 +2420,101 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         </Button>
       </Modal.Footer>
     </Modal>
+
+    {/* 목표 선택 모달 */}
+    <Modal show={showGoalSelectModal} onHide={() => setShowGoalSelectModal(false)} size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>목표에서 선택</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {goals.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>생성된 목표가 없습니다.</p>
+            <p style={{ fontSize: '0.9rem', color: '#666' }}>
+              Purpose 페이지에서 먼저 목표를 생성해주세요.
+            </p>
+          </div>
+        ) : (
+          <div>
+            {goals.map((goal) => (
+              <Card key={goal.id} className="mb-3" style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  if (!selectedShellType) return;
+                  
+                  // 목표의 항목들을 전자로 추가
+                  const newElectrons = goal.items.map((item) => {
+                    const defaultEmoji = selectedShellType === 'kShell' ? '📖' :
+                                        selectedShellType === 'lShell' ? '🏃' :
+                                        selectedShellType === 'mShell' ? '🤝' : '🔧';
+                    const defaultFrequency = selectedShellType === 'valence' ? 3 : 
+                                            selectedShellType === 'mShell' ? 2 : 4;
+                    
+                    return {
+                      activity: item,
+                      frequency: defaultFrequency,
+                      emoji: defaultEmoji,
+                      description: goal.description || '',
+                      name: goal.title,
+                      hashtags: []
+                    };
+                  });
+
+                  // 선택된 shell 타입에 전자 추가
+                  const currentElectrons = atomModel.electrons[selectedShellType];
+                  setAtomModel({
+                    ...atomModel,
+                    electrons: {
+                      ...atomModel.electrons,
+                      [selectedShellType]: [...currentElectrons, ...newElectrons]
+                    }
+                  });
+                  
+                  setShowGoalSelectModal(false);
+                  setSelectedShellType(null);
+                }}
+              >
+                <Card.Header style={{ backgroundColor: '#f8f9fa' }}>
+                  <Card.Title style={{ margin: 0, fontSize: '1.2rem' }}>
+                    {goal.title}
+                  </Card.Title>
+                </Card.Header>
+                <Card.Body>
+                  {goal.description && (
+                    <p style={{ color: '#666', marginBottom: '10px', fontSize: '0.9rem' }}>
+                      {goal.description}
+                    </p>
+                  )}
+                  {goal.items && goal.items.length > 0 && (
+                    <div>
+                      <strong style={{ fontSize: '0.9rem' }}>항목 ({goal.items.length}개):</strong>
+                      <ul style={{ marginTop: '8px', marginBottom: 0, paddingLeft: '20px' }}>
+                        {goal.items.map((item, index) => (
+                          <li key={index} style={{ fontSize: '0.9rem', marginBottom: '4px' }}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div style={{ marginTop: '10px', fontSize: '0.85rem', color: '#999' }}>
+                    클릭하여 이 목표의 항목들을 전자로 추가
+                  </div>
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => {
+          setShowGoalSelectModal(false);
+          setSelectedShellType(null);
+        }}>
+          취소
+        </Button>
+      </Modal.Footer>
+    </Modal>
+    </>
   );
 };
 

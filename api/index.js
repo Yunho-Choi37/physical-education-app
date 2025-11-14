@@ -394,6 +394,112 @@ app.delete('/api/classes/:classId/positions', async (req, res) => {
   }
 });
 
+// 목표(Purpose) 관리 헬퍼 함수
+const getGoals = async () => {
+  checkFirestoreConnection();
+  const snapshot = await db.collection('goals').orderBy('createdAt', 'desc').get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+const getGoalById = async (goalId) => {
+  checkFirestoreConnection();
+  const doc = await db.collection('goals').doc(goalId).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() };
+};
+
+const saveGoal = async (goal) => {
+  checkFirestoreConnection();
+  if (goal.id) {
+    const goalRef = db.collection('goals').doc(goal.id);
+    await goalRef.set({ ...goal, updatedAt: new Date() }, { merge: true });
+    return { id: goal.id, ...goal };
+  } else {
+    const goalRef = db.collection('goals').doc();
+    const newGoal = { ...goal, createdAt: new Date(), updatedAt: new Date() };
+    await goalRef.set(newGoal);
+    return { id: goalRef.id, ...newGoal };
+  }
+};
+
+const deleteGoal = async (goalId) => {
+  checkFirestoreConnection();
+  await db.collection('goals').doc(goalId).delete();
+};
+
+// API: 모든 목표 가져오기
+app.get('/api/goals', async (req, res) => {
+  try {
+    const goals = await getGoals();
+    res.json(goals);
+  } catch (error) {
+    console.error('Error fetching goals:', error);
+    res.status(500).json({ error: '목표를 가져오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 목표 생성
+app.post('/api/goals', async (req, res) => {
+  try {
+    const { title, description, items } = req.body;
+    if (!title) {
+      return res.status(400).json({ error: '목표 제목은 필수입니다.' });
+    }
+    const newGoal = {
+      title,
+      description: description || '',
+      items: items || [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    const savedGoal = await saveGoal(newGoal);
+    res.status(201).json(savedGoal);
+  } catch (error) {
+    console.error('Error creating goal:', error);
+    res.status(500).json({ error: '목표를 생성하는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 목표 수정
+app.put('/api/goals/:goalId', async (req, res) => {
+  try {
+    const goalId = req.params.goalId;
+    const { title, description, items } = req.body;
+    const existingGoal = await getGoalById(goalId);
+    if (!existingGoal) {
+      return res.status(404).json({ error: '목표를 찾을 수 없습니다.' });
+    }
+    const updatedGoal = {
+      ...existingGoal,
+      title: title || existingGoal.title,
+      description: description !== undefined ? description : existingGoal.description,
+      items: items !== undefined ? items : existingGoal.items,
+      updatedAt: new Date()
+    };
+    const savedGoal = await saveGoal(updatedGoal);
+    res.json(savedGoal);
+  } catch (error) {
+    console.error('Error updating goal:', error);
+    res.status(500).json({ error: '목표를 수정하는 중 오류가 발생했습니다.' });
+  }
+});
+
+// API: 목표 삭제
+app.delete('/api/goals/:goalId', async (req, res) => {
+  try {
+    const goalId = req.params.goalId;
+    const existingGoal = await getGoalById(goalId);
+    if (!existingGoal) {
+      return res.status(404).json({ error: '목표를 찾을 수 없습니다.' });
+    }
+    await deleteGoal(goalId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting goal:', error);
+    res.status(500).json({ error: '목표를 삭제하는 중 오류가 발생했습니다.' });
+  }
+});
+
 // 전역 에러 핸들러 (모든 라우트 정의 후에 배치)
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);

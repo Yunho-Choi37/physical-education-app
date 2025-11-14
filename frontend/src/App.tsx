@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Card, ListGroup } from 'react-bootstrap';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import ClassDetails from './ClassDetails';
 import StudentCustomizeModal from './StudentCustomizeModal';
@@ -447,9 +447,407 @@ function App() {
     );
   };
 
-  const PurposePage = () => (
-    <div className="purpose-wrapper purpose-empty" />
-  );
+  interface Goal {
+    id: string;
+    title: string;
+    description: string;
+    items: string[];
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+
+  const PurposePage = () => {
+    const [goals, setGoals] = useState<Goal[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+    const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
+    const apiUrl = getApiUrl();
+
+    const fetchGoals = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${apiUrl}/api/goals`);
+        if (response.ok) {
+          const data = await response.json();
+          setGoals(data);
+        }
+      } catch (error) {
+        console.error('목표를 가져오는 중 오류:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchGoals();
+    }, []);
+
+    const handleCreateGoal = async () => {
+      if (!newGoal.title.trim()) {
+        alert('목표 제목을 입력해주세요.');
+        return;
+      }
+      try {
+        const goalData = {
+          title: newGoal.title,
+          description: newGoal.description,
+          items: newGoal.items.filter(item => item.trim() !== '')
+        };
+        const response = await fetch(`${apiUrl}/api/goals`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(goalData)
+        });
+        if (response.ok) {
+          await fetchGoals();
+          setShowCreateModal(false);
+          setNewGoal({ title: '', description: '', itemCount: 1, items: [''] });
+        } else {
+          alert('목표 생성에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('목표 생성 오류:', error);
+        alert('목표 생성 중 오류가 발생했습니다.');
+      }
+    };
+
+    const handleUpdateGoal = async () => {
+      if (!editingGoal || !editingGoal.title.trim()) {
+        alert('목표 제목을 입력해주세요.');
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/api/goals/${editingGoal.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: editingGoal.title,
+            description: editingGoal.description,
+            items: editingGoal.items.filter(item => item.trim() !== '')
+          })
+        });
+        if (response.ok) {
+          await fetchGoals();
+          setShowEditModal(false);
+          setEditingGoal(null);
+        } else {
+          alert('목표 수정에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('목표 수정 오류:', error);
+        alert('목표 수정 중 오류가 발생했습니다.');
+      }
+    };
+
+    const handleDeleteGoal = async (goalId: string) => {
+      if (!window.confirm('정말 이 목표를 삭제하시겠습니까?')) {
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/api/goals/${goalId}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          await fetchGoals();
+        } else {
+          alert('목표 삭제에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('목표 삭제 오류:', error);
+        alert('목표 삭제 중 오류가 발생했습니다.');
+      }
+    };
+
+    const handleEditClick = (goal: Goal) => {
+      setEditingGoal({ ...goal });
+      setShowEditModal(true);
+    };
+
+    const addItemToNewGoal = () => {
+      setNewGoal(prev => ({
+        ...prev,
+        itemCount: prev.itemCount + 1,
+        items: [...prev.items, '']
+      }));
+    };
+
+    const removeItemFromNewGoal = (index: number) => {
+      setNewGoal(prev => ({
+        ...prev,
+        itemCount: Math.max(1, prev.itemCount - 1),
+        items: prev.items.filter((_, i) => i !== index)
+      }));
+    };
+
+    const updateNewGoalItem = (index: number, value: string) => {
+      setNewGoal(prev => ({
+        ...prev,
+        items: prev.items.map((item, i) => i === index ? value : item)
+      }));
+    };
+
+    const addItemToEditingGoal = () => {
+      if (editingGoal) {
+        setEditingGoal({
+          ...editingGoal,
+          items: [...editingGoal.items, '']
+        });
+      }
+    };
+
+    const removeItemFromEditingGoal = (index: number) => {
+      if (editingGoal) {
+        setEditingGoal({
+          ...editingGoal,
+          items: editingGoal.items.filter((_, i) => i !== index)
+        });
+      }
+    };
+
+    const updateEditingGoalItem = (index: number, value: string) => {
+      if (editingGoal) {
+        setEditingGoal({
+          ...editingGoal,
+          items: editingGoal.items.map((item, i) => i === index ? value : item)
+        });
+      }
+    };
+
+    return (
+      <div className="purpose-wrapper">
+        <div style={{ 
+          width: '100%', 
+          maxWidth: '1200px', 
+          padding: '40px 20px',
+          minHeight: '100vh'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '30px'
+          }}>
+            <h1 style={{ 
+              fontSize: '2.5rem', 
+              fontWeight: 'bold', 
+              color: '#191970',
+              margin: 0
+            }}>
+              목표 관리
+            </h1>
+            <Button 
+              variant="primary" 
+              onClick={() => setShowCreateModal(true)}
+              style={{ 
+                padding: '10px 24px',
+                fontSize: '1rem',
+                fontWeight: 600
+              }}
+            >
+              + 목표 생성
+            </Button>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <p>로딩 중...</p>
+            </div>
+          ) : goals.length === 0 ? (
+            <Card style={{ padding: '60px', textAlign: 'center' }}>
+              <Card.Body>
+                <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '20px' }}>
+                  아직 생성된 목표가 없습니다.
+                </p>
+                <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+                  첫 목표 만들기
+                </Button>
+              </Card.Body>
+            </Card>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+              {goals.map((goal) => (
+                <Card key={goal.id} style={{ marginBottom: '20px' }}>
+                  <Card.Header style={{ 
+                    backgroundColor: '#f8f9fa', 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <Card.Title style={{ margin: 0, fontSize: '1.3rem', fontWeight: 'bold' }}>
+                      {goal.title}
+                    </Card.Title>
+                    <div>
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm" 
+                        onClick={() => handleEditClick(goal)}
+                        style={{ marginRight: '8px' }}
+                      >
+                        수정
+                      </Button>
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm" 
+                        onClick={() => handleDeleteGoal(goal.id)}
+                      >
+                        삭제
+                      </Button>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    {goal.description && (
+                      <p style={{ color: '#666', marginBottom: '15px' }}>
+                        {goal.description}
+                      </p>
+                    )}
+                    {goal.items && goal.items.length > 0 && (
+                      <ListGroup variant="flush">
+                        {goal.items.map((item, index) => (
+                          <ListGroup.Item key={index} style={{ padding: '8px 0' }}>
+                            • {item}
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    )}
+                  </Card.Body>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* 목표 생성 모달 */}
+          <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg">
+            <Modal.Header closeButton>
+              <Modal.Title>새 목표 생성</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form.Group className="mb-3">
+                <Form.Label>목표 제목 *</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="목표 제목을 입력하세요"
+                  value={newGoal.title}
+                  onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>목표 설명</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="목표에 대한 설명을 입력하세요"
+                  value={newGoal.description}
+                  onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <Form.Label style={{ margin: 0 }}>목표 내용 항목</Form.Label>
+                  <Button variant="outline-primary" size="sm" onClick={addItemToNewGoal}>
+                    + 항목 추가
+                  </Button>
+                </div>
+                {newGoal.items.map((item, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                    <Form.Control
+                      type="text"
+                      placeholder={`항목 ${index + 1}`}
+                      value={item}
+                      onChange={(e) => updateNewGoalItem(index, e.target.value)}
+                    />
+                    {newGoal.items.length > 1 && (
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm"
+                        onClick={() => removeItemFromNewGoal(index)}
+                      >
+                        삭제
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+                취소
+              </Button>
+              <Button variant="primary" onClick={handleCreateGoal}>
+                생성
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
+          {/* 목표 수정 모달 */}
+          <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+            <Modal.Header closeButton>
+              <Modal.Title>목표 수정</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {editingGoal && (
+                <>
+                  <Form.Group className="mb-3">
+                    <Form.Label>목표 제목 *</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="목표 제목을 입력하세요"
+                      value={editingGoal.title}
+                      onChange={(e) => setEditingGoal(prev => prev ? { ...prev, title: e.target.value } : null)}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>목표 설명</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="목표에 대한 설명을 입력하세요"
+                      value={editingGoal.description}
+                      onChange={(e) => setEditingGoal(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <Form.Label style={{ margin: 0 }}>목표 내용 항목</Form.Label>
+                      <Button variant="outline-primary" size="sm" onClick={addItemToEditingGoal}>
+                        + 항목 추가
+                      </Button>
+                    </div>
+                    {editingGoal.items.map((item, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <Form.Control
+                          type="text"
+                          placeholder={`항목 ${index + 1}`}
+                          value={item}
+                          onChange={(e) => updateEditingGoalItem(index, e.target.value)}
+                        />
+                        <Button 
+                          variant="outline-danger" 
+                          size="sm"
+                          onClick={() => removeItemFromEditingGoal(index)}
+                        >
+                          삭제
+                        </Button>
+                      </div>
+                    ))}
+                  </Form.Group>
+                </>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                취소
+              </Button>
+              <Button variant="primary" onClick={handleUpdateGoal}>
+                저장
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={`App ${isLegacyView ? 'legacy-view' : 'landing-view'}`}>
