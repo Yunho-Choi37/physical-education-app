@@ -635,13 +635,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         if (disabled) return;
                         setCustomization(prev => ({ ...prev, color }));
                       }}
-                      title={disabled ? 'Color is not applied to emoji shapes.' : ''}
+                      title={disabled ? '이모지 모양에는 색상이 적용되지 않습니다.' : ''}
                     />
                   );
                 })}
               </div>
               {isEmojiLike(customization.shape) && (
-                <div className="mt-1 small text-muted">Color is not applied to emoji shapes.</div>
+                <div className="mt-1 small text-muted">이모지 모양에는 색상이 적용되지 않습니다.</div>
               )}
             </Form.Group>
 
@@ -774,7 +774,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                   </>
                 )}
               </div>
-              <Form.Text className="text-muted">Uploaded photos take priority over emoji/shape.</Form.Text>
+              <Form.Text className="text-muted">업로드한 사진이 이모지/모양보다 우선순위가 높습니다.</Form.Text>
             </Form.Group>
 
 
@@ -845,7 +845,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
           <>
             {/* 사용자 정의 이름 입력 (모양 편집에서만 표시) */}
             <Card className="mb-3">
-              <Card.Header>Circle Name Settings</Card.Header>
+              <Card.Header>원 이름 설정</Card.Header>
               <Card.Body>
                 <Form.Group>
                   <Form.Label>원 안에 표시할 이름</Form.Label>
