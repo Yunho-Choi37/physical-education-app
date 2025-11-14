@@ -1359,7 +1359,9 @@ function App() {
                   </div>
                 )}
               </div>
-            ))}
+                ))}
+              </div>
+            </div>
           </div>
         } />
         <Route path="/purpose" element={<PurposePage />} />
