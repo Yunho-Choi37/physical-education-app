@@ -1049,6 +1049,11 @@
     gap: 8px;
   }
 
+  /* 목표 항목은 전체 너비 차지 */
+  .particle-detail-activity-card-goal {
+    grid-column: 1 / -1;
+  }
+
   .particle-detail-activity-card {
     padding: 8px;
   }
@@ -1074,8 +1079,13 @@
   }
 
   .particle-detail-activity-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
+  }
+
+  /* 목표 항목은 전체 너비 차지 */
+  .particle-detail-activity-card-goal {
+    grid-column: 1 / -1;
   }
 
   .particle-detail-activity-card {
