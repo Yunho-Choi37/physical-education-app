@@ -26,11 +26,12 @@ export const getApiUrl = (): string => {
     return apiUrl;
   }
 
-  // 로컬 개발용 Firebase Functions Emulator
+  // 로컬 개발용 Express 서버 (우선순위)
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    const localUrl = 'http://localhost:5001/l-existence-precede-l-essence/us-central1/api';
-    console.log('🔗 API URL (로컬 개발):', localUrl);
-    return localUrl;
+    // Express 서버가 실행 중인 경우 (포트 3001)
+    const expressUrl = 'http://localhost:3001';
+    console.log('🔗 API URL (로컬 Express 서버):', expressUrl);
+    return expressUrl;
   }
 
   // 프로덕션 기본값 (Firebase Functions)

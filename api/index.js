@@ -442,21 +442,29 @@ app.get('/api/goals', async (req, res) => {
 app.post('/api/goals', async (req, res) => {
   try {
     const { title, description, items } = req.body;
-    if (!title) {
+    console.log('목표 생성 요청 받음:', { title, description, items });
+    
+    if (!title || !title.trim()) {
       return res.status(400).json({ error: '목표 제목은 필수입니다.' });
     }
+    
     const newGoal = {
-      title,
-      description: description || '',
+      title: title.trim(),
+      description: (description || '').trim(),
       items: items || [],
       createdAt: new Date(),
       updatedAt: new Date()
     };
+    
+    console.log('저장할 목표 데이터:', newGoal);
     const savedGoal = await saveGoal(newGoal);
+    console.log('저장된 목표:', savedGoal);
+    
     res.status(201).json(savedGoal);
   } catch (error) {
     console.error('Error creating goal:', error);
-    res.status(500).json({ error: '목표를 생성하는 중 오류가 발생했습니다.' });
+    const errorMessage = error.message || '목표를 생성하는 중 오류가 발생했습니다.';
+    res.status(error.statusCode || 500).json({ error: errorMessage });
   }
 });
 
