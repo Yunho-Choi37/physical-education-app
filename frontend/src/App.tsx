@@ -17,6 +17,532 @@ interface ClassExistence {
   imageData?: string;
 }
 
+interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  items: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const PurposePage = () => {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
+  const apiUrlRef = useRef(getApiUrl());
+
+  useEffect(() => {
+    let mounted = true;
+    const loadGoals = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${apiUrlRef.current}/api/goals`);
+        if (response.ok && mounted) {
+          const data = await response.json();
+          setGoals(data);
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error('목표를 가져오는 중 오류:', error);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    loadGoals();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleCreateGoal = async () => {
+    if (!newGoal.title.trim()) {
+      alert('목표 제목을 입력해주세요.');
+      return;
+    }
+    try {
+      const goalData = {
+        title: newGoal.title,
+        description: newGoal.description,
+        items: newGoal.items.filter(item => item.trim() !== '')
+      };
+      const response = await fetch(`${apiUrlRef.current}/api/goals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(goalData)
+      });
+      if (response.ok) {
+        const newGoalData = await response.json();
+        setGoals(prev => [newGoalData, ...prev]);
+        setShowCreateModal(false);
+        setNewGoal({ title: '', description: '', itemCount: 1, items: [''] });
+      } else {
+        alert('목표 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('목표 생성 오류:', error);
+      alert('목표 생성 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleUpdateGoal = async () => {
+    if (!editingGoal || !editingGoal.title.trim()) {
+      alert('목표 제목을 입력해주세요.');
+      return;
+    }
+    try {
+      const response = await fetch(`${apiUrlRef.current}/api/goals/${editingGoal.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editingGoal.title,
+          description: editingGoal.description,
+          items: editingGoal.items.filter(item => item.trim() !== '')
+        })
+      });
+      if (response.ok) {
+        const updatedGoal = await response.json();
+        setGoals(prev => prev.map(goal => goal.id === updatedGoal.id ? updatedGoal : goal));
+        setShowEditModal(false);
+        setEditingGoal(null);
+      } else {
+        alert('목표 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('목표 수정 오류:', error);
+      alert('목표 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    if (!window.confirm('정말 이 목표를 삭제하시겠습니까?')) {
+      return;
+    }
+    try {
+      const response = await fetch(`${apiUrlRef.current}/api/goals/${goalId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setGoals(prev => prev.filter(goal => goal.id !== goalId));
+      } else {
+        alert('목표 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('목표 삭제 오류:', error);
+      alert('목표 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleEditClick = (goal: Goal) => {
+    setEditingGoal({ ...goal });
+    setShowEditModal(true);
+  };
+
+  const addItemToNewGoal = () => {
+    setNewGoal(prev => ({
+      ...prev,
+      itemCount: prev.itemCount + 1,
+      items: [...prev.items, '']
+    }));
+  };
+
+  const removeItemFromNewGoal = (index: number) => {
+    setNewGoal(prev => ({
+      ...prev,
+      itemCount: Math.max(1, prev.itemCount - 1),
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateNewGoalItem = (index: number, value: string) => {
+    setNewGoal(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  const addItemToEditingGoal = () => {
+    if (editingGoal) {
+      setEditingGoal({
+        ...editingGoal,
+        items: [...editingGoal.items, '']
+      });
+    }
+  };
+
+  const removeItemFromEditingGoal = (index: number) => {
+    if (editingGoal) {
+      setEditingGoal({
+        ...editingGoal,
+        items: editingGoal.items.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const updateEditingGoalItem = (index: number, value: string) => {
+    if (editingGoal) {
+      setEditingGoal({
+        ...editingGoal,
+        items: editingGoal.items.map((item, i) => i === index ? value : item)
+      });
+    }
+  };
+
+  return (
+    <div className="existence-home">
+      <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
+        <h1 className="existence-logo" style={{ marginBottom: '40px' }}>
+          <span className="existence-letter existence-letter-red">P</span>
+          <span className="existence-letter existence-letter-dark">u</span>
+          <span className="existence-letter existence-letter-green">r</span>
+          <span className="existence-letter existence-letter-dark">p</span>
+          <span className="existence-letter existence-letter-blue">o</span>
+          <span className="existence-letter existence-letter-dark">s</span>
+          <span className="existence-letter existence-letter-red">e</span>
+        </h1>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '40px',
+          width: '100%'
+        }}>
+          <p className="existence-subtitle" style={{ margin: 0 }}>
+            목표를 설정하고 관리하세요
+          </p>
+          <button
+            type="button"
+            className="existence-button"
+            onClick={() => setShowCreateModal(true)}
+          >
+            + 목표 생성
+          </button>
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px', color: '#5f6368' }}>
+            <p style={{ fontSize: '1rem', margin: 0 }}>로딩 중...</p>
+          </div>
+        ) : goals.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '80px 20px',
+            background: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 1px 6px rgba(32, 33, 36, 0.28)'
+          }}>
+            <p style={{ fontSize: '1rem', color: '#5f6368', marginBottom: '24px', margin: 0 }}>
+              아직 생성된 목표가 없습니다.
+            </p>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => setShowCreateModal(true)}
+            >
+              첫 목표 만들기
+            </button>
+          </div>
+        ) : (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+            gap: '24px',
+            width: '100%'
+          }}>
+            {goals.map((goal) => (
+              <div 
+                key={goal.id} 
+                style={{ 
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                  boxShadow: '0 1px 6px rgba(32, 33, 36, 0.28)',
+                  padding: '24px',
+                  transition: 'box-shadow 0.2s ease',
+                  border: '1px solid #f8f9fa'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(32, 33, 36, 0.35)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 1px 6px rgba(32, 33, 36, 0.28)';
+                }}
+              >
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '16px',
+                  paddingBottom: '16px',
+                  borderBottom: '1px solid #e8eaed'
+                }}>
+                  <h3 style={{ 
+                    margin: 0, 
+                    fontSize: '1.25rem', 
+                    fontWeight: 500,
+                    color: '#202124',
+                    fontFamily: 'Roboto, sans-serif',
+                    lineHeight: '1.4'
+                  }}>
+                    {goal.title}
+                  </h3>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={() => handleEditClick(goal)}
+                      style={{ 
+                        padding: '6px 16px',
+                        fontSize: '14px',
+                        minWidth: 'auto'
+                      }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={() => handleDeleteGoal(goal.id)}
+                      style={{ 
+                        padding: '6px 16px',
+                        fontSize: '14px',
+                        minWidth: 'auto',
+                        backgroundColor: '#f8f9fa',
+                        borderColor: '#dadce0',
+                        color: '#d93025'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f1f3f4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+                {goal.description && (
+                  <p style={{ 
+                    color: '#5f6368', 
+                    marginBottom: '16px',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.5',
+                    fontFamily: 'Roboto, sans-serif'
+                  }}>
+                    {goal.description}
+                  </p>
+                )}
+                {goal.items && goal.items.length > 0 && (
+                  <ul style={{ 
+                    margin: 0, 
+                    paddingLeft: '20px',
+                    color: '#202124',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.8',
+                    fontFamily: 'Roboto, sans-serif'
+                  }}>
+                    {goal.items.map((item, index) => (
+                      <li key={index} style={{ marginBottom: '8px' }}>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 목표 생성 모달 */}
+        <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg">
+          <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>새 목표 생성</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 제목 *</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="목표 제목을 입력하세요"
+                value={newGoal.title}
+                onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
+                style={{ fontFamily: 'Roboto, sans-serif' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 설명</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="목표에 대한 설명을 입력하세요"
+                value={newGoal.description}
+                onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
+                style={{ fontFamily: 'Roboto, sans-serif' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <Form.Label style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 내용 항목</Form.Label>
+                <button
+                  type="button"
+                  className="existence-button"
+                  onClick={addItemToNewGoal}
+                  style={{ padding: '6px 16px', fontSize: '14px', minWidth: 'auto' }}
+                >
+                  + 항목 추가
+                </button>
+              </div>
+              {newGoal.items.map((item, index) => (
+                <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <Form.Control
+                    type="text"
+                    placeholder={`항목 ${index + 1}`}
+                    value={item}
+                    onChange={(e) => updateNewGoalItem(index, e.target.value)}
+                    style={{ fontFamily: 'Roboto, sans-serif' }}
+                  />
+                  {newGoal.items.length > 1 && (
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={() => removeItemFromNewGoal(index)}
+                      style={{ 
+                        padding: '6px 16px', 
+                        fontSize: '14px', 
+                        minWidth: 'auto',
+                        backgroundColor: '#f8f9fa',
+                        borderColor: '#dadce0',
+                        color: '#d93025'
+                      }}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+              ))}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => setShowCreateModal(false)}
+              style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={handleCreateGoal}
+            >
+              생성
+            </button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* 목표 수정 모달 */}
+        <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+          <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>목표 수정</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
+            {editingGoal && (
+              <>
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 제목 *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="목표 제목을 입력하세요"
+                    value={editingGoal.title}
+                    onChange={(e) => setEditingGoal(prev => prev ? { ...prev, title: e.target.value } : null)}
+                    style={{ fontFamily: 'Roboto, sans-serif' }}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 설명</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder="목표에 대한 설명을 입력하세요"
+                    value={editingGoal.description}
+                    onChange={(e) => setEditingGoal(prev => prev ? { ...prev, description: e.target.value } : null)}
+                    style={{ fontFamily: 'Roboto, sans-serif' }}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <Form.Label style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 내용 항목</Form.Label>
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={addItemToEditingGoal}
+                      style={{ padding: '6px 16px', fontSize: '14px', minWidth: 'auto' }}
+                    >
+                      + 항목 추가
+                    </button>
+                  </div>
+                  {editingGoal.items.map((item, index) => (
+                    <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                      <Form.Control
+                        type="text"
+                        placeholder={`항목 ${index + 1}`}
+                        value={item}
+                        onChange={(e) => updateEditingGoalItem(index, e.target.value)}
+                        style={{ fontFamily: 'Roboto, sans-serif' }}
+                      />
+                      <button
+                        type="button"
+                        className="existence-button"
+                        onClick={() => removeItemFromEditingGoal(index)}
+                        style={{ 
+                          padding: '6px 16px', 
+                          fontSize: '14px', 
+                          minWidth: 'auto',
+                          backgroundColor: '#f8f9fa',
+                          borderColor: '#dadce0',
+                          color: '#d93025'
+                        }}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </Form.Group>
+              </>
+            )}
+          </Modal.Body>
+          <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => setShowEditModal(false)}
+              style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={handleUpdateGoal}
+            >
+              저장
+            </button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [classes, setClasses] = useState<string[]>(['.', '.', '.', '.', '.', '.', '.']);
   const [classesLoaded, setClassesLoaded] = useState(false);
@@ -442,550 +968,6 @@ function App() {
               Purpose
             </button>
           </div>
-        </div>
-      </div>
-    );
-  };
-
-  interface Goal {
-    id: string;
-    title: string;
-    description: string;
-    items: string[];
-    createdAt?: Date;
-    updatedAt?: Date;
-  }
-
-  const PurposePage = () => {
-    const [goals, setGoals] = useState<Goal[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-    const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
-    const apiUrlRef = useRef(getApiUrl());
-
-    const fetchGoals = useCallback(async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${apiUrlRef.current}/api/goals`);
-        if (response.ok) {
-          const data = await response.json();
-          setGoals(data);
-        }
-      } catch (error) {
-        console.error('목표를 가져오는 중 오류:', error);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
-
-    useEffect(() => {
-      let mounted = true;
-      const loadGoals = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`${apiUrlRef.current}/api/goals`);
-          if (response.ok && mounted) {
-            const data = await response.json();
-            setGoals(data);
-          }
-        } catch (error) {
-          if (mounted) {
-            console.error('목표를 가져오는 중 오류:', error);
-          }
-        } finally {
-          if (mounted) {
-            setLoading(false);
-          }
-        }
-      };
-      
-      loadGoals();
-      
-      return () => {
-        mounted = false;
-      };
-    }, []);
-
-    const handleCreateGoal = async () => {
-      if (!newGoal.title.trim()) {
-        alert('목표 제목을 입력해주세요.');
-        return;
-      }
-      try {
-        const goalData = {
-          title: newGoal.title,
-          description: newGoal.description,
-          items: newGoal.items.filter(item => item.trim() !== '')
-        };
-        const response = await fetch(`${apiUrlRef.current}/api/goals`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(goalData)
-        });
-        if (response.ok) {
-          const newGoalData = await response.json();
-          // 목록에 직접 추가하여 불필요한 리렌더링 방지
-          setGoals(prev => [newGoalData, ...prev]);
-          setShowCreateModal(false);
-          setNewGoal({ title: '', description: '', itemCount: 1, items: [''] });
-        } else {
-          alert('목표 생성에 실패했습니다.');
-        }
-      } catch (error) {
-        console.error('목표 생성 오류:', error);
-        alert('목표 생성 중 오류가 발생했습니다.');
-      }
-    };
-
-    const handleUpdateGoal = async () => {
-      if (!editingGoal || !editingGoal.title.trim()) {
-        alert('목표 제목을 입력해주세요.');
-        return;
-      }
-      try {
-        const response = await fetch(`${apiUrlRef.current}/api/goals/${editingGoal.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: editingGoal.title,
-            description: editingGoal.description,
-            items: editingGoal.items.filter(item => item.trim() !== '')
-          })
-        });
-        if (response.ok) {
-          const updatedGoal = await response.json();
-          // 목록에서 직접 업데이트하여 불필요한 리렌더링 방지
-          setGoals(prev => prev.map(goal => goal.id === updatedGoal.id ? updatedGoal : goal));
-          setShowEditModal(false);
-          setEditingGoal(null);
-        } else {
-          alert('목표 수정에 실패했습니다.');
-        }
-      } catch (error) {
-        console.error('목표 수정 오류:', error);
-        alert('목표 수정 중 오류가 발생했습니다.');
-      }
-    };
-
-    const handleDeleteGoal = async (goalId: string) => {
-      if (!window.confirm('정말 이 목표를 삭제하시겠습니까?')) {
-        return;
-      }
-      try {
-        const response = await fetch(`${apiUrlRef.current}/api/goals/${goalId}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          // 목록에서 직접 제거하여 불필요한 리렌더링 방지
-          setGoals(prev => prev.filter(goal => goal.id !== goalId));
-        } else {
-          alert('목표 삭제에 실패했습니다.');
-        }
-      } catch (error) {
-        console.error('목표 삭제 오류:', error);
-        alert('목표 삭제 중 오류가 발생했습니다.');
-      }
-    };
-
-    const handleEditClick = (goal: Goal) => {
-      setEditingGoal({ ...goal });
-      setShowEditModal(true);
-    };
-
-    const addItemToNewGoal = () => {
-      setNewGoal(prev => ({
-        ...prev,
-        itemCount: prev.itemCount + 1,
-        items: [...prev.items, '']
-      }));
-    };
-
-    const removeItemFromNewGoal = (index: number) => {
-      setNewGoal(prev => ({
-        ...prev,
-        itemCount: Math.max(1, prev.itemCount - 1),
-        items: prev.items.filter((_, i) => i !== index)
-      }));
-    };
-
-    const updateNewGoalItem = (index: number, value: string) => {
-      setNewGoal(prev => ({
-        ...prev,
-        items: prev.items.map((item, i) => i === index ? value : item)
-      }));
-    };
-
-    const addItemToEditingGoal = () => {
-      if (editingGoal) {
-        setEditingGoal({
-          ...editingGoal,
-          items: [...editingGoal.items, '']
-        });
-      }
-    };
-
-    const removeItemFromEditingGoal = (index: number) => {
-      if (editingGoal) {
-        setEditingGoal({
-          ...editingGoal,
-          items: editingGoal.items.filter((_, i) => i !== index)
-        });
-      }
-    };
-
-    const updateEditingGoalItem = (index: number, value: string) => {
-      if (editingGoal) {
-        setEditingGoal({
-          ...editingGoal,
-          items: editingGoal.items.map((item, i) => i === index ? value : item)
-        });
-      }
-    };
-
-    return (
-      <div className="existence-home">
-        <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
-          <h1 className="existence-logo" style={{ marginBottom: '40px' }}>
-            <span className="existence-letter existence-letter-red">P</span>
-            <span className="existence-letter existence-letter-dark">u</span>
-            <span className="existence-letter existence-letter-green">r</span>
-            <span className="existence-letter existence-letter-dark">p</span>
-            <span className="existence-letter existence-letter-blue">o</span>
-            <span className="existence-letter existence-letter-dark">s</span>
-            <span className="existence-letter existence-letter-red">e</span>
-          </h1>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '40px',
-            width: '100%'
-          }}>
-            <p className="existence-subtitle" style={{ margin: 0 }}>
-              목표를 설정하고 관리하세요
-            </p>
-            <button
-              type="button"
-              className="existence-button"
-              onClick={() => setShowCreateModal(true)}
-            >
-              + 목표 생성
-            </button>
-          </div>
-
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: '#5f6368' }}>
-              <p style={{ fontSize: '1rem', margin: 0 }}>로딩 중...</p>
-            </div>
-          ) : goals.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '80px 20px',
-              background: '#ffffff',
-              borderRadius: '8px',
-              boxShadow: '0 1px 6px rgba(32, 33, 36, 0.28)'
-            }}>
-              <p style={{ fontSize: '1rem', color: '#5f6368', marginBottom: '24px', margin: 0 }}>
-                아직 생성된 목표가 없습니다.
-              </p>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={() => setShowCreateModal(true)}
-              >
-                첫 목표 만들기
-              </button>
-            </div>
-          ) : (
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
-              gap: '24px',
-              width: '100%'
-            }}>
-              {goals.map((goal) => (
-                <div 
-                  key={goal.id} 
-                  style={{ 
-                    background: '#ffffff',
-                    borderRadius: '8px',
-                    boxShadow: '0 1px 6px rgba(32, 33, 36, 0.28)',
-                    padding: '24px',
-                    transition: 'box-shadow 0.2s ease',
-                    border: '1px solid #f8f9fa'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 2px 12px rgba(32, 33, 36, 0.35)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 1px 6px rgba(32, 33, 36, 0.28)';
-                  }}
-                >
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '16px',
-                    paddingBottom: '16px',
-                    borderBottom: '1px solid #e8eaed'
-                  }}>
-                    <h3 style={{ 
-                      margin: 0, 
-                      fontSize: '1.25rem', 
-                      fontWeight: 500,
-                      color: '#202124',
-                      fontFamily: 'Roboto, sans-serif',
-                      lineHeight: '1.4'
-                    }}>
-                      {goal.title}
-                    </h3>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        type="button"
-                        className="existence-button"
-                        onClick={() => handleEditClick(goal)}
-                        style={{ 
-                          padding: '6px 16px',
-                          fontSize: '14px',
-                          minWidth: 'auto'
-                        }}
-                      >
-                        수정
-                      </button>
-                      <button
-                        type="button"
-                        className="existence-button"
-                        onClick={() => handleDeleteGoal(goal.id)}
-                        style={{ 
-                          padding: '6px 16px',
-                          fontSize: '14px',
-                          minWidth: 'auto',
-                          backgroundColor: '#f8f9fa',
-                          borderColor: '#dadce0',
-                          color: '#d93025'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f1f3f4';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f8f9fa';
-                        }}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-                  {goal.description && (
-                    <p style={{ 
-                      color: '#5f6368', 
-                      marginBottom: '16px',
-                      fontSize: '0.9rem',
-                      lineHeight: '1.5',
-                      fontFamily: 'Roboto, sans-serif'
-                    }}>
-                      {goal.description}
-                    </p>
-                  )}
-                  {goal.items && goal.items.length > 0 && (
-                    <ul style={{ 
-                      margin: 0, 
-                      paddingLeft: '20px',
-                      color: '#202124',
-                      fontSize: '0.9rem',
-                      lineHeight: '1.8',
-                      fontFamily: 'Roboto, sans-serif'
-                    }}>
-                      {goal.items.map((item, index) => (
-                        <li key={index} style={{ marginBottom: '8px' }}>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* 목표 생성 모달 */}
-          <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg">
-            <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>새 목표 생성</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 제목 *</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="목표 제목을 입력하세요"
-                  value={newGoal.title}
-                  onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
-                  style={{ fontFamily: 'Roboto, sans-serif' }}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 설명</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder="목표에 대한 설명을 입력하세요"
-                  value={newGoal.description}
-                  onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
-                  style={{ fontFamily: 'Roboto, sans-serif' }}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <Form.Label style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 내용 항목</Form.Label>
-                  <button
-                    type="button"
-                    className="existence-button"
-                    onClick={addItemToNewGoal}
-                    style={{ padding: '6px 16px', fontSize: '14px', minWidth: 'auto' }}
-                  >
-                    + 항목 추가
-                  </button>
-                </div>
-                {newGoal.items.map((item, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <Form.Control
-                      type="text"
-                      placeholder={`항목 ${index + 1}`}
-                      value={item}
-                      onChange={(e) => updateNewGoalItem(index, e.target.value)}
-                      style={{ fontFamily: 'Roboto, sans-serif' }}
-                    />
-                    {newGoal.items.length > 1 && (
-                      <button
-                        type="button"
-                        className="existence-button"
-                        onClick={() => removeItemFromNewGoal(index)}
-                        style={{ 
-                          padding: '6px 16px', 
-                          fontSize: '14px', 
-                          minWidth: 'auto',
-                          backgroundColor: '#f8f9fa',
-                          borderColor: '#dadce0',
-                          color: '#d93025'
-                        }}
-                      >
-                        삭제
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={() => setShowCreateModal(false)}
-                style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={handleCreateGoal}
-              >
-                생성
-              </button>
-            </Modal.Footer>
-          </Modal>
-
-          {/* 목표 수정 모달 */}
-          <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
-            <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>목표 수정</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
-              {editingGoal && (
-                <>
-                  <Form.Group className="mb-3">
-                    <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 제목 *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="목표 제목을 입력하세요"
-                      value={editingGoal.title}
-                      onChange={(e) => setEditingGoal(prev => prev ? { ...prev, title: e.target.value } : null)}
-                      style={{ fontFamily: 'Roboto, sans-serif' }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 설명</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      placeholder="목표에 대한 설명을 입력하세요"
-                      value={editingGoal.description}
-                      onChange={(e) => setEditingGoal(prev => prev ? { ...prev, description: e.target.value } : null)}
-                      style={{ fontFamily: 'Roboto, sans-serif' }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <Form.Label style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>목표 내용 항목</Form.Label>
-                      <button
-                        type="button"
-                        className="existence-button"
-                        onClick={addItemToEditingGoal}
-                        style={{ padding: '6px 16px', fontSize: '14px', minWidth: 'auto' }}
-                      >
-                        + 항목 추가
-                      </button>
-                    </div>
-                    {editingGoal.items.map((item, index) => (
-                      <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                        <Form.Control
-                          type="text"
-                          placeholder={`항목 ${index + 1}`}
-                          value={item}
-                          onChange={(e) => updateEditingGoalItem(index, e.target.value)}
-                          style={{ fontFamily: 'Roboto, sans-serif' }}
-                        />
-                        <button
-                          type="button"
-                          className="existence-button"
-                          onClick={() => removeItemFromEditingGoal(index)}
-                          style={{ 
-                            padding: '6px 16px', 
-                            fontSize: '14px', 
-                            minWidth: 'auto',
-                            backgroundColor: '#f8f9fa',
-                            borderColor: '#dadce0',
-                            color: '#d93025'
-                          }}
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    ))}
-                  </Form.Group>
-                </>
-              )}
-            </Modal.Body>
-            <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={() => setShowEditModal(false)}
-                style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                className="existence-button"
-                onClick={handleUpdateGoal}
-              >
-                저장
-              </button>
-            </Modal.Footer>
-          </Modal>
         </div>
       </div>
     );
