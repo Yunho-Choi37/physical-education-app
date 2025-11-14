@@ -641,6 +641,35 @@ const PurposePage = () => {
             </button>
           </Modal.Footer>
         </Modal>
+
+        {/* 관리자 로그인 모달 */}
+        <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>🔐 관리자 로그인</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>관리자 비밀번호</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="비밀번호를 입력하세요"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowAdminLogin(false)}>
+              취소
+            </Button>
+            <Button variant="primary" onClick={handleAdminLogin}>
+              로그인
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );
