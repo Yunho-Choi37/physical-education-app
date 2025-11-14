@@ -1005,6 +1005,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
+  max-width: 70%;
+  margin: 0 auto;
 }
 
 .particle-detail-activity-card {
@@ -1047,6 +1049,8 @@
   .particle-detail-activity-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+    max-width: 70%;
+    margin: 0 auto;
   }
 
   /* 목표 항목은 전체 너비 차지 */
@@ -1081,6 +1085,8 @@
   .particle-detail-activity-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
+    max-width: 70%;
+    margin: 0 auto;
   }
 
   /* 목표 항목은 전체 너비 차지 */
