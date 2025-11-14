@@ -34,6 +34,13 @@ const PurposePage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
+  const [isAdmin, setIsAdmin] = useState(() => {
+    // localStorage에서 관리자 상태 복원
+    const savedAdminState = localStorage.getItem('purposeIsAdmin');
+    return savedAdminState === 'true';
+  });
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -207,6 +214,22 @@ const PurposePage = () => {
     }
   };
 
+  const handleAdminLogin = () => {
+    if (adminPassword === '159753') {
+      setIsAdmin(true);
+      localStorage.setItem('purposeIsAdmin', 'true'); // localStorage에 저장
+      setShowAdminLogin(false);
+      setAdminPassword('');
+    } else {
+      alert('비밀번호가 올바르지 않습니다.');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    localStorage.removeItem('purposeIsAdmin'); // localStorage에서 제거
+  };
+
   return (
     <div className="existence-home">
       <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
@@ -232,16 +255,69 @@ const PurposePage = () => {
               className="existence-button"
               onClick={() => navigate('/being')}
             >
-              Being
+              존재
             </button>
           </div>
-          <button
-            type="button"
-            className="existence-button"
-            onClick={() => setShowCreateModal(true)}
-          >
-            + 목표 생성
-          </button>
+          {!isAdmin ? (
+            <Button 
+              variant="outline-primary" 
+              onClick={() => setShowAdminLogin(true)}
+              className="admin-login-btn"
+              style={{ 
+                background: '#f8f9fa',
+                border: '1px solid #f8f9fa',
+                borderRadius: '4px',
+                color: '#3c4043',
+                fontFamily: 'Arial, sans-serif',
+                fontSize: '14px',
+                padding: '0 16px',
+                height: '36px',
+                minWidth: '120px',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#dadce0';
+                e.currentTarget.style.boxShadow = '0 1px 6px rgba(32, 33, 36, 0.28)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#f8f9fa';
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              🔐 관리자 로그인
+            </Button>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ 
+                background: '#191970',
+                color: '#ffffff',
+                padding: '6px 14px',
+                borderRadius: '16px',
+                fontWeight: 600,
+                fontSize: '0.85rem'
+              }}>
+                관리자 모드
+              </span>
+              <button
+                type="button"
+                className="existence-button"
+                onClick={() => setShowCreateModal(true)}
+              >
+                + 목표 생성
+              </button>
+              <button
+                type="button"
+                className="existence-button"
+                onClick={handleAdminLogout}
+                style={{ minWidth: 'auto', padding: '0 12px' }}
+              >
+                로그아웃
+              </button>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -259,13 +335,23 @@ const PurposePage = () => {
             <p style={{ fontSize: '1rem', color: '#5f6368', marginBottom: '24px', margin: 0 }}>
               아직 생성된 목표가 없습니다.
             </p>
-            <button
-              type="button"
-              className="existence-button"
-              onClick={() => setShowCreateModal(true)}
-            >
-              첫 목표 만들기
-            </button>
+            {isAdmin ? (
+              <button
+                type="button"
+                className="existence-button"
+                onClick={() => setShowCreateModal(true)}
+              >
+                첫 목표 만들기
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="existence-button"
+                onClick={() => setShowAdminLogin(true)}
+              >
+                🔐 관리자 로그인
+              </button>
+            )}
           </div>
         ) : (
           <div style={{ 
