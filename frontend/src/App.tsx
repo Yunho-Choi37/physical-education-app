@@ -33,14 +33,13 @@ const PurposePage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
-  const apiUrlRef = useRef(getApiUrl());
 
   useEffect(() => {
     let mounted = true;
     const loadGoals = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${apiUrlRef.current}/api/goals`);
+        const response = await fetch(`${getApiUrl()}/api/goals`);
         if (response.ok && mounted) {
           const data = await response.json();
           setGoals(data);
@@ -76,9 +75,10 @@ const PurposePage = () => {
       };
       
       console.log('목표 생성 요청:', goalData);
-      console.log('API URL:', apiUrlRef.current);
+      const apiUrl = getApiUrl();
+      console.log('API URL:', apiUrl);
       
-      const response = await fetch(`${apiUrlRef.current}/api/goals`, {
+      const response = await fetch(`${apiUrl}/api/goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(goalData)
@@ -109,7 +109,7 @@ const PurposePage = () => {
       return;
     }
     try {
-      const response = await fetch(`${apiUrlRef.current}/api/goals/${editingGoal.id}`, {
+      const response = await fetch(`${getApiUrl()}/api/goals/${editingGoal.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -137,7 +137,7 @@ const PurposePage = () => {
       return;
     }
     try {
-      const response = await fetch(`${apiUrlRef.current}/api/goals/${goalId}`, {
+      const response = await fetch(`${getApiUrl()}/api/goals/${goalId}`, {
         method: 'DELETE'
       });
       if (response.ok) {
