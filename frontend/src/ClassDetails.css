@@ -1005,12 +1005,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
-  max-width: 70%;
-  margin: 0 auto;
 }
 
 .particle-detail-activity-card {
-  padding: 12px;
+  padding: 8px;
   background: #2a2a2a;
   border-radius: 8px;
 }
@@ -1022,7 +1020,7 @@
 .particle-detail-activity-label {
   font-size: 12px;
   color: #bdbdbd;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .particle-detail-activity-value {
@@ -1049,8 +1047,6 @@
   .particle-detail-activity-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    max-width: 70%;
-    margin: 0 auto;
   }
 
   /* 목표 항목은 전체 너비 차지 */
@@ -1059,12 +1055,12 @@
   }
 
   .particle-detail-activity-card {
-    padding: 8px;
+    padding: 6px;
   }
 
   .particle-detail-activity-label {
     font-size: 11px;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .particle-detail-activity-value {
@@ -1085,8 +1081,6 @@
   .particle-detail-activity-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
-    max-width: 70%;
-    margin: 0 auto;
   }
 
   /* 목표 항목은 전체 너비 차지 */
@@ -1095,11 +1089,12 @@
   }
 
   .particle-detail-activity-card {
-    padding: 8px 10px;
+    padding: 6px 7px;
   }
 
   .particle-detail-activity-label {
     font-size: 10px;
+    margin-bottom: 1px;
   }
 
   .particle-detail-activity-value {
