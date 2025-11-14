@@ -2318,6 +2318,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
+                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                              <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.date && <div>📅 날짜: {electron.date}</div>}
+                                {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
+                                {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
+                                {electron.successCount !== undefined && <div>✅ 성공 횟수: {electron.successCount}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -2355,6 +2363,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
+                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                              <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.date && <div>📅 날짜: {electron.date}</div>}
+                                {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
+                                {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
+                                {electron.successCount !== undefined && <div>✅ 성공 횟수: {electron.successCount}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -2392,6 +2408,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
+                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                              <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.date && <div>📅 날짜: {electron.date}</div>}
+                                {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
+                                {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
+                                {electron.successCount !== undefined && <div>✅ 성공 횟수: {electron.successCount}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -2429,6 +2453,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                           <div className="particle-list-content">
                             <h4>{electron.name || electron.activity || 'Circle'}</h4>
                             <p>{electron.description || 'No description'}</p>
+                            {(electron.date || electron.activityTime !== undefined || electron.attemptCount !== undefined || electron.successCount !== undefined) && (
+                              <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                {electron.date && <div>📅 날짜: {electron.date}</div>}
+                                {electron.activityTime !== undefined && <div>⏱️ 활동 시간: {electron.activityTime}분</div>}
+                                {electron.attemptCount !== undefined && <div>🔄 시도 횟수: {electron.attemptCount}</div>}
+                                {electron.successCount !== undefined && <div>✅ 성공 횟수: {electron.successCount}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}

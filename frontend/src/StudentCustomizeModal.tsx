@@ -54,6 +54,11 @@ interface Student {
           emoji: string;
           description?: string;
           hashtags?: string[];
+          goalItem?: string; // 목표 항목
+          attemptCount?: number; // 시도 횟수
+          successCount?: number; // 성공 횟수
+          activityTime?: number; // 활동 시간 (분)
+          date?: string; // 날짜 (YYYY-MM-DD)
         }>;
         lShell: Array<{
           activity: string;
@@ -61,6 +66,11 @@ interface Student {
           emoji: string;
           description?: string;
           hashtags?: string[];
+          goalItem?: string;
+          attemptCount?: number;
+          successCount?: number;
+          activityTime?: number;
+          date?: string;
         }>;
         mShell: Array<{
           activity: string;
@@ -68,6 +78,11 @@ interface Student {
           emoji: string;
           description?: string;
           hashtags?: string[];
+          goalItem?: string;
+          attemptCount?: number;
+          successCount?: number;
+          activityTime?: number;
+          date?: string;
         }>;
         valence: Array<{
           activity: string;
@@ -76,6 +91,11 @@ interface Student {
           emoji: string;
           description?: string;
           hashtags?: string[];
+          goalItem?: string;
+          attemptCount?: number;
+          successCount?: number;
+          activityTime?: number;
+          date?: string;
         }>;
       };
     };
@@ -1587,6 +1607,109 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>목표 항목 선택</Form.Label>
+                      <Form.Select
+                        value={electron.goalItem || ''}
+                        onChange={(e) => {
+                          const newKShell = [...atomModel.electrons.kShell];
+                          newKShell[index].goalItem = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, kShell: newKShell }
+                          });
+                        }}
+                      >
+                        <option value="">목표 항목 선택...</option>
+                        {goals.map((goal) =>
+                          goal.items && goal.items.length > 0
+                            ? goal.items.map((item, itemIndex) => (
+                                <option key={`${goal.id}-${itemIndex}`} value={item}>
+                                  {goal.title} - {item}
+                                </option>
+                              ))
+                            : null
+                        )}
+                      </Form.Select>
+                    </Form.Group>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>시도 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.attemptCount || ''}
+                            onChange={(e) => {
+                              const newKShell = [...atomModel.electrons.kShell];
+                              newKShell[index].attemptCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, kShell: newKShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>성공 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.successCount || ''}
+                            onChange={(e) => {
+                              const newKShell = [...atomModel.electrons.kShell];
+                              newKShell[index].successCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, kShell: newKShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>활동 시간 (분)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.activityTime || ''}
+                            onChange={(e) => {
+                              const newKShell = [...atomModel.electrons.kShell];
+                              newKShell[index].activityTime = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, kShell: newKShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>날짜</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={electron.date || ''}
+                            onChange={(e) => {
+                              const newKShell = [...atomModel.electrons.kShell];
+                              newKShell[index].date = e.target.value;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, kShell: newKShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newKShell = [...atomModel.electrons.kShell];
@@ -1643,16 +1766,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     }}
                   >
                     + 직접 추가
-                  </Button>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedShellType('kShell');
-                      setShowGoalSelectModal(true);
-                    }}
-                  >
-                    목표에서 선택
                   </Button>
                 </div>
               </Col>
@@ -1796,6 +1909,109 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>목표 항목 선택</Form.Label>
+                      <Form.Select
+                        value={electron.goalItem || ''}
+                        onChange={(e) => {
+                          const newLShell = [...atomModel.electrons.lShell];
+                          newLShell[index].goalItem = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, lShell: newLShell }
+                          });
+                        }}
+                      >
+                        <option value="">목표 항목 선택...</option>
+                        {goals.map((goal) =>
+                          goal.items && goal.items.length > 0
+                            ? goal.items.map((item, itemIndex) => (
+                                <option key={`${goal.id}-${itemIndex}`} value={item}>
+                                  {goal.title} - {item}
+                                </option>
+                              ))
+                            : null
+                        )}
+                      </Form.Select>
+                    </Form.Group>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>시도 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.attemptCount || ''}
+                            onChange={(e) => {
+                              const newLShell = [...atomModel.electrons.lShell];
+                              newLShell[index].attemptCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, lShell: newLShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>성공 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.successCount || ''}
+                            onChange={(e) => {
+                              const newLShell = [...atomModel.electrons.lShell];
+                              newLShell[index].successCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, lShell: newLShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>활동 시간 (분)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.activityTime || ''}
+                            onChange={(e) => {
+                              const newLShell = [...atomModel.electrons.lShell];
+                              newLShell[index].activityTime = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, lShell: newLShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>날짜</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={electron.date || ''}
+                            onChange={(e) => {
+                              const newLShell = [...atomModel.electrons.lShell];
+                              newLShell[index].date = e.target.value;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, lShell: newLShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newLShell = [...atomModel.electrons.lShell];
@@ -1852,16 +2068,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     }}
                   >
                     + 직접 추가
-                  </Button>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedShellType('lShell');
-                      setShowGoalSelectModal(true);
-                    }}
-                  >
-                    목표에서 선택
                   </Button>
                 </div>
               </Col>
@@ -2005,6 +2211,109 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>목표 항목 선택</Form.Label>
+                      <Form.Select
+                        value={electron.goalItem || ''}
+                        onChange={(e) => {
+                          const newMShell = [...atomModel.electrons.mShell];
+                          newMShell[index].goalItem = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, mShell: newMShell }
+                          });
+                        }}
+                      >
+                        <option value="">목표 항목 선택...</option>
+                        {goals.map((goal) =>
+                          goal.items && goal.items.length > 0
+                            ? goal.items.map((item, itemIndex) => (
+                                <option key={`${goal.id}-${itemIndex}`} value={item}>
+                                  {goal.title} - {item}
+                                </option>
+                              ))
+                            : null
+                        )}
+                      </Form.Select>
+                    </Form.Group>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>시도 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.attemptCount || ''}
+                            onChange={(e) => {
+                              const newMShell = [...atomModel.electrons.mShell];
+                              newMShell[index].attemptCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, mShell: newMShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>성공 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.successCount || ''}
+                            onChange={(e) => {
+                              const newMShell = [...atomModel.electrons.mShell];
+                              newMShell[index].successCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, mShell: newMShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>활동 시간 (분)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.activityTime || ''}
+                            onChange={(e) => {
+                              const newMShell = [...atomModel.electrons.mShell];
+                              newMShell[index].activityTime = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, mShell: newMShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>날짜</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={electron.date || ''}
+                            onChange={(e) => {
+                              const newMShell = [...atomModel.electrons.mShell];
+                              newMShell[index].date = e.target.value;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, mShell: newMShell }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newMShell = [...atomModel.electrons.mShell];
@@ -2061,16 +2370,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     }}
                   >
                     + 직접 추가
-                  </Button>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedShellType('mShell');
-                      setShowGoalSelectModal(true);
-                    }}
-                  >
-                    목표에서 선택
                   </Button>
                 </div>
               </Col>
@@ -2214,6 +2513,109 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
+                      <Form.Label>목표 항목 선택</Form.Label>
+                      <Form.Select
+                        value={electron.goalItem || ''}
+                        onChange={(e) => {
+                          const newValence = [...atomModel.electrons.valence];
+                          newValence[index].goalItem = e.target.value;
+                          setAtomModel({
+                            ...atomModel,
+                            electrons: { ...atomModel.electrons, valence: newValence }
+                          });
+                        }}
+                      >
+                        <option value="">목표 항목 선택...</option>
+                        {goals.map((goal) =>
+                          goal.items && goal.items.length > 0
+                            ? goal.items.map((item, itemIndex) => (
+                                <option key={`${goal.id}-${itemIndex}`} value={item}>
+                                  {goal.title} - {item}
+                                </option>
+                              ))
+                            : null
+                        )}
+                      </Form.Select>
+                    </Form.Group>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>시도 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.attemptCount || ''}
+                            onChange={(e) => {
+                              const newValence = [...atomModel.electrons.valence];
+                              newValence[index].attemptCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, valence: newValence }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>성공 횟수</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.successCount || ''}
+                            onChange={(e) => {
+                              const newValence = [...atomModel.electrons.valence];
+                              newValence[index].successCount = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, valence: newValence }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>활동 시간 (분)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={electron.activityTime || ''}
+                            onChange={(e) => {
+                              const newValence = [...atomModel.electrons.valence];
+                              newValence[index].activityTime = e.target.value ? parseInt(e.target.value) : undefined;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, valence: newValence }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          <Form.Label>날짜</Form.Label>
+                          <Form.Control
+                            type="date"
+                            value={electron.date || ''}
+                            onChange={(e) => {
+                              const newValence = [...atomModel.electrons.valence];
+                              newValence[index].date = e.target.value;
+                              setAtomModel({
+                                ...atomModel,
+                                electrons: { ...atomModel.electrons, valence: newValence }
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Form.Group className="mb-2">
                       <Form.Label>Hashtags</Form.Label>
                       {renderHashtagChips(electron.hashtags ?? [], (tagIndex) => {
                         const newValence = [...atomModel.electrons.valence];
@@ -2270,16 +2672,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                     }}
                   >
                     + 직접 추가
-                  </Button>
-                  <Button 
-                    variant="success" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedShellType('valence');
-                      setShowGoalSelectModal(true);
-                    }}
-                  >
-                    목표에서 선택
                   </Button>
                 </div>
               </Col>
