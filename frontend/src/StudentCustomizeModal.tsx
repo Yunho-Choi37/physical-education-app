@@ -769,7 +769,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       size="sm"
                       onClick={() => setCustomization(prev => ({ ...prev, imageData: '' }))}
                     >
-                      Remove
+                      제거
                     </Button>
                   </>
                 )}
@@ -1080,7 +1080,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                       setAtomModel({...atomModel, protons: newProtons});
                                     }}
                                   >
-                                    Remove
+                                    제거
                                   </Button>
                                 </div>
                               </div>
@@ -1321,7 +1321,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                       setAtomModel({...atomModel, neutrons: newNeutrons});
                                     }}
                                   >
-                                    Remove
+                                    제거
                                   </Button>
                                 </div>
                               </div>
@@ -1580,7 +1580,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                       });
                                     }}
                                   >
-                                    Remove
+                                    제거
                                   </Button>
                                 </div>
                               </div>
@@ -1885,7 +1885,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              Remove
+                              제거
                             </Button>
                           </>
                         )}
@@ -2187,7 +2187,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              Remove
+                              제거
                             </Button>
                           </>
                         )}
@@ -2489,7 +2489,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                 });
                               }}
                             >
-                              Remove
+                              제거
                             </Button>
                           </>
                         )}
