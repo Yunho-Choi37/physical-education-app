@@ -996,8 +996,18 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/being" element={
           <div className="floating-classes-container">
-            {/* 관리자 로그인 버튼 */}
-            <div className="admin-controls">
+            {/* 관리자 로그인 버튼 및 네비게이션 */}
+            <div className="admin-controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 20px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  className="existence-button"
+                  onClick={() => navigate('/')}
+                  style={{ padding: '8px 16px', fontSize: '14px' }}
+                >
+                  홈
+                </button>
+              </div>
               {!isAdmin ? (
                 <Button 
                   variant="outline-primary" 
@@ -1007,14 +1017,13 @@ function App() {
                   🔐 Admin Login
                 </Button>
               ) : (
-                <div className="admin-status">
+                <div className="admin-status" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="admin-badge">Admin Mode</span>
                   <Button 
                     variant="outline-warning"
                     size="sm"
                     onClick={() => setShowAddClassModal(true)}
                     className="admin-add-class-btn"
-                    style={{ marginRight: '8px' }}
                   >
                     ➕ Add Circle
                   </Button>
