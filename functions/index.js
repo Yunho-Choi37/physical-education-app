@@ -636,24 +636,37 @@ apiRouter.post('/ai/ask', async (req, res) => {
     const context = await getDatabaseContext();
     
     // 사용 가능한 모델 목록 확인 (디버깅용)
+    let availableModelNames = [];
     try {
-      const availableModels = await geminiClient.listModels();
-      console.log('사용 가능한 모델:', availableModels);
+      const modelsResponse = await geminiClient.listModels();
+      if (modelsResponse && modelsResponse.models) {
+        availableModelNames = modelsResponse.models.map(m => m.name || m).filter(Boolean);
+        console.log('✅ 사용 가능한 모델 목록:', availableModelNames);
+      }
     } catch (listError) {
-      console.warn('모델 목록 조회 실패:', listError.message);
+      console.warn('⚠️ 모델 목록 조회 실패:', listError.message);
+      // listModels 실패해도 계속 진행
     }
     
     // Gemini 모델 초기화 및 API 호출
-    // 최신 패키지에서 사용 가능한 모델 순서대로 시도
-    // 참고: v1beta API에서는 일부 모델이 지원되지 않을 수 있음
-    const modelsToTry = [
-      'models/gemini-1.5-flash',
-      'models/gemini-1.5-pro', 
-      'models/gemini-pro',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-pro'
-    ];
+    // 사용 가능한 모델이 있으면 그것부터 시도, 없으면 기본 모델 시도
+    let modelsToTry = [];
+    if (availableModelNames.length > 0) {
+      // listModels로 확인된 모델 사용
+      modelsToTry = availableModelNames.slice(0, 5); // 최대 5개만 시도
+      console.log('📋 확인된 모델로 시도:', modelsToTry);
+    } else {
+      // 기본 모델 시도 (다양한 형식)
+      modelsToTry = [
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-pro',
+        'models/gemini-1.5-flash',
+        'models/gemini-1.5-pro',
+        'models/gemini-pro'
+      ];
+      console.log('📋 기본 모델로 시도:', modelsToTry);
+    }
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
