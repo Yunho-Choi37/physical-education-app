@@ -74,6 +74,64 @@ const PurposePage = () => {
     };
   }, []);
 
+  // 관리자 토큰 검증 (PurposePage)
+  useEffect(() => {
+    const verifyAdminToken = async () => {
+      const token = localStorage.getItem('purposeAdminToken');
+      const expiresAt = localStorage.getItem('purposeAdminTokenExpires');
+      
+      if (!token) {
+        setIsAdmin(false);
+        return;
+      }
+
+      // 만료 시간 확인
+      if (expiresAt && parseInt(expiresAt) < Date.now()) {
+        console.log('⏰ 토큰 만료됨');
+        setIsAdmin(false);
+        localStorage.removeItem('purposeAdminToken');
+        localStorage.removeItem('purposeAdminTokenExpires');
+        return;
+      }
+
+      // 서버에서 토큰 검증
+      try {
+        const response = await fetch(`${getApiUrl()}/api/admin/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        let data;
+        try {
+          const text = await response.text();
+          data = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+          console.error('❌ 토큰 검증 응답 파싱 오류:', parseError);
+          // 파싱 오류 시 토큰이 있으면 일단 관리자로 유지
+          return;
+        }
+
+        if (data.valid) {
+          console.log('✅ PurposePage 토큰 검증 성공');
+          setIsAdmin(true);
+        } else {
+          console.log('❌ PurposePage 토큰 검증 실패:', data.error);
+          setIsAdmin(false);
+          localStorage.removeItem('purposeAdminToken');
+          localStorage.removeItem('purposeAdminTokenExpires');
+        }
+      } catch (error) {
+        console.error('❌ PurposePage 토큰 검증 오류:', error);
+        // 네트워크 오류 시 토큰이 있으면 일단 관리자로 유지
+      }
+    };
+
+    verifyAdminToken();
+  }, []);
+
   const handleCreateGoal = async () => {
     if (!newGoal.title.trim()) {
       alert('목표 제목을 입력해주세요.');
@@ -1017,16 +1075,27 @@ function App() {
           body: JSON.stringify({ token }),
         });
 
-        const data = await response.json();
+        let data;
+        try {
+          const text = await response.text();
+          data = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+          console.error('❌ 토큰 검증 응답 파싱 오류:', parseError);
+          // 파싱 오류 시 토큰이 있으면 일단 관리자로 유지
+          return;
+        }
+
         if (data.valid) {
+          console.log('✅ App 토큰 검증 성공');
           setIsAdmin(true);
         } else {
+          console.log('❌ App 토큰 검증 실패:', data.error);
           setIsAdmin(false);
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminTokenExpires');
         }
       } catch (error) {
-        console.error('Token verification error:', error);
+        console.error('❌ App 토큰 검증 오류:', error);
         // 네트워크 오류 시 토큰이 있으면 일단 관리자로 유지
       }
     };
