@@ -244,7 +244,7 @@ const PurposePage = () => {
     setAiAnswer('');
     
     try {
-      const response = await fetch(`${getApiUrl()}/ai/ask`, {
+      const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -875,7 +875,7 @@ function App() {
     setAiAnswer('');
     
     try {
-      const response = await fetch(`${getApiUrl()}/ai/ask`, {
+      const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
