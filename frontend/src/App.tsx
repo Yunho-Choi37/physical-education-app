@@ -1097,6 +1097,7 @@ function App() {
       });
       const errorMessage = error.message || '알 수 없는 오류';
       alert(`로그인 중 오류가 발생했습니다:\n${errorMessage}\n\n브라우저 콘솔을 확인해주세요.`);
+      setAdminPassword(''); // 에러 발생 시에도 비밀번호 필드 초기화
     }
   };
 
