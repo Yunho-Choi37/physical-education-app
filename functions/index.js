@@ -470,11 +470,21 @@ apiRouter.delete('/goals/:goalId', async (req, res) => {
 // Gemini AI 초기화 함수 (런타임에만 실행)
 const getGeminiClient = () => {
   try {
-    // 환경 변수 우선, 없으면 functions.config() 사용
-    const apiKey = process.env.GEMINI_API_KEY || 
-                   (functions.config().gemini && functions.config().gemini.api_key);
+    // 환경 변수 우선
+    let apiKey = process.env.GEMINI_API_KEY;
+    
+    // 환경 변수가 없으면 functions.config() 사용 (안전하게)
+    if (!apiKey) {
+      try {
+        const config = functions.config();
+        apiKey = config && config.gemini && config.gemini.api_key;
+      } catch (configError) {
+        console.warn('Functions config 읽기 실패:', configError.message);
+      }
+    }
     
     if (!apiKey || !apiKey.trim()) {
+      console.error('Gemini API 키가 설정되지 않았습니다.');
       return null;
     }
     
@@ -645,9 +655,11 @@ ${context}
     });
   } catch (error) {
     console.error('Error calling Gemini API:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'AI 답변 생성 중 오류가 발생했습니다.',
-      details: error.message 
+      details: error.message,
+      type: error.constructor.name
     });
   }
 });
