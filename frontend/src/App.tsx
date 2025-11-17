@@ -294,6 +294,15 @@ const PurposePage = () => {
             >
               존재
             </button>
+            {isAdmin && (
+              <button
+                type="button"
+                className="existence-button"
+                onClick={() => setShowAIModal(true)}
+              >
+                질문
+              </button>
+            )}
           </div>
           {!isAdmin ? (
             <Button 
@@ -687,7 +696,7 @@ const PurposePage = () => {
         }} size="lg" centered>
           <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
             <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>
-              🤖 AI 질문하기
+              질문하기
             </Modal.Title>
           </Modal.Header>
           <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
@@ -1278,18 +1287,15 @@ function App() {
             >
               목적
             </button>
-            <button
-              type="button"
-              className="existence-button"
-              onClick={() => setShowAIModal(true)}
-              style={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#ffffff',
-                border: 'none'
-              }}
-            >
-              🤖 AI 질문
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                className="existence-button"
+                onClick={() => setShowAIModal(true)}
+              >
+                질문
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1328,18 +1334,15 @@ function App() {
                   >
                     목적
                   </button>
-                  <button
-                    type="button"
-                    className="existence-button"
-                    onClick={() => setShowAIModal(true)}
-                    style={{ 
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: '#ffffff',
-                      border: 'none'
-                    }}
-                  >
-                    🤖 AI 질문
-                  </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      className="existence-button"
+                      onClick={() => setShowAIModal(true)}
+                    >
+                      질문
+                    </button>
+                  )}
                 </div>
                 {!isAdmin ? (
                   <Button 
