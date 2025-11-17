@@ -225,7 +225,10 @@ const PurposePage = () => {
     }
 
     try {
-      const response = await fetch(`${getApiUrl()}/api/admin/login`, {
+      const apiUrl = `${getApiUrl()}/api/admin/login`;
+      console.log('🔐 관리자 로그인 시도:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,20 +236,33 @@ const PurposePage = () => {
         body: JSON.stringify({ password: adminPassword }),
       });
 
-      const data = await response.json();
+      console.log('📡 응답 상태:', response.status, response.statusText);
+
+      let data;
+      try {
+        const text = await response.text();
+        console.log('📦 응답 본문:', text);
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError);
+        alert(`서버 응답 오류 (${response.status}): 응답을 파싱할 수 없습니다.`);
+        return;
+      }
 
       if (response.ok && data.success) {
+        console.log('✅ 로그인 성공');
         setIsAdmin(true);
         localStorage.setItem('purposeAdminToken', data.token);
         localStorage.setItem('purposeAdminTokenExpires', data.expiresAt.toString());
         setShowAdminLogin(false);
         setAdminPassword('');
       } else {
+        console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
       }
-    } catch (error) {
-      console.error('Admin login error:', error);
-      alert('로그인 중 오류가 발생했습니다.');
+    } catch (error: any) {
+      console.error('❌ Admin login error:', error);
+      alert(`로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
     }
   };
 
@@ -887,7 +903,10 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${getApiUrl()}/api/admin/login`, {
+      const apiUrl = `${getApiUrl()}/api/admin/login`;
+      console.log('🔐 관리자 로그인 시도:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -895,20 +914,33 @@ function App() {
         body: JSON.stringify({ password: adminPassword }),
       });
 
-      const data = await response.json();
+      console.log('📡 응답 상태:', response.status, response.statusText);
+
+      let data;
+      try {
+        const text = await response.text();
+        console.log('📦 응답 본문:', text);
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error('❌ JSON 파싱 오류:', parseError);
+        alert(`서버 응답 오류 (${response.status}): 응답을 파싱할 수 없습니다.`);
+        return;
+      }
 
       if (response.ok && data.success) {
+        console.log('✅ 로그인 성공');
         setIsAdmin(true);
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminTokenExpires', data.expiresAt.toString());
         setShowAdminLogin(false);
         setAdminPassword('');
       } else {
+        console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
       }
-    } catch (error) {
-      console.error('Admin login error:', error);
-      alert('로그인 중 오류가 발생했습니다.');
+    } catch (error: any) {
+      console.error('❌ Admin login error:', error);
+      alert(`로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
     }
   };
 
