@@ -292,6 +292,16 @@ const PurposePage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password: adminPassword }),
+        // 네트워크 타임아웃 설정
+        signal: AbortSignal.timeout(30000), // 30초 타임아웃
+      }).catch((fetchError: any) => {
+        console.error('❌ Fetch 오류 상세:', fetchError);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
+        } else if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+          throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
+        }
+        throw fetchError;
       });
 
       console.log('📡 응답 상태:', response.status, response.statusText);
@@ -320,7 +330,8 @@ const PurposePage = () => {
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
-      alert(`로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+      const errorMessage = error.message || '알 수 없는 오류';
+      alert(`로그인 중 오류가 발생했습니다: ${errorMessage}`);
     }
   };
 
@@ -970,6 +981,16 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password: adminPassword }),
+        // 네트워크 타임아웃 설정
+        signal: AbortSignal.timeout(30000), // 30초 타임아웃
+      }).catch((fetchError: any) => {
+        console.error('❌ Fetch 오류 상세:', fetchError);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
+        } else if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+          throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
+        }
+        throw fetchError;
       });
 
       console.log('📡 응답 상태:', response.status, response.statusText);
@@ -998,7 +1019,8 @@ function App() {
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
-      alert(`로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+      const errorMessage = error.message || '알 수 없는 오류';
+      alert(`로그인 중 오류가 발생했습니다: ${errorMessage}`);
     }
   };
 
