@@ -488,6 +488,12 @@ const getGeminiClient = () => {
       return null;
     }
     
+    // API 키 유효성 검사
+    if (!apiKey.startsWith('AIza')) {
+      console.error('잘못된 API 키 형식입니다.');
+      return null;
+    }
+    
     return new GoogleGenerativeAI(apiKey);
   } catch (error) {
     console.error('Gemini 초기화 오류:', error);
@@ -629,9 +635,25 @@ apiRouter.post('/ai/ask', async (req, res) => {
     // 데이터베이스 컨텍스트 가져오기
     const context = await getDatabaseContext();
     
-    // Gemini 모델 초기화 및 API 호출 (여러 모델 시도)
-    // @google/generative-ai 0.21.0 버전에서 사용 가능한 모델 순서대로 시도
-    const modelsToTry = ['gemini-1.5-pro-latest', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+    // 사용 가능한 모델 목록 확인 (디버깅용)
+    try {
+      const availableModels = await geminiClient.listModels();
+      console.log('사용 가능한 모델:', availableModels);
+    } catch (listError) {
+      console.warn('모델 목록 조회 실패:', listError.message);
+    }
+    
+    // Gemini 모델 초기화 및 API 호출
+    // 최신 패키지에서 사용 가능한 모델 순서대로 시도
+    // 참고: v1beta API에서는 일부 모델이 지원되지 않을 수 있음
+    const modelsToTry = [
+      'models/gemini-1.5-flash',
+      'models/gemini-1.5-pro', 
+      'models/gemini-pro',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+      'gemini-pro'
+    ];
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
@@ -655,17 +677,17 @@ ${context}
         const result = await model.generateContent(prompt);
         const response = await result.response;
         answer = response.text();
-        console.log(`모델 ${modelName} 성공`);
+        console.log(`✅ 모델 ${modelName} 성공`);
         break; // 성공하면 루프 종료
       } catch (modelError) {
-        console.error(`모델 ${modelName} 실패:`, modelError.message);
+        console.error(`❌ 모델 ${modelName} 실패:`, modelError.message);
         lastError = modelError;
         continue; // 다음 모델 시도
       }
     }
     
     if (!answer) {
-      throw new Error(`모든 모델 시도 실패. 마지막 에러: ${lastError?.message || '알 수 없는 오류'}`);
+      throw new Error(`모든 모델 시도 실패. 마지막 에러: ${lastError?.message || '알 수 없는 오류'}. 사용 가능한 모델을 확인하세요.`);
     }
 
     res.json({ 
