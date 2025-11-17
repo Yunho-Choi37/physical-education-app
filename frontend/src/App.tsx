@@ -225,7 +225,7 @@ const PurposePage = () => {
     }
 
     try {
-      const response = await fetch(`${getApiUrl()}/admin/login`, {
+      const response = await fetch(`${getApiUrl()}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -887,7 +887,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${getApiUrl()}/admin/login`, {
+      const response = await fetch(`${getApiUrl()}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -977,7 +977,7 @@ function App() {
 
       // 서버에서 토큰 검증
       try {
-        const response = await fetch(`${getApiUrl()}/admin/verify`, {
+        const response = await fetch(`${getApiUrl()}/api/admin/verify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
