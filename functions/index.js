@@ -4,6 +4,7 @@ const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Firebase Admin SDK 초기화 (Firebase Functions에서는 자동으로 초기화됨)
 admin.initializeApp();
@@ -463,6 +464,191 @@ apiRouter.delete('/goals/:goalId', async (req, res) => {
   } catch (error) {
     console.error('Error deleting goal:', error);
     res.status(500).json({ error: '목표를 삭제하는 중 오류가 발생했습니다.' });
+  }
+});
+
+// Gemini AI 초기화 함수 (런타임에만 실행)
+const getGeminiClient = () => {
+  try {
+    // 환경 변수 우선, 없으면 functions.config() 사용
+    const apiKey = process.env.GEMINI_API_KEY || 
+                   (functions.config().gemini && functions.config().gemini.api_key);
+    
+    if (!apiKey || !apiKey.trim()) {
+      return null;
+    }
+    
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Gemini 초기화 오류:', error);
+    return null;
+  }
+};
+
+// 데이터베이스 컨텍스트 수집 함수
+const getDatabaseContext = async () => {
+  try {
+    const [studentsSnapshot, classesDoc, goalsSnapshot] = await Promise.all([
+      db.collection('students').get(),
+      db.collection('settings').doc('classes').get(),
+      db.collection('goals').get()
+    ]);
+
+    const students = studentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const classesData = classesDoc.exists ? classesDoc.data() : { classNames: [], classExistence: {} };
+    const goals = goalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    let context = '=== 체육 교육 앱 데이터베이스 정보 ===\n\n';
+    
+    // 클래스 정보
+    context += '## 클래스 정보\n';
+    if (classesData.classNames && classesData.classNames.length > 0) {
+      classesData.classNames.forEach((name, index) => {
+        const classId = index + 1;
+        const existence = classesData.classExistence?.[classId];
+        context += `- 클래스 ${classId}: ${name === '.' ? `${classId}반` : name}\n`;
+        if (existence) {
+          context += `  - 색상: ${existence.color || '없음'}\n`;
+          context += `  - 형태: ${existence.shape || '없음'}\n`;
+          context += `  - 크기: ${existence.size || 1.0}\n`;
+          if (existence.customName) {
+            context += `  - 사용자 정의 이름: ${existence.customName}\n`;
+          }
+        }
+      });
+    }
+    context += '\n';
+
+    // 학생 정보
+    context += '## 학생 정보\n';
+    if (students.length > 0) {
+      students.forEach(student => {
+        context += `- 학생 ID ${student.id}: ${student.name || '이름 없음'}\n`;
+        context += `  - 클래스 ID: ${student.classId || '없음'}\n`;
+        
+        if (student.existence) {
+          const ex = student.existence;
+          context += `  - 현재 활동: ${ex.activity || '없음'}\n`;
+          context += `  - 에너지 레벨: ${ex.energy || 60}/100\n`;
+          context += `  - 개성: ${ex.personality || '없음'}\n`;
+          
+          if (ex.activities && ex.activities.length > 0) {
+            context += `  - 활동 기록: ${ex.activities.join(', ')}\n`;
+          }
+          
+          if (ex.records && ex.records.length > 0) {
+            context += `  - 상세 기록 (최근 ${Math.min(5, ex.records.length)}개):\n`;
+            ex.records.slice(-5).forEach(record => {
+              context += `    * ${record.date || '날짜 없음'}: ${record.activity || '활동 없음'} (${record.duration || 0}분) - ${record.notes || '메모 없음'}\n`;
+            });
+          }
+          
+          if (ex.atom) {
+            const atom = ex.atom;
+            if (atom.protons && atom.protons.length > 0) {
+              context += `  - 핵심 특성 (양성자): ${atom.protons.map(p => `${p.keyword}(${p.strength}/5)`).join(', ')}\n`;
+            }
+            if (atom.neutrons && atom.neutrons.length > 0) {
+              context += `  - 균형적 특성 (중성자): ${atom.neutrons.map(n => `${n.keyword}(${n.category})`).join(', ')}\n`;
+            }
+            if (atom.electrons) {
+              const e = atom.electrons;
+              const allActivities = [
+                ...(e.kShell || []).map(a => `K:${a.activity}(${a.frequency}/7)`),
+                ...(e.lShell || []).map(a => `L:${a.activity}(${a.frequency}/7)`),
+                ...(e.mShell || []).map(a => `M:${a.activity}(${a.frequency}/7)`),
+                ...(e.valence || []).map(a => `V:${a.activity}(${a.cooperation}/5)`),
+              ];
+              if (allActivities.length > 0) {
+                context += `  - 활동 에너지 준위: ${allActivities.join(', ')}\n`;
+              }
+            }
+          }
+        }
+        context += '\n';
+      });
+    } else {
+      context += '- 등록된 학생이 없습니다.\n\n';
+    }
+
+    // 목표 정보
+    context += '## 목표 정보\n';
+    if (goals.length > 0) {
+      goals.forEach(goal => {
+        context += `- 목표: ${goal.title || '제목 없음'}\n`;
+        if (goal.description) {
+          context += `  - 설명: ${goal.description}\n`;
+        }
+        if (goal.items && goal.items.length > 0) {
+          context += `  - 항목:\n`;
+          goal.items.forEach((item, idx) => {
+            context += `    ${idx + 1}. ${item}\n`;
+          });
+        }
+        context += '\n';
+      });
+    } else {
+      context += '- 등록된 목표가 없습니다.\n\n';
+    }
+
+    return context;
+  } catch (error) {
+    console.error('Error getting database context:', error);
+    return '데이터베이스 정보를 가져오는 중 오류가 발생했습니다.';
+  }
+};
+
+// API: AI 질문 답변
+apiRouter.post('/ai/ask', async (req, res) => {
+  try {
+    const { question } = req.body;
+    
+    if (!question || !question.trim()) {
+      return res.status(400).json({ error: '질문을 입력해주세요.' });
+    }
+
+    // Gemini 클라이언트 초기화 (런타임에만 실행)
+    const geminiClient = getGeminiClient();
+    if (!geminiClient) {
+      return res.status(500).json({ 
+        error: 'Gemini API 키가 설정되지 않았습니다.',
+        hint: '환경 변수 GEMINI_API_KEY를 설정하거나 firebase functions:config:set gemini.api_key="YOUR_API_KEY"를 실행하세요.'
+      });
+    }
+
+    // 데이터베이스 컨텍스트 가져오기
+    const context = await getDatabaseContext();
+    
+    // Gemini 모델 초기화
+    const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+    
+    // 프롬프트 구성
+    const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
+
+${context}
+
+위 정보를 바탕으로 다음 질문에 친절하고 정확하게 답변해주세요. 한국어로 답변해주세요.
+
+질문: ${question}
+
+답변:`;
+
+    // Gemini API 호출
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const answer = response.text();
+
+    res.json({ 
+      answer,
+      question,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    res.status(500).json({ 
+      error: 'AI 답변 생성 중 오류가 발생했습니다.',
+      details: error.message 
+    });
   }
 });
 
