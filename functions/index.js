@@ -629,8 +629,8 @@ apiRouter.post('/ai/ask', async (req, res) => {
     // 데이터베이스 컨텍스트 가져오기
     const context = await getDatabaseContext();
     
-    // Gemini 모델 초기화
-    const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+    // Gemini 모델 초기화 (최신 모델 사용)
+    const model = geminiClient.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
