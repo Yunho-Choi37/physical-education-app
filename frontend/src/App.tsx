@@ -1564,7 +1564,6 @@ function App() {
             <span className="existence-letter existence-letter-red">c</span>
             <span className="existence-letter existence-letter-dark">e</span>
           </h1>
-          <p className="existence-subtitle">움직임을 기록하는 새로운 방식, 언제든 Being으로 이동해 보세요.</p>
           <div className="existence-buttons">
             <button
               type="button"
