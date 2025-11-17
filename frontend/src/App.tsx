@@ -286,19 +286,26 @@ const PurposePage = () => {
       const apiUrl = `${getApiUrl()}/api/admin/login`;
       console.log('🔐 관리자 로그인 시도:', apiUrl);
       
+      // 타임아웃을 위한 AbortController 생성
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password: adminPassword }),
-        // 네트워크 타임아웃 설정
-        signal: AbortSignal.timeout(30000), // 30초 타임아웃
+        signal: controller.signal,
+      }).then((res) => {
+        clearTimeout(timeoutId);
+        return res;
       }).catch((fetchError: any) => {
+        clearTimeout(timeoutId);
         console.error('❌ Fetch 오류 상세:', fetchError);
-        if (fetchError.name === 'AbortError') {
+        if (fetchError.name === 'AbortError' || fetchError.message === 'The user aborted a request.') {
           throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
-        } else if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+        } else if (fetchError.name === 'TypeError' && (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError'))) {
           throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
         }
         throw fetchError;
@@ -975,19 +982,26 @@ function App() {
       const apiUrl = `${getApiUrl()}/api/admin/login`;
       console.log('🔐 관리자 로그인 시도:', apiUrl);
       
+      // 타임아웃을 위한 AbortController 생성
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ password: adminPassword }),
-        // 네트워크 타임아웃 설정
-        signal: AbortSignal.timeout(30000), // 30초 타임아웃
+        signal: controller.signal,
+      }).then((res) => {
+        clearTimeout(timeoutId);
+        return res;
       }).catch((fetchError: any) => {
+        clearTimeout(timeoutId);
         console.error('❌ Fetch 오류 상세:', fetchError);
-        if (fetchError.name === 'AbortError') {
+        if (fetchError.name === 'AbortError' || fetchError.message === 'The user aborted a request.') {
           throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
-        } else if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+        } else if (fetchError.name === 'TypeError' && (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError'))) {
           throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
         }
         throw fetchError;
