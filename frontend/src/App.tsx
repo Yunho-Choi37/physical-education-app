@@ -285,11 +285,24 @@ const PurposePage = () => {
     try {
       const apiUrl = `${getApiUrl()}/api/admin/login`;
       console.log('🔐 관리자 로그인 시도:', apiUrl);
+      console.log('🌐 현재 호스트:', window.location.hostname);
+      console.log('🔗 전체 URL:', window.location.href);
+      
+      // 먼저 간단한 연결 테스트
+      try {
+        const healthCheckUrl = `${getApiUrl()}/api/health`;
+        console.log('🏥 Health check 시도:', healthCheckUrl);
+        const healthResponse = await fetch(healthCheckUrl, { method: 'GET' });
+        console.log('🏥 Health check 응답:', healthResponse.status, healthResponse.statusText);
+      } catch (healthError: any) {
+        console.warn('⚠️ Health check 실패 (계속 진행):', healthError);
+      }
       
       // 타임아웃을 위한 AbortController 생성
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
+      console.log('📤 요청 전송 시작...');
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -299,19 +312,26 @@ const PurposePage = () => {
         signal: controller.signal,
       }).then((res) => {
         clearTimeout(timeoutId);
+        console.log('✅ 응답 수신:', res.status, res.statusText);
         return res;
       }).catch((fetchError: any) => {
         clearTimeout(timeoutId);
-        console.error('❌ Fetch 오류 상세:', fetchError);
+        console.error('❌ Fetch 오류 상세:', {
+          name: fetchError.name,
+          message: fetchError.message,
+          stack: fetchError.stack,
+          cause: fetchError.cause
+        });
         if (fetchError.name === 'AbortError' || fetchError.message === 'The user aborted a request.') {
           throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
         } else if (fetchError.name === 'TypeError' && (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError'))) {
-          throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
+          throw new Error(`서버에 연결할 수 없습니다. (${apiUrl})\n인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.`);
         }
         throw fetchError;
       });
 
       console.log('📡 응답 상태:', response.status, response.statusText);
+      console.log('📡 응답 헤더:', Object.fromEntries(response.headers.entries()));
 
       let data;
       try {
@@ -337,8 +357,13 @@ const PurposePage = () => {
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       const errorMessage = error.message || '알 수 없는 오류';
-      alert(`로그인 중 오류가 발생했습니다: ${errorMessage}`);
+      alert(`로그인 중 오류가 발생했습니다:\n${errorMessage}\n\n브라우저 콘솔을 확인해주세요.`);
     }
   };
 
@@ -981,11 +1006,24 @@ function App() {
     try {
       const apiUrl = `${getApiUrl()}/api/admin/login`;
       console.log('🔐 관리자 로그인 시도:', apiUrl);
+      console.log('🌐 현재 호스트:', window.location.hostname);
+      console.log('🔗 전체 URL:', window.location.href);
+      
+      // 먼저 간단한 연결 테스트
+      try {
+        const healthCheckUrl = `${getApiUrl()}/api/health`;
+        console.log('🏥 Health check 시도:', healthCheckUrl);
+        const healthResponse = await fetch(healthCheckUrl, { method: 'GET' });
+        console.log('🏥 Health check 응답:', healthResponse.status, healthResponse.statusText);
+      } catch (healthError: any) {
+        console.warn('⚠️ Health check 실패 (계속 진행):', healthError);
+      }
       
       // 타임아웃을 위한 AbortController 생성
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
+      console.log('📤 요청 전송 시작...');
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -995,19 +1033,26 @@ function App() {
         signal: controller.signal,
       }).then((res) => {
         clearTimeout(timeoutId);
+        console.log('✅ 응답 수신:', res.status, res.statusText);
         return res;
       }).catch((fetchError: any) => {
         clearTimeout(timeoutId);
-        console.error('❌ Fetch 오류 상세:', fetchError);
+        console.error('❌ Fetch 오류 상세:', {
+          name: fetchError.name,
+          message: fetchError.message,
+          stack: fetchError.stack,
+          cause: fetchError.cause
+        });
         if (fetchError.name === 'AbortError' || fetchError.message === 'The user aborted a request.') {
           throw new Error('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
         } else if (fetchError.name === 'TypeError' && (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError'))) {
-          throw new Error('서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.');
+          throw new Error(`서버에 연결할 수 없습니다. (${apiUrl})\n인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.`);
         }
         throw fetchError;
       });
 
       console.log('📡 응답 상태:', response.status, response.statusText);
+      console.log('📡 응답 헤더:', Object.fromEntries(response.headers.entries()));
 
       let data;
       try {
@@ -1033,8 +1078,13 @@ function App() {
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       const errorMessage = error.message || '알 수 없는 오류';
-      alert(`로그인 중 오류가 발생했습니다: ${errorMessage}`);
+      alert(`로그인 중 오류가 발생했습니다:\n${errorMessage}\n\n브라우저 콘솔을 확인해주세요.`);
     }
   };
 
