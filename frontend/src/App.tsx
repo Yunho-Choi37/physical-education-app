@@ -35,9 +35,9 @@ const PurposePage = () => {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [newGoal, setNewGoal] = useState({ title: '', description: '', itemCount: 1, items: [''] });
   const [isAdmin, setIsAdmin] = useState(() => {
-    // localStorage에서 관리자 상태 복원
-    const savedAdminState = localStorage.getItem('purposeIsAdmin');
-    return savedAdminState === 'true';
+    // localStorage에서 관리자 토큰 확인
+    const savedToken = localStorage.getItem('purposeAdminToken');
+    return !!savedToken; // 토큰이 있으면 관리자로 간주 (실제 검증은 useEffect에서)
   });
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
@@ -218,20 +218,42 @@ const PurposePage = () => {
     }
   };
 
-  const handleAdminLogin = () => {
-    if (adminPassword === '159753') {
-      setIsAdmin(true);
-      localStorage.setItem('purposeIsAdmin', 'true'); // localStorage에 저장
-      setShowAdminLogin(false);
-      setAdminPassword('');
-    } else {
-      alert('비밀번호가 올바르지 않습니다.');
+  const handleAdminLogin = async () => {
+    if (!adminPassword.trim()) {
+      alert('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${getApiUrl()}/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsAdmin(true);
+        localStorage.setItem('purposeAdminToken', data.token);
+        localStorage.setItem('purposeAdminTokenExpires', data.expiresAt.toString());
+        setShowAdminLogin(false);
+        setAdminPassword('');
+      } else {
+        alert(data.error || '비밀번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      console.error('Admin login error:', error);
+      alert('로그인 중 오류가 발생했습니다.');
     }
   };
 
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    localStorage.removeItem('purposeIsAdmin'); // localStorage에서 제거
+    localStorage.removeItem('purposeAdminToken');
+    localStorage.removeItem('purposeAdminTokenExpires');
   };
 
   const handleAskAI = async () => {
@@ -837,9 +859,9 @@ function App() {
   const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
   const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
   const [isAdmin, setIsAdmin] = useState(() => {
-    // localStorage에서 관리자 상태 복원
-    const savedAdminState = localStorage.getItem('isAdmin');
-    return savedAdminState === 'true';
+    // localStorage에서 관리자 토큰 확인
+    const savedToken = localStorage.getItem('adminToken');
+    return !!savedToken; // 토큰이 있으면 관리자로 간주 (실제 검증은 useEffect에서)
   });
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
@@ -858,20 +880,42 @@ function App() {
   const isClassView = location.pathname.startsWith('/class');
   const isLegacyView = location.pathname === '/being' || isClassView;
 
-  const handleAdminLogin = () => {
-    if (adminPassword === '159753') {
-      setIsAdmin(true);
-      localStorage.setItem('isAdmin', 'true'); // localStorage에 저장
-      setShowAdminLogin(false);
-      setAdminPassword('');
-    } else {
-      alert('비밀번호가 올바르지 않습니다.');
+  const handleAdminLogin = async () => {
+    if (!adminPassword.trim()) {
+      alert('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${getApiUrl()}/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsAdmin(true);
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminTokenExpires', data.expiresAt.toString());
+        setShowAdminLogin(false);
+        setAdminPassword('');
+      } else {
+        alert(data.error || '비밀번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      console.error('Admin login error:', error);
+      alert('로그인 중 오류가 발생했습니다.');
     }
   };
 
   const handleAdminLogout = () => {
     setIsAdmin(false);
-    localStorage.removeItem('isAdmin'); // localStorage에서 제거
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminTokenExpires');
   };
 
   const handleAskAI = async () => {
@@ -911,6 +955,52 @@ function App() {
     setEditingClassIndex(index);
     setEditingClassName(classes[index]);
   };
+
+  // 관리자 토큰 검증
+  useEffect(() => {
+    const verifyAdminToken = async () => {
+      const token = localStorage.getItem('adminToken');
+      const expiresAt = localStorage.getItem('adminTokenExpires');
+      
+      if (!token) {
+        setIsAdmin(false);
+        return;
+      }
+
+      // 만료 시간 확인
+      if (expiresAt && parseInt(expiresAt) < Date.now()) {
+        setIsAdmin(false);
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminTokenExpires');
+        return;
+      }
+
+      // 서버에서 토큰 검증
+      try {
+        const response = await fetch(`${getApiUrl()}/admin/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+        if (data.valid) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminTokenExpires');
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
+        // 네트워크 오류 시 토큰이 있으면 일단 관리자로 유지
+      }
+    };
+
+    verifyAdminToken();
+  }, []);
 
   // 클래스 목록 불러오기
   useEffect(() => {

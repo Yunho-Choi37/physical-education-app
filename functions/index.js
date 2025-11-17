@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const crypto = require('crypto');
 
 // Firebase Admin SDK 초기화 (Firebase Functions에서는 자동으로 초기화됨)
 admin.initializeApp();
@@ -98,6 +99,109 @@ app.get('/', (req, res) => {
 // 헬스 체크 (배포 상태 확인용)
 apiRouter.get('/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now() });
+});
+
+// 관리자 비밀번호 해시 생성 함수 (초기 설정용)
+const hashPassword = (password) => {
+  return crypto.createHash('sha256').update(password).digest('hex');
+};
+
+// 관리자 비밀번호 검증 및 토큰 발급
+apiRouter.post('/admin/login', async (req, res) => {
+  try {
+    const { password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ error: '비밀번호를 입력해주세요.' });
+    }
+
+    // Firestore에서 관리자 설정 가져오기
+    const adminDoc = await db.collection('settings').doc('admin').get();
+    
+    let hashedPassword;
+    if (!adminDoc.exists) {
+      // 처음 설정하는 경우: 비밀번호를 해시화하여 저장
+      hashedPassword = hashPassword('159753'); // 기본 비밀번호
+      await db.collection('settings').doc('admin').set({
+        passwordHash: hashedPassword,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      hashedPassword = adminDoc.data().passwordHash;
+    }
+
+    // 비밀번호 검증
+    const inputHash = hashPassword(password);
+    if (inputHash !== hashedPassword) {
+      return res.status(401).json({ error: '비밀번호가 올바르지 않습니다.' });
+    }
+
+    // 토큰 생성 (간단한 JWT 스타일 토큰)
+    const tokenPayload = {
+      admin: true,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7일 유효
+    };
+    
+    // 간단한 토큰 생성 (실제 프로덕션에서는 JWT 라이브러리 사용 권장)
+    const secret = process.env.ADMIN_SECRET || 'default-secret-key-change-in-production';
+    const token = crypto.createHmac('sha256', secret)
+      .update(JSON.stringify(tokenPayload))
+      .digest('hex');
+    
+    const fullToken = Buffer.from(JSON.stringify(tokenPayload)).toString('base64') + '.' + token;
+
+    res.json({ 
+      success: true,
+      token: fullToken,
+      expiresAt: tokenPayload.expiresAt
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
+  }
+});
+
+// 관리자 토큰 검증
+apiRouter.post('/admin/verify', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ valid: false, error: '토큰이 없습니다.' });
+    }
+
+    try {
+      const [payloadBase64, signature] = token.split('.');
+      if (!payloadBase64 || !signature) {
+        return res.status(400).json({ valid: false, error: '토큰 형식이 올바르지 않습니다.' });
+      }
+
+      const tokenPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+      
+      // 만료 시간 확인
+      if (tokenPayload.expiresAt < Date.now()) {
+        return res.status(401).json({ valid: false, error: '토큰이 만료되었습니다.' });
+      }
+
+      // 서명 검증
+      const secret = process.env.ADMIN_SECRET || 'default-secret-key-change-in-production';
+      const expectedSignature = crypto.createHmac('sha256', secret)
+        .update(JSON.stringify(tokenPayload))
+        .digest('hex');
+      
+      if (signature !== expectedSignature) {
+        return res.status(401).json({ valid: false, error: '토큰이 유효하지 않습니다.' });
+      }
+
+      res.json({ valid: true, admin: true });
+    } catch (error) {
+      return res.status(400).json({ valid: false, error: '토큰 파싱 오류' });
+    }
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ valid: false, error: '토큰 검증 중 오류가 발생했습니다.' });
+  }
 });
 
 // Firestore 연결 상태 확인
