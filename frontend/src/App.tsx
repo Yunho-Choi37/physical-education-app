@@ -230,6 +230,39 @@ const PurposePage = () => {
     localStorage.removeItem('purposeIsAdmin'); // localStorage에서 제거
   };
 
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) {
+      alert('질문을 입력해주세요.');
+      return;
+    }
+
+    setAiLoading(true);
+    setAiAnswer('');
+    
+    try {
+      const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: aiQuestion }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: '알 수 없는 오류' }));
+        throw new Error(errorData.error || 'AI 답변을 가져오는 중 오류가 발생했습니다.');
+      }
+
+      const data = await response.json();
+      setAiAnswer(data.answer || '답변을 생성할 수 없습니다.');
+    } catch (error) {
+      console.error('AI 질문 오류:', error);
+      setAiAnswer(`오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="existence-home">
       <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
@@ -642,6 +675,111 @@ const PurposePage = () => {
           </Modal.Footer>
         </Modal>
 
+        {/* AI 질문 모달 */}
+        <Modal show={showAIModal} onHide={() => {
+          setShowAIModal(false);
+          setAiQuestion('');
+          setAiAnswer('');
+        }} size="lg" centered>
+          <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>
+              🤖 AI 질문하기
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>
+                질문을 입력하세요
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="예: 가장 활동적인 학생은 누구인가요? 또는 전체 학생들의 평균 에너지 레벨은 얼마인가요?"
+                value={aiQuestion}
+                onChange={(e) => setAiQuestion(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.ctrlKey) {
+                    handleAskAI();
+                  }
+                }}
+                style={{ fontFamily: 'Roboto, sans-serif' }}
+                disabled={aiLoading}
+              />
+              <Form.Text className="text-muted" style={{ fontSize: '0.85rem' }}>
+                Ctrl + Enter로 질문을 제출할 수 있습니다.
+              </Form.Text>
+            </Form.Group>
+
+            {aiLoading && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '20px',
+                color: '#5f6368'
+              }}>
+                <div style={{ fontSize: '24px', marginBottom: '10px' }}>⏳</div>
+                <p style={{ margin: 0 }}>AI가 답변을 생성하는 중...</p>
+              </div>
+            )}
+
+            {aiAnswer && !aiLoading && (
+              <div style={{
+                background: '#f8f9fa',
+                border: '1px solid #e8eaed',
+                borderRadius: '8px',
+                padding: '16px',
+                marginTop: '16px'
+              }}>
+                <div style={{
+                  fontWeight: 600,
+                  color: '#202124',
+                  marginBottom: '12px',
+                  fontSize: '0.9rem'
+                }}>
+                  답변:
+                </div>
+                <div style={{
+                  color: '#3c4043',
+                  lineHeight: '1.6',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'Roboto, sans-serif',
+                  fontSize: '0.95rem'
+                }}>
+                  {aiAnswer}
+                </div>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => {
+                setShowAIModal(false);
+                setAiQuestion('');
+                setAiAnswer('');
+              }}
+              style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
+              disabled={aiLoading}
+            >
+              닫기
+            </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={handleAskAI}
+              disabled={aiLoading || !aiQuestion.trim()}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#ffffff',
+                border: 'none',
+                opacity: (aiLoading || !aiQuestion.trim()) ? 0.5 : 1
+              }}
+            >
+              {aiLoading ? '처리 중...' : '질문하기'}
+            </button>
+          </Modal.Footer>
+        </Modal>
+
         {/* 관리자 로그인 모달 */}
         <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
           <Modal.Header closeButton>
@@ -698,6 +836,10 @@ function App() {
   const [newClassName, setNewClassName] = useState('');
   const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
   const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isClassView = location.pathname.startsWith('/class');
@@ -717,6 +859,39 @@ function App() {
   const handleAdminLogout = () => {
     setIsAdmin(false);
     localStorage.removeItem('isAdmin'); // localStorage에서 제거
+  };
+
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) {
+      alert('질문을 입력해주세요.');
+      return;
+    }
+
+    setAiLoading(true);
+    setAiAnswer('');
+    
+    try {
+      const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: aiQuestion }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: '알 수 없는 오류' }));
+        throw new Error(errorData.error || 'AI 답변을 가져오는 중 오류가 발생했습니다.');
+      }
+
+      const data = await response.json();
+      setAiAnswer(data.answer || '답변을 생성할 수 없습니다.');
+    } catch (error) {
+      console.error('AI 질문 오류:', error);
+      setAiAnswer(`오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleEditClassName = (index: number) => {
@@ -1099,6 +1274,18 @@ function App() {
             >
               목적
             </button>
+            <button
+              type="button"
+              className="existence-button"
+              onClick={() => setShowAIModal(true)}
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#ffffff',
+                border: 'none'
+              }}
+            >
+              🤖 AI 질문
+            </button>
           </div>
         </div>
       </div>
@@ -1136,6 +1323,18 @@ function App() {
                     onClick={() => navigate('/purpose')}
                   >
                     목적
+                  </button>
+                  <button
+                    type="button"
+                    className="existence-button"
+                    onClick={() => setShowAIModal(true)}
+                    style={{ 
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: '#ffffff',
+                      border: 'none'
+                    }}
+                  >
+                    🤖 AI 질문
                   </button>
                 </div>
                 {!isAdmin ? (
@@ -1509,6 +1708,111 @@ function App() {
           <Button variant="primary" onClick={handleAdminLogin}>
             로그인
           </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* AI 질문 모달 */}
+      <Modal show={showAIModal} onHide={() => {
+        setShowAIModal(false);
+        setAiQuestion('');
+        setAiAnswer('');
+      }} size="lg" centered>
+        <Modal.Header closeButton style={{ fontFamily: 'Roboto, sans-serif' }}>
+          <Modal.Title style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>
+            🤖 AI 질문하기
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ fontFamily: 'Roboto, sans-serif' }}>
+          <Form.Group className="mb-3">
+            <Form.Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, color: '#202124' }}>
+              질문을 입력하세요
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              placeholder="예: 가장 활동적인 학생은 누구인가요? 또는 전체 학생들의 평균 에너지 레벨은 얼마인가요?"
+              value={aiQuestion}
+              onChange={(e) => setAiQuestion(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  handleAskAI();
+                }
+              }}
+              style={{ fontFamily: 'Roboto, sans-serif' }}
+              disabled={aiLoading}
+            />
+            <Form.Text className="text-muted" style={{ fontSize: '0.85rem' }}>
+              Ctrl + Enter로 질문을 제출할 수 있습니다.
+            </Form.Text>
+          </Form.Group>
+
+          {aiLoading && (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '20px',
+              color: '#5f6368'
+            }}>
+              <div style={{ fontSize: '24px', marginBottom: '10px' }}>⏳</div>
+              <p style={{ margin: 0 }}>AI가 답변을 생성하는 중...</p>
+            </div>
+          )}
+
+          {aiAnswer && !aiLoading && (
+            <div style={{
+              background: '#f8f9fa',
+              border: '1px solid #e8eaed',
+              borderRadius: '8px',
+              padding: '16px',
+              marginTop: '16px'
+            }}>
+              <div style={{
+                fontWeight: 600,
+                color: '#202124',
+                marginBottom: '12px',
+                fontSize: '0.9rem'
+              }}>
+                답변:
+              </div>
+              <div style={{
+                color: '#3c4043',
+                lineHeight: '1.6',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: '0.95rem'
+              }}>
+                {aiAnswer}
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ fontFamily: 'Roboto, sans-serif' }}>
+          <button
+            type="button"
+            className="existence-button"
+            onClick={() => {
+              setShowAIModal(false);
+              setAiQuestion('');
+              setAiAnswer('');
+            }}
+            style={{ backgroundColor: '#f8f9fa', borderColor: '#dadce0', color: '#3c4043' }}
+            disabled={aiLoading}
+          >
+            닫기
+          </button>
+          <button
+            type="button"
+            className="existence-button"
+            onClick={handleAskAI}
+            disabled={aiLoading || !aiQuestion.trim()}
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: '#ffffff',
+              border: 'none',
+              opacity: (aiLoading || !aiQuestion.trim()) ? 0.5 : 1
+            }}
+          >
+            {aiLoading ? '처리 중...' : '질문하기'}
+          </button>
         </Modal.Footer>
       </Modal>
 
