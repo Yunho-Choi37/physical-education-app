@@ -548,6 +548,37 @@ const getDatabaseContext = async () => {
           context += `  - 에너지 레벨: ${ex.energy || 60}/100\n`;
           context += `  - 개성: ${ex.personality || '없음'}\n`;
           
+          // 총 활동 시간 계산
+          let totalActivityTime = 0;
+          
+          // records에서 duration 합산
+          if (ex.records && ex.records.length > 0) {
+            const recordsDuration = ex.records.reduce((sum, record) => {
+              return sum + (parseInt(record.duration) || 0);
+            }, 0);
+            totalActivityTime += recordsDuration;
+          }
+          
+          // atom.electrons에서 activityTime 합산
+          if (ex.atom && ex.atom.electrons) {
+            const e = ex.atom.electrons;
+            const allElectronActivities = [
+              ...(e.kShell || []),
+              ...(e.lShell || []),
+              ...(e.mShell || []),
+              ...(e.valence || [])
+            ];
+            const electronActivityTime = allElectronActivities.reduce((sum, activity) => {
+              return sum + (parseInt(activity.activityTime) || 0);
+            }, 0);
+            totalActivityTime += electronActivityTime;
+          }
+          
+          // 총 활동 시간 표시
+          if (totalActivityTime > 0) {
+            context += `  - 총 활동 시간: ${totalActivityTime}분\n`;
+          }
+          
           if (ex.activities && ex.activities.length > 0) {
             context += `  - 활동 기록: ${ex.activities.join(', ')}\n`;
           }
@@ -557,6 +588,13 @@ const getDatabaseContext = async () => {
             ex.records.slice(-5).forEach(record => {
               context += `    * ${record.date || '날짜 없음'}: ${record.activity || '활동 없음'} (${record.duration || 0}분) - ${record.notes || '메모 없음'}\n`;
             });
+            // 전체 기록의 총 시간도 표시
+            const allRecordsDuration = ex.records.reduce((sum, record) => {
+              return sum + (parseInt(record.duration) || 0);
+            }, 0);
+            if (allRecordsDuration > 0) {
+              context += `  - 기록된 총 활동 시간: ${allRecordsDuration}분 (${ex.records.length}개 기록)\n`;
+            }
           }
           
           if (ex.atom) {
@@ -577,6 +615,20 @@ const getDatabaseContext = async () => {
               ];
               if (allActivities.length > 0) {
                 context += `  - 활동 에너지 준위: ${allActivities.join(', ')}\n`;
+              }
+              
+              // 전자 활동의 총 시간 계산 및 표시
+              const allElectronActivities = [
+                ...(e.kShell || []),
+                ...(e.lShell || []),
+                ...(e.mShell || []),
+                ...(e.valence || [])
+              ];
+              const electronActivityTime = allElectronActivities.reduce((sum, activity) => {
+                return sum + (parseInt(activity.activityTime) || 0);
+              }, 0);
+              if (electronActivityTime > 0) {
+                context += `  - 전자 활동 총 시간: ${electronActivityTime}분 (${allElectronActivities.length}개 활동)\n`;
               }
             }
           }
