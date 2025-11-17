@@ -346,14 +346,17 @@ const PurposePage = () => {
 
       if (response.ok && data.success) {
         console.log('✅ 로그인 성공');
-        setIsAdmin(true);
+        // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('purposeAdminToken', data.token);
         localStorage.setItem('purposeAdminTokenExpires', data.expiresAt.toString());
+        setIsAdmin(true);
+        setAdminPassword(''); // 비밀번호 필드 초기화
         setShowAdminLogin(false);
-        setAdminPassword('');
+        console.log('✅ 관리자 모드 활성화 완료');
       } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
+        setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
@@ -368,9 +371,12 @@ const PurposePage = () => {
   };
 
   const handleAdminLogout = () => {
+    console.log('🚪 로그아웃 시작');
     setIsAdmin(false);
+    setAdminPassword(''); // 비밀번호 필드 초기화
     localStorage.removeItem('purposeAdminToken');
     localStorage.removeItem('purposeAdminTokenExpires');
+    console.log('✅ 로그아웃 완료');
   };
 
   const handleAskAI = async () => {
@@ -933,7 +939,10 @@ const PurposePage = () => {
         </Modal>
 
         {/* 관리자 로그인 모달 */}
-        <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
+        <Modal show={showAdminLogin} onHide={() => {
+          setShowAdminLogin(false);
+          setAdminPassword(''); // 모달 닫을 때 비밀번호 필드 초기화
+        }} centered>
           <Modal.Header closeButton>
             <Modal.Title>🔐 관리자 로그인</Modal.Title>
           </Modal.Header>
@@ -1067,14 +1076,17 @@ function App() {
 
       if (response.ok && data.success) {
         console.log('✅ 로그인 성공');
-        setIsAdmin(true);
+        // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminTokenExpires', data.expiresAt.toString());
+        setIsAdmin(true);
+        setAdminPassword(''); // 비밀번호 필드 초기화
         setShowAdminLogin(false);
-        setAdminPassword('');
+        console.log('✅ 관리자 모드 활성화 완료');
       } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
+        setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
       }
     } catch (error: any) {
       console.error('❌ Admin login error:', error);
@@ -1089,9 +1101,12 @@ function App() {
   };
 
   const handleAdminLogout = () => {
+    console.log('🚪 로그아웃 시작');
     setIsAdmin(false);
+    setAdminPassword(''); // 비밀번호 필드 초기화
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminTokenExpires');
+    console.log('✅ 로그아웃 완료');
   };
 
   const handleAskAI = async () => {
@@ -1967,7 +1982,10 @@ function App() {
       </Routes>
 
       {/* 관리자 로그인 모달 */}
-      <Modal show={showAdminLogin} onHide={() => setShowAdminLogin(false)} centered>
+      <Modal show={showAdminLogin} onHide={() => {
+        setShowAdminLogin(false);
+        setAdminPassword(''); // 모달 닫을 때 비밀번호 필드 초기화
+      }} centered>
         <Modal.Header closeButton>
           <Modal.Title>🔐 관리자 로그인</Modal.Title>
         </Modal.Header>
