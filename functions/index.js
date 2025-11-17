@@ -629,8 +629,9 @@ apiRouter.post('/ai/ask', async (req, res) => {
     // 데이터베이스 컨텍스트 가져오기
     const context = await getDatabaseContext();
     
-    // Gemini 모델 초기화 (최신 모델 사용)
-    const model = geminiClient.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Gemini 모델 초기화 및 API 호출 (여러 모델 시도)
+    // @google/generative-ai 0.21.0 버전에서 사용 가능한 모델 순서대로 시도
+    const modelsToTry = ['gemini-1.5-pro-latest', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
@@ -643,10 +644,29 @@ ${context}
 
 답변:`;
 
-    // Gemini API 호출
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const answer = response.text();
+    let answer = null;
+    let lastError = null;
+    
+    // 여러 모델 시도
+    for (const modelName of modelsToTry) {
+      try {
+        console.log(`모델 시도: ${modelName}`);
+        const model = geminiClient.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        answer = response.text();
+        console.log(`모델 ${modelName} 성공`);
+        break; // 성공하면 루프 종료
+      } catch (modelError) {
+        console.error(`모델 ${modelName} 실패:`, modelError.message);
+        lastError = modelError;
+        continue; // 다음 모델 시도
+      }
+    }
+    
+    if (!answer) {
+      throw new Error(`모든 모델 시도 실패. 마지막 에러: ${lastError?.message || '알 수 없는 오류'}`);
+    }
 
     res.json({ 
       answer,
