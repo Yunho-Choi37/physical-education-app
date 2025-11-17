@@ -638,13 +638,23 @@ apiRouter.post('/ai/ask', async (req, res) => {
     // 사용 가능한 모델 목록 확인 (디버깅용)
     let availableModelNames = [];
     try {
+      console.log('🔍 listModels() 호출 시작...');
       const modelsResponse = await geminiClient.listModels();
+      console.log('📦 listModels() 응답 타입:', typeof modelsResponse);
+      console.log('📦 listModels() 응답:', JSON.stringify(modelsResponse).substring(0, 500));
+      
       if (modelsResponse && modelsResponse.models) {
         availableModelNames = modelsResponse.models.map(m => m.name || m).filter(Boolean);
         console.log('✅ 사용 가능한 모델 목록:', availableModelNames);
+      } else if (modelsResponse && Array.isArray(modelsResponse)) {
+        availableModelNames = modelsResponse.map(m => m.name || m).filter(Boolean);
+        console.log('✅ 사용 가능한 모델 목록 (배열):', availableModelNames);
+      } else {
+        console.warn('⚠️ listModels() 응답 형식이 예상과 다릅니다. 전체 응답:', modelsResponse);
       }
     } catch (listError) {
-      console.warn('⚠️ 모델 목록 조회 실패:', listError.message);
+      console.error('❌ 모델 목록 조회 실패:', listError.message);
+      console.error('❌ 에러 스택:', listError.stack);
       // listModels 실패해도 계속 진행
     }
     
@@ -656,14 +666,15 @@ apiRouter.post('/ai/ask', async (req, res) => {
       modelsToTry = availableModelNames.slice(0, 5); // 최대 5개만 시도
       console.log('📋 확인된 모델로 시도:', modelsToTry);
     } else {
-      // 기본 모델 시도 (다양한 형식)
+      // 기본 모델 시도 (실제 사용 가능한 모델)
       modelsToTry = [
+        'models/gemini-2.5-flash-preview-05-20',
+        'models/gemini-2.5-pro-preview-03-25',
+        'gemini-2.5-flash-preview-05-20',
+        'gemini-2.5-pro-preview-03-25',
         'gemini-1.5-flash',
         'gemini-1.5-pro',
-        'gemini-pro',
-        'models/gemini-1.5-flash',
-        'models/gemini-1.5-pro',
-        'models/gemini-pro'
+        'gemini-pro'
       ];
       console.log('📋 기본 모델로 시도:', modelsToTry);
     }
