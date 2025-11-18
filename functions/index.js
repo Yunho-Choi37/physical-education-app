@@ -704,10 +704,28 @@ const getDatabaseContext = async () => {
           if (ex.atom) {
             const atom = ex.atom;
             if (atom.protons && atom.protons.length > 0) {
-              context += `  - 핵심 특성 (양성자): ${atom.protons.map(p => `${p.keyword}(${p.strength}/5)`).join(', ')}\n`;
+              context += `  - 핵심 특성 (양성자):\n`;
+              atom.protons.forEach((p, idx) => {
+                context += `    ${idx + 1}. ${p.keyword} (강도: ${p.strength}/5)\n`;
+                if (p.description && p.description.trim()) {
+                  context += `       설명: ${p.description}\n`;
+                }
+                if (p.hashtags && p.hashtags.length > 0) {
+                  context += `       해시태그: ${p.hashtags.join(', ')}\n`;
+                }
+              });
             }
             if (atom.neutrons && atom.neutrons.length > 0) {
-              context += `  - 균형적 특성 (중성자): ${atom.neutrons.map(n => `${n.keyword}(${n.category})`).join(', ')}\n`;
+              context += `  - 균형적 특성 (중성자):\n`;
+              atom.neutrons.forEach((n, idx) => {
+                context += `    ${idx + 1}. ${n.keyword} (카테고리: ${n.category})\n`;
+                if (n.description && n.description.trim()) {
+                  context += `       설명: ${n.description}\n`;
+                }
+                if (n.hashtags && n.hashtags.length > 0) {
+                  context += `       해시태그: ${n.hashtags.join(', ')}\n`;
+                }
+              });
             }
             if (atom.electrons) {
               const e = atom.electrons;
@@ -718,8 +736,37 @@ const getDatabaseContext = async () => {
                 ...(e.valence || []).map(a => `V:${a.activity}(${a.cooperation}/5)`),
               ];
               if (allActivities.length > 0) {
-                context += `  - 활동 에너지 준위: ${allActivities.join(', ')}\n`;
+                context += `  - 활동 에너지 준위 요약: ${allActivities.join(', ')}\n`;
               }
+              
+              // 전자 활동 상세 정보 (설명 및 해시태그 포함)
+              const electronShells = [
+                { name: 'K 껍질 (필수 활동)', activities: e.kShell || [] },
+                { name: 'L 껍질 (선택 활동)', activities: e.lShell || [] },
+                { name: 'M 껍질 (특별 활동)', activities: e.mShell || [] },
+                { name: '원자가 전자 (사회적 결합 활동)', activities: e.valence || [] }
+              ];
+              
+              electronShells.forEach(shell => {
+                if (shell.activities.length > 0) {
+                  context += `  - ${shell.name}:\n`;
+                  shell.activities.forEach((activity, idx) => {
+                    const freqOrCoop = activity.frequency !== undefined 
+                      ? `빈도: ${activity.frequency}/7` 
+                      : `협력도: ${activity.cooperation}/5`;
+                    context += `    ${idx + 1}. ${activity.activity} (${freqOrCoop})\n`;
+                    if (activity.description && activity.description.trim()) {
+                      context += `       설명: ${activity.description}\n`;
+                    }
+                    if (activity.hashtags && activity.hashtags.length > 0) {
+                      context += `       해시태그: ${activity.hashtags.join(', ')}\n`;
+                    }
+                    if (activity.activityTime && activity.activityTime > 0) {
+                      context += `       활동 시간: ${activity.activityTime}분\n`;
+                    }
+                  });
+                }
+              });
               
               // 전자 활동의 총 시간 계산 및 표시
               const allElectronActivities = [
