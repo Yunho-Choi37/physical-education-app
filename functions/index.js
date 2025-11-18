@@ -694,7 +694,7 @@ const getDatabaseContext = async () => {
           if (ex.records && ex.records.length > 0) {
             context += `  - 상세 기록 (최근 ${Math.min(5, ex.records.length)}개):\n`;
             ex.records.slice(-5).forEach(record => {
-              context += `    * ${record.date || '날짜 없음'}: ${record.activity || '활동 없음'} (${record.duration || 0}분) - ${record.notes || '메모 없음'}\n`;
+              context += `    * 날짜: ${record.date || '날짜 없음'}, 활동: ${record.activity || '활동 없음'}, 시간: ${record.duration || 0}분, 메모: ${record.notes || '메모 없음'}\n`;
             });
             // 전체 기록의 총 시간도 표시
             const allRecordsDuration = ex.records.reduce((sum, record) => {
@@ -702,6 +702,15 @@ const getDatabaseContext = async () => {
             }, 0);
             if (allRecordsDuration > 0) {
               context += `  - 기록된 총 활동 시간: ${allRecordsDuration}분 (${ex.records.length}개 기록)\n`;
+            }
+            // 모든 기록의 날짜 목록도 포함
+            const allDates = ex.records
+              .map(record => record.date)
+              .filter(date => date && date.trim())
+              .filter((date, index, self) => self.indexOf(date) === index) // 중복 제거
+              .sort();
+            if (allDates.length > 0) {
+              context += `  - 활동 날짜 목록: ${allDates.join(', ')}\n`;
             }
           }
           
@@ -751,7 +760,7 @@ const getDatabaseContext = async () => {
                 { name: '원자가 전자 (사회적 결합 활동)', activities: e.valence || [] }
               ];
               
-              electronShells.forEach(shell => {
+                  electronShells.forEach(shell => {
                 if (shell.activities.length > 0) {
                   context += `  - ${shell.name}:\n`;
                   shell.activities.forEach((activity, idx) => {
@@ -767,6 +776,9 @@ const getDatabaseContext = async () => {
                     }
                     if (activity.activityTime && activity.activityTime > 0) {
                       context += `       활동 시간: ${activity.activityTime}분\n`;
+                    }
+                    if (activity.date && activity.date.trim()) {
+                      context += `       활동 날짜: ${activity.date}\n`;
                     }
                   });
                 }
