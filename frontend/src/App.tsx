@@ -1504,17 +1504,22 @@ function App() {
     
     // 화면 크기에 따라 버튼 크기 조정
     const screenWidth = screenSize.width;
+    const isMobile = screenWidth < 768;
     
     // 기본 사이즈
-    const baseSize = screenWidth < 768 ? 100 : screenWidth < 1024 ? 130 : 150;
+    const baseSize = isMobile ? 100 : screenWidth < 1024 ? 130 : 150;
     const buttonSize = baseSize;
     
     // 그리드 설정: 가로로 배치할 원의 개수
-    const itemsPerRow = screenWidth < 768 ? 2 : screenWidth < 1024 ? 3 : 4;
+    const itemsPerRow = isMobile ? 2 : screenWidth < 1024 ? 3 : 4;
     const spacing = buttonSize * 1.2; // 원 사이 간격
     
-    // 시작 위치 (왼쪽 상단부터)
-    const startX = spacing;
+    // 모바일에서는 좌측 상단부터 시작, 데스크톱에서는 중앙 정렬
+    const containerWidth = isMobile ? screenWidth : 1200;
+    const totalWidth = itemsPerRow * spacing;
+    
+    // 시작 위치: 모바일은 좌측 상단부터, 데스크톱은 중앙 정렬
+    const startX = isMobile ? spacing : (containerWidth - totalWidth) / 2 + spacing / 2;
     const startY = spacing;
     
     // 각 클래스를 그리드로 배치
@@ -2480,6 +2485,13 @@ function App() {
           width: 100%;
           min-height: 60vh;
           overflow: visible;
+        }
+        @media (max-width: 768px) {
+          .floating-classes-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+          }
         }
         .admin-controls {
           position: absolute;
