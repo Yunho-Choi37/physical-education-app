@@ -2973,40 +2973,44 @@ function App() {
       </Modal>
 
       {/* 클래스 편집 모달 */}
-      {selectedClassIndex !== null && (
-        <StudentCustomizeModal
-          student={{
-            id: selectedClassIndex + 1,
-            name: classes[selectedClassIndex],
-            classId: selectedClassIndex + 1,
-            existence: classExistence[selectedClassIndex + 1] ? {
-              color: classExistence[selectedClassIndex + 1].color,
-              shape: classExistence[selectedClassIndex + 1].shape,
-              pattern: classExistence[selectedClassIndex + 1].pattern,
-              size: classExistence[selectedClassIndex + 1].size,
-              glow: classExistence[selectedClassIndex + 1].glow,
-              border: classExistence[selectedClassIndex + 1].border,
-              activity: '',
-              activities: [],
-              energy: 60,
-              personality: 'active',
-              customName: classExistence[selectedClassIndex + 1].customName,
-              imageData: classExistence[selectedClassIndex + 1].imageData || '',
-              records: [],
-              showElectrons: classExistence[selectedClassIndex + 1].showElectrons || false,
-              showProtonsNeutrons: classExistence[selectedClassIndex + 1].showProtonsNeutrons || false,
-              atom: classExistence[selectedClassIndex + 1].atom || {
-                protons: [],
-                neutrons: [],
-                electrons: {
-                  kShell: [],
-                  lShell: [],
-                  mShell: [],
-                  valence: []
-                }
+      {selectedClassIndex !== null && (() => {
+        const currentExistence = classExistence[selectedClassIndex + 1];
+        const studentData = {
+          id: selectedClassIndex + 1,
+          name: classes[selectedClassIndex],
+          classId: selectedClassIndex + 1,
+          existence: currentExistence ? {
+            color: currentExistence.color,
+            shape: currentExistence.shape,
+            pattern: currentExistence.pattern,
+            size: currentExistence.size,
+            glow: currentExistence.glow,
+            border: currentExistence.border,
+            activity: '',
+            activities: [],
+            energy: 60,
+            personality: 'active',
+            customName: currentExistence.customName,
+            imageData: currentExistence.imageData || '',
+            records: [],
+            showElectrons: currentExistence.showElectrons || false,
+            showProtonsNeutrons: currentExistence.showProtonsNeutrons || false,
+            atom: currentExistence.atom || {
+              protons: [],
+              neutrons: [],
+              electrons: {
+                kShell: [],
+                lShell: [],
+                mShell: [],
+                valence: []
               }
-            } : undefined
-          }}
+            }
+          } : undefined
+        };
+        return (
+          <StudentCustomizeModal
+            key={`class-${selectedClassIndex}-${JSON.stringify(currentExistence)}`}
+            student={studentData}
           show={showClassCustomizeModal}
           onHide={() => {
             setShowClassCustomizeModal(false);
@@ -3068,39 +3072,49 @@ function App() {
               const result = await response.json();
               console.log('✅ 클래스 저장 완료:', classId);
               
-              const updatedClassExistence = {
-                ...classExistence,
-                [classId]: existence
-              };
-              
-              setClassExistence(updatedClassExistence);
-              
-              // customName이 있으면 클래스 이름도 업데이트
-              if (existence.customName && selectedClassIndex !== null) {
-                const newClasses = [...classes];
-                newClasses[selectedClassIndex] = existence.customName;
-                setClasses(newClasses);
+              // 저장 성공 후 상태 업데이트는 모달이 닫힌 후에 수행 (모달 리셋 방지)
+              // 모달이 닫힌 후에 상태를 업데이트하기 위해 setTimeout 사용
+              setTimeout(() => {
+                const updatedClassExistence = {
+                  ...classExistence,
+                  [classId]: existence
+                };
                 
-                // 클래스 이름도 API에 저장
-                try {
-                  const classesResponse = await fetch(`${getApiUrl()}/api/classes`);
-                  if (classesResponse.ok) {
-                    const classesData = await classesResponse.json();
-                    const allClassNames = classesData.classNames || classes;
-                    allClassNames[selectedClassIndex] = existence.customName;
-                    
-                    await fetch(`${getApiUrl()}/api/classes`, {
-                      method: 'PUT',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({ classNames: allClassNames }),
+                setClassExistence(updatedClassExistence);
+                
+                // customName이 있으면 클래스 이름도 업데이트
+                if (existence.customName && selectedClassIndex !== null) {
+                  const newClasses = [...classes];
+                  newClasses[selectedClassIndex] = existence.customName;
+                  setClasses(newClasses);
+                  
+                  // 클래스 이름도 API에 저장
+                  fetch(`${getApiUrl()}/api/classes`)
+                    .then(classesResponse => {
+                      if (classesResponse.ok) {
+                        return classesResponse.json();
+                      }
+                      return null;
+                    })
+                    .then(classesData => {
+                      if (classesData) {
+                        const allClassNames = classesData.classNames || classes;
+                        allClassNames[selectedClassIndex] = existence.customName;
+                        
+                        return fetch(`${getApiUrl()}/api/classes`, {
+                          method: 'PUT',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({ classNames: allClassNames }),
+                        });
+                      }
+                    })
+                    .catch(error => {
+                      console.error('클래스 이름 저장 오류:', error);
                     });
-                  }
-                } catch (error) {
-                  console.error('클래스 이름 저장 오류:', error);
                 }
-              }
+              }, 100);
               
               // 이미지가 있으면 사전 로드
               const imageData = existence.imageData;
@@ -3134,8 +3148,9 @@ function App() {
               throw error;
             }
           }}
-        />
-      )}
+          />
+        );
+      })()}
 
       <style>{`
         .App {

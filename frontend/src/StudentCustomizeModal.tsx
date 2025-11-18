@@ -289,78 +289,91 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     prevShowRef.current = show;
   }, [show]);
   
+  // student prop의 existence를 JSON으로 직렬화하여 비교 (깊은 비교)
+  const prevExistenceRef = useRef<string>('');
+  
   useEffect(() => {
     if (student && show) {
-      // 학생 ID가 변경될 때만 탭을 리셋 (같은 학생의 경우 탭 유지)
-      if (prevStudentIdRef.current !== student.id) {
-        setActivePanel('shape');
-        prevStudentIdRef.current = student.id;
-      }
-      setCustomization({
-        color: student.existence?.color || '#FF6B6B',
-        shape: student.existence?.shape || 'circle',
-        pattern: student.existence?.pattern || 'solid',
-        size: student.existence?.size || 1.0,
-        glow: student.existence?.glow || false,
-        border: student.existence?.border || 'normal',
-        customName: student.existence?.customName || '',
-        imageData: student.existence?.imageData || ''
-      });
-      setPassword(student.password || '0000');
-      setActivityRecord({
-        activity: student.existence?.activity || '',
-        duration: 30,
-        notes: ''
-      });
-      // records 배열을 정확히 복사하여 초기화
-      setLocalRecords(student.existence?.records ? [...student.existence.records] : []);
+      const currentExistenceJson = JSON.stringify(student.existence);
+      const studentIdChanged = prevStudentIdRef.current !== student.id;
+      const existenceChanged = prevExistenceRef.current !== currentExistenceJson;
       
-      // 전자 표시 여부 초기화
-      setShowElectrons(student.existence?.showElectrons || false);
-      // 양성자/중성자 표시 여부 초기화
-      setShowProtonsNeutrons(student.existence?.showProtonsNeutrons || false);
-      
-      // 원자 모델 초기화 (description 필드를 기본값 ''로 보정)
-      if (student.existence?.atom) {
-        const a = student.existence.atom as any;
+      // 학생 ID가 변경되거나 existence가 실제로 변경된 경우에만 상태 업데이트
+      if (studentIdChanged || existenceChanged) {
+        // 학생 ID가 변경될 때만 탭을 리셋 (같은 학생의 경우 탭 유지)
+        if (studentIdChanged) {
+          setActivePanel('shape');
+          prevStudentIdRef.current = student.id;
+        }
         
-        // imageData를 images 배열로 마이그레이션하는 헬퍼 함수
-        const migrateImageData = (items: any[]) => {
-          return items.map((item: any) => {
-            const normalizedHashtags = normalizeHashtagArray(item?.hashtags);
-            let migrated = {
-              ...item,
-              hashtags: normalizedHashtags
-            };
-
-            if (migrated.imageData && !migrated.images) {
-              migrated = {
-                ...migrated,
-                images: [migrated.imageData],
-                primaryImageIndex: 0,
-                imageData: undefined
-              };
-            } else if (!migrated.images) {
-              migrated = {
-                ...migrated,
-                images: [],
-                primaryImageIndex: undefined
-              };
-            }
-
-            return migrated;
-          });
-        };
-        setAtomModel({
-          protons: migrateImageData(a.protons || []),
-          neutrons: migrateImageData(a.neutrons || []),
-          electrons: {
-            kShell: migrateImageData((a.electrons?.kShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
-            lShell: migrateImageData((a.electrons?.lShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
-            mShell: migrateImageData((a.electrons?.mShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
-            valence: migrateImageData((a.electrons?.valence || []).map((e: any) => ({ ...e, description: e.description || '' }))),
-          }
+        setCustomization({
+          color: student.existence?.color || '#FF6B6B',
+          shape: student.existence?.shape || 'circle',
+          pattern: student.existence?.pattern || 'solid',
+          size: student.existence?.size || 1.0,
+          glow: student.existence?.glow || false,
+          border: student.existence?.border || 'normal',
+          customName: student.existence?.customName || '',
+          imageData: student.existence?.imageData || ''
         });
+        setPassword(student.password || '0000');
+        setActivityRecord({
+          activity: student.existence?.activity || '',
+          duration: 30,
+          notes: ''
+        });
+        // records 배열을 정확히 복사하여 초기화
+        setLocalRecords(student.existence?.records ? [...student.existence.records] : []);
+        
+        // 전자 표시 여부 초기화
+        setShowElectrons(student.existence?.showElectrons || false);
+        // 양성자/중성자 표시 여부 초기화
+        setShowProtonsNeutrons(student.existence?.showProtonsNeutrons || false);
+        
+        // 원자 모델 초기화 (description 필드를 기본값 ''로 보정)
+        if (student.existence?.atom) {
+          const a = student.existence.atom as any;
+          
+          // imageData를 images 배열로 마이그레이션하는 헬퍼 함수
+          const migrateImageData = (items: any[]) => {
+            return items.map((item: any) => {
+              const normalizedHashtags = normalizeHashtagArray(item?.hashtags);
+              let migrated = {
+                ...item,
+                hashtags: normalizedHashtags
+              };
+
+              if (migrated.imageData && !migrated.images) {
+                migrated = {
+                  ...migrated,
+                  images: [migrated.imageData],
+                  primaryImageIndex: 0,
+                  imageData: undefined
+                };
+              } else if (!migrated.images) {
+                migrated = {
+                  ...migrated,
+                  images: [],
+                  primaryImageIndex: undefined
+                };
+              }
+
+              return migrated;
+            });
+          };
+          setAtomModel({
+            protons: migrateImageData(a.protons || []),
+            neutrons: migrateImageData(a.neutrons || []),
+            electrons: {
+              kShell: migrateImageData((a.electrons?.kShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+              lShell: migrateImageData((a.electrons?.lShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+              mShell: migrateImageData((a.electrons?.mShell || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+              valence: migrateImageData((a.electrons?.valence || []).map((e: any) => ({ ...e, description: e.description || '' }))),
+            }
+          });
+        }
+        
+        prevExistenceRef.current = currentExistenceJson;
       }
     }
   }, [student, show]);
