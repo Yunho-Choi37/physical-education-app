@@ -211,7 +211,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: 20px auto;
   background-color: transparent;
   border-radius: 12px;
   padding: 10px;
@@ -226,8 +226,11 @@
 @media (max-width: 768px) {
   .graph-container {
     padding: 5px;
-    margin: 10px 0;
+    margin: 10px auto;
     min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
 }
 

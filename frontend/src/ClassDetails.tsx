@@ -154,8 +154,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const updateAutoLayout = useCallback((studentList: Student[]) => {
     if (studentList.length === 0) return;
 
-    const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
-    const containerHeight = containerRef.current?.clientHeight || window.innerHeight - 200;
+    // 캔버스 크기를 직접 사용하여 정확한 중앙 정렬 보장
+    const containerWidth = canvasSize.width || containerRef.current?.clientWidth || window.innerWidth;
+    const containerHeight = canvasSize.height || containerRef.current?.clientHeight || window.innerHeight - 200;
 
     const baseCircleRadius = 50;
     const spacing = baseCircleRadius * 2.4;
@@ -166,6 +167,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     const totalWidth = cols * spacing;
     const totalHeight = rows * spacing;
 
+    // 중앙 정렬을 위한 시작 위치 계산
     const startX = (containerWidth - totalWidth) / 2 + spacing / 2;
     const startY = (containerHeight - totalHeight) / 2 + spacing / 2;
 
@@ -183,7 +185,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     setStudentPositions(newPositions);
     savePositionsToServer(newPositions);
-  }, [savePositionsToServer]);
+  }, [savePositionsToServer, canvasSize]);
 
   const calculateSimilarity = (str1: string, str2: string): number => {
     const matrix = Array.from({ length: str2.length + 1 }, () => Array(str1.length + 1).fill(0));
