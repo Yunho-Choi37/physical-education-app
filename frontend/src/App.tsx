@@ -2244,15 +2244,17 @@ function App() {
         height: '100vh',
         minHeight: '100vh',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        overflowX: 'hidden'
       }}>
         {/* 장식 일러스트레이션들 */}
         <div style={{
           position: 'absolute',
           height: screenSize.width < 768 ? '300px' : '541px',
-          left: screenSize.width < 768 ? '-40px' : '-81px',
+          left: screenSize.width < 768 ? '0' : '-81px',
           top: screenSize.width < 768 ? '200px' : '384px',
-          width: screenSize.width < 768 ? '100vw' : '1179px',
+          width: screenSize.width < 768 ? '100%' : '1179px',
+          maxWidth: screenSize.width < 768 ? '100%' : 'none',
           overflow: 'hidden',
           pointerEvents: 'none',
           opacity: screenSize.width < 768 ? 0.6 : 1
@@ -2260,18 +2262,19 @@ function App() {
           {/* 의자 */}
           <div style={{
             position: 'absolute',
-            left: '0.34%',
+            left: screenSize.width < 768 ? '0%' : '0.34%',
             top: '2.96%',
-            right: '74.11%',
+            right: screenSize.width < 768 ? '70%' : '74.11%',
             bottom: '5.05%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            maxWidth: screenSize.width < 768 ? '30%' : 'none'
           }}>
             <div style={{
-              width: '242.377px',
-              height: '470.292px',
-              transform: 'rotate(352.566deg)',
+              width: screenSize.width < 768 ? '100%' : '242.377px',
+              height: screenSize.width < 768 ? 'auto' : '470.292px',
+              transform: screenSize.width < 768 ? 'rotate(352.566deg) scale(0.5)' : 'rotate(352.566deg)',
               position: 'relative'
             }}>
               <img 
@@ -2315,10 +2318,11 @@ function App() {
           {/* 선인장 */}
           <div style={{
             position: 'absolute',
-            left: '77.02%',
+            left: screenSize.width < 768 ? '70%' : '77.02%',
             top: '0%',
-            right: '-1.36%',
-            bottom: '5.64%'
+            right: screenSize.width < 768 ? '0%' : '-1.36%',
+            bottom: '5.64%',
+            maxWidth: screenSize.width < 768 ? '30%' : 'none'
           }}>
             <img 
               src={imgIllustrationCactus} 
