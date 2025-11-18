@@ -3060,8 +3060,9 @@ function App() {
               if (!response.ok) {
                 const errorText = await response.text();
                 console.error('❌ 저장 실패:', response.status, errorText);
-                alert(`저장 실패: ${response.status} ${errorText}`);
-                return; // 저장 실패 시 모달을 닫지 않음
+                const error = new Error(`저장 실패: ${response.status} ${errorText}`);
+                alert(`저장 실패: ${response.status} ${errorText}\n\n모달은 열려있으니 다시 시도해주세요.`);
+                throw error; // 저장 실패 시 reject하여 StudentCustomizeModal에서 처리하도록 함
               }
               
               const result = await response.json();
