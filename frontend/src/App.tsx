@@ -716,7 +716,8 @@ const PurposePage = () => {
                         minWidth: 'auto',
                         backgroundColor: '#f8f9fa',
                         borderColor: '#dadce0',
-                        color: '#d93025'
+                        color: '#d93025',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       삭제
@@ -805,7 +806,8 @@ const PurposePage = () => {
                           minWidth: 'auto',
                           backgroundColor: '#f8f9fa',
                           borderColor: '#dadce0',
-                          color: '#d93025'
+                          color: '#d93025',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         삭제
