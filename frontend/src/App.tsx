@@ -2613,10 +2613,10 @@ function App() {
               // 이미지가 있으면 사전 로드
               if (existence.imageData && existence.imageData.startsWith('data:image')) {
                 const cache = classImageCacheRef.current;
-                if (!cache.has(classId)) {
+                if (!cache.has(existence.imageData)) {
                   const img = new Image();
                   img.onload = () => {
-                    cache.set(classId, img);
+                    cache.set(existence.imageData, img);
                     setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
                   };
                   img.onerror = () => {
