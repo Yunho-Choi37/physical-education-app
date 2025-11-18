@@ -3458,8 +3458,7 @@ function App() {
         }
         .existence-home {
           width: 100%;
-          max-width: 1040px;
-          padding: 0 24px;
+          padding: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
