@@ -3009,7 +3009,7 @@ function App() {
         };
         return (
           <StudentCustomizeModal
-            key={`class-${selectedClassIndex}-${JSON.stringify(currentExistence)}`}
+            key={`class-${selectedClassIndex}`}
             student={studentData}
           show={showClassCustomizeModal}
           onHide={() => {
