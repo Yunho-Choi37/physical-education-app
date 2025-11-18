@@ -988,6 +988,16 @@ function App() {
   const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
   const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
   const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
+  // 캔버스 관련 상태
+  const classesCanvasRef = useRef<HTMLCanvasElement>(null);
+  const classesContainerRef = useRef<HTMLDivElement>(null);
+  const [classesCanvasSize, setClassesCanvasSize] = useState({ width: 1200, height: 800 });
+  const [draggedClassIndex, setDraggedClassIndex] = useState<number | null>(null);
+  const [isDraggingClass, setIsDraggingClass] = useState(false);
+  const [classDragOffset, setClassDragOffset] = useState({ x: 0, y: 0 });
+  const [hasDraggedClass, setHasDraggedClass] = useState(false);
+  const [classDragStartPos, setClassDragStartPos] = useState({ x: 0, y: 0 });
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; classIndex: number } | null>(null);
   const [isAdmin, setIsAdmin] = useState(() => {
     // localStorage에서 관리자 토큰 확인
     const savedToken = localStorage.getItem('adminToken');
@@ -1151,6 +1161,346 @@ function App() {
     setEditingClassIndex(index);
     setEditingClassName(classes[index]);
   };
+
+  // 클래스 위치 저장 함수
+  const saveClassPosition = useCallback(async (classIndex: number, x: number, y: number) => {
+    try {
+      // 클래스 위치는 로컬 스토리지에 저장하거나 서버에 저장할 수 있습니다
+      // 여기서는 간단히 로컬 스토리지에 저장
+      const savedPositions = JSON.parse(localStorage.getItem('classPositions') || '{}');
+      savedPositions[classIndex] = { x, y };
+      localStorage.setItem('classPositions', JSON.stringify(savedPositions));
+    } catch (error) {
+      console.error('클래스 위치 저장 오류:', error);
+    }
+  }, []);
+
+  // 클래스 원 그리기 함수
+  const drawClasses = useCallback(() => {
+    const canvas = classesCanvasRef.current;
+    if (!canvas || !classesLoaded) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 고해상도 렌더링을 위한 DPI 스케일링
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    // 캔버스 크기를 실제 픽셀 크기로 설정
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    
+    // CSS 크기는 원래 크기로 유지
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    
+    // 컨텍스트 스케일링
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    
+    // 텍스트 렌더링 품질 향상
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // 캔버스 클리어
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // 각 클래스 원 그리기
+    classes.forEach((className, index) => {
+      const position = classPositions[index];
+      if (!position) return;
+
+      const existence = classExistence[index + 1];
+      const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+      const size = (existence?.size || 1.0) * baseSize;
+      const radius = size / 2;
+      const x = position.x;
+      const y = position.y;
+
+      // 드래그 중인 원 강조
+      if (draggedClassIndex === index) {
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+        ctx.shadowBlur = 15;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+
+      // 이미지가 있으면 이미지 그리기
+      if (existence?.imageData && classImageLoaded[index + 1]) {
+        const cache = classImageCacheRef.current;
+        let cachedImage = cache.get(existence.imageData);
+        
+        if (!cachedImage) {
+          const img = new Image();
+          img.onload = () => {
+            cache.set(existence.imageData!, img);
+            // 이미지 로드 후 다시 그리기 (requestAnimationFrame으로 최적화)
+            requestAnimationFrame(() => {
+              drawClasses();
+            });
+          };
+          img.onerror = () => {
+            setClassImageLoaded(prev => ({ ...prev, [index + 1]: false }));
+          };
+          img.src = existence.imageData;
+          cachedImage = img;
+          cache.set(existence.imageData, img);
+        }
+
+        if (cachedImage.complete && cachedImage.naturalWidth > 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
+          ctx.clip();
+          ctx.drawImage(cachedImage, x - radius, y - radius, size, size);
+          ctx.restore();
+        }
+      } else {
+        // 색상으로 그리기
+        const color = existence?.color || '#667eea';
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      // 테두리
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+
+      // 모양 이모티콘 (이미지가 없을 때만)
+      if (!existence?.imageData && existence?.shape && existence.shape !== 'circle') {
+        const emojiMap: { [key: string]: string } = {
+          'square': '⬜', 'triangle': '🔺', 'star': '⭐', 'heart': '❤️',
+          'smile': '😊', 'fire': '🔥', 'sun': '☀️', 'moon': '🌙',
+          'rainbow': '🌈', 'flower': '🌸', 'butterfly': '🦋',
+          'cat': '🐱', 'dog': '🐶', 'panda': '🐼'
+        };
+        const emoji = emojiMap[existence.shape];
+        if (emoji) {
+          ctx.font = `${radius * 0.8}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(emoji, x, y);
+        }
+      }
+
+      // 클래스 이름 또는 번호
+      const displayText = existence?.customName || className !== '.' ? className : `${index + 1}`;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${radius * 0.3}px "Roboto", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(displayText, x, y);
+
+      ctx.shadowBlur = 0;
+    });
+  }, [classes, classesLoaded, classPositions, classExistence, classImageLoaded, screenSize, draggedClassIndex]);
+
+  // drawClasses를 useEffect로 호출
+  useEffect(() => {
+    if (classesLoaded && classPositions.length > 0) {
+      drawClasses();
+    }
+  }, [drawClasses, classesLoaded, classPositions]);
+
+  // 전역 클릭으로 컨텍스트 메뉴 닫기
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setContextMenu(null);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
+
+  // 캔버스 좌표 변환 함수
+  const getClassesCanvasCoordinates = useCallback((clientX: number, clientY: number) => {
+    const canvas = classesCanvasRef.current;
+    if (!canvas) return null;
+    
+    const rect = canvas.getBoundingClientRect();
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    return {
+      x: (clientX - rect.left) * (canvas.width / (rect.width * devicePixelRatio)),
+      y: (clientY - rect.top) * (canvas.height / (rect.height * devicePixelRatio))
+    };
+  }, []);
+
+  // 클래스 클릭/드래그 시작 처리
+  const handleClassesPointerDown = useCallback((clientX: number, clientY: number) => {
+    const coords = getClassesCanvasCoordinates(clientX, clientY);
+    if (!coords) return;
+
+    const { x, y } = coords;
+    setClassDragStartPos({ x, y });
+    setHasDraggedClass(false);
+
+    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+    const nodeSize = baseSize / 2;
+
+    // 클릭된 클래스 찾기
+    const clickedIndex = classes.findIndex((_, index) => {
+      const position = classPositions[index];
+      if (!position) return false;
+      const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+      return distance <= nodeSize;
+    });
+
+    if (clickedIndex >= 0) {
+      const position = classPositions[clickedIndex];
+      if (position) {
+        setDraggedClassIndex(clickedIndex);
+        setIsDraggingClass(true);
+        setClassDragOffset({
+          x: x - position.x,
+          y: y - position.y
+        });
+      }
+    }
+  }, [classes, classPositions, getClassesCanvasCoordinates, screenSize]);
+
+  // 클래스 드래그 이동 처리
+  const handleClassesPointerMove = useCallback((clientX: number, clientY: number) => {
+    if (!isDraggingClass || draggedClassIndex === null) return;
+
+    const coords = getClassesCanvasCoordinates(clientX, clientY);
+    if (!coords) return;
+
+    const { x, y } = coords;
+    
+    // 드래그 거리 계산 (5px 이상 움직였을 때만 드래그로 인식)
+    const dragDistance = Math.sqrt(
+      (x - classDragStartPos.x) ** 2 + (y - classDragStartPos.y) ** 2
+    );
+    
+    if (dragDistance > 5) {
+      setHasDraggedClass(true);
+    }
+
+    const newX = x - classDragOffset.x;
+    const newY = y - classDragOffset.y;
+
+    // 캔버스 경계 내로 제한
+    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+    const radius = baseSize / 2;
+    const clampedX = Math.max(radius, Math.min(classesCanvasSize.width - radius, newX));
+    const clampedY = Math.max(radius, Math.min(classesCanvasSize.height - radius, newY));
+
+    const newPositions = [...classPositions];
+    newPositions[draggedClassIndex] = { x: clampedX, y: clampedY };
+    setClassPositions(newPositions);
+  }, [isDraggingClass, draggedClassIndex, classDragOffset, classDragStartPos, getClassesCanvasCoordinates, classesCanvasSize, classPositions, screenSize]);
+
+  // 클래스 드래그 종료 처리
+  const handleClassesPointerUp = useCallback(() => {
+    if (draggedClassIndex !== null && isDraggingClass && hasDraggedClass) {
+      saveClassPosition(draggedClassIndex, classPositions[draggedClassIndex].x, classPositions[draggedClassIndex].y);
+    }
+    // 약간의 지연을 두어 클릭 이벤트 처리 후 상태 초기화
+    setTimeout(() => {
+      setDraggedClassIndex(null);
+      setIsDraggingClass(false);
+      setHasDraggedClass(false);
+    }, 100);
+  }, [draggedClassIndex, isDraggingClass, hasDraggedClass, classPositions, saveClassPosition]);
+
+  // 마우스 이벤트 핸들러
+  const handleClassesMouseDown = (e: React.MouseEvent) => {
+    handleClassesPointerDown(e.clientX, e.clientY);
+  };
+
+  const handleClassesMouseMove = (e: React.MouseEvent) => {
+    handleClassesPointerMove(e.clientX, e.clientY);
+  };
+
+  const handleClassesMouseUp = () => {
+    handleClassesPointerUp();
+  };
+
+  const handleClassesMouseLeave = () => {
+    handleClassesPointerUp();
+  };
+
+  // 터치 이벤트 핸들러
+  const handleClassesTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      handleClassesPointerDown(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleClassesTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      handleClassesPointerMove(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleClassesTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleClassesPointerUp();
+  };
+
+  // 클래스 클릭 처리 (드래그가 아닐 때만)
+  const handleClassesClick = useCallback((e: React.MouseEvent) => {
+    // 드래그가 있었으면 클릭 무시
+    if (hasDraggedClass) {
+      return;
+    }
+
+    // 우클릭 메뉴 닫기
+    setContextMenu(null);
+
+    const coords = getClassesCanvasCoordinates(e.clientX, e.clientY);
+    if (!coords) return;
+
+    const { x, y } = coords;
+    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+    const nodeSize = baseSize / 2;
+
+    const clickedIndex = classes.findIndex((_, index) => {
+      const position = classPositions[index];
+      if (!position) return false;
+      const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+      return distance <= nodeSize;
+    });
+
+    if (clickedIndex >= 0) {
+      navigate(`/class/${clickedIndex + 1}`);
+    }
+  }, [hasDraggedClass, getClassesCanvasCoordinates, classes, classPositions, screenSize, navigate]);
+
+  // 우클릭 메뉴 처리
+  const handleClassesContextMenu = useCallback((e: React.MouseEvent) => {
+    if (!isAdmin) return;
+    e.preventDefault();
+
+    const coords = getClassesCanvasCoordinates(e.clientX, e.clientY);
+    if (!coords) return;
+
+    const { x, y } = coords;
+    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+    const nodeSize = baseSize / 2;
+
+    const clickedIndex = classes.findIndex((_, index) => {
+      const position = classPositions[index];
+      if (!position) return false;
+      const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+      return distance <= nodeSize;
+    });
+
+    if (clickedIndex >= 0) {
+      setContextMenu({ x: e.clientX, y: e.clientY, classIndex: clickedIndex });
+    }
+  }, [isAdmin, getClassesCanvasCoordinates, classes, classPositions, screenSize]);
 
   // 관리자 토큰 검증
   useEffect(() => {
@@ -1536,10 +1886,68 @@ function App() {
     return positions;
   }, [classes, screenSize]);
 
+  // 캔버스 크기 설정
   useEffect(() => {
-    // 위치 설정
-    const positions = generateCircularLayout();
-    setClassPositions(positions);
+    const updateCanvasSize = () => {
+      if (classesContainerRef.current) {
+        const container = classesContainerRef.current;
+        const isMobile = window.innerWidth < 768;
+        const containerWidth = container.clientWidth || window.innerWidth;
+        const containerHeight = isMobile 
+          ? window.innerHeight - 200
+          : Math.max(600, window.innerHeight * 0.6);
+        
+        const newSize = {
+          width: Math.min(containerWidth - (isMobile ? 20 : 40), isMobile ? window.innerWidth : 1200),
+          height: Math.min(containerHeight, isMobile ? window.innerHeight - 150 : 800)
+        };
+        
+        setClassesCanvasSize(newSize);
+        
+        const canvas = classesCanvasRef.current;
+        if (canvas) {
+          const devicePixelRatio = window.devicePixelRatio || 1;
+          canvas.width = newSize.width * devicePixelRatio;
+          canvas.height = newSize.height * devicePixelRatio;
+          canvas.style.width = newSize.width + 'px';
+          canvas.style.height = newSize.height + 'px';
+        }
+      }
+    };
+
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+    return () => window.removeEventListener('resize', updateCanvasSize);
+  }, []);
+
+  useEffect(() => {
+    // 저장된 위치 불러오기
+    try {
+      const savedPositions = JSON.parse(localStorage.getItem('classPositions') || '{}');
+      if (Object.keys(savedPositions).length > 0) {
+        const positions = classes.map((_, index) => {
+          if (savedPositions[index]) {
+            return savedPositions[index];
+          }
+          return null;
+        });
+        // 일부만 저장되어 있으면 나머지는 자동 레이아웃으로 채움
+        const hasAnySaved = positions.some(p => p !== null);
+        if (hasAnySaved) {
+          const autoLayout = generateCircularLayout();
+          const finalPositions = positions.map((p, i) => p || autoLayout[i] || { x: 100, y: 100 });
+          setClassPositions(finalPositions);
+        } else {
+          setClassPositions(generateCircularLayout());
+        }
+      } else {
+        setClassPositions(generateCircularLayout());
+      }
+    } catch (error) {
+      console.error('저장된 위치 불러오기 오류:', error);
+      setClassPositions(generateCircularLayout());
+    }
+
     // 화면 크기 변경 시 위치 재계산
     const handleResize = () => {
       const newPositions = generateCircularLayout();
@@ -1551,7 +1959,7 @@ function App() {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [generateCircularLayout]); // generateCircularLayout이 변경될 때마다 위치 재계산
+  }, [generateCircularLayout, classes]); // generateCircularLayout이 변경될 때마다 위치 재계산
 
   const LandingPage = () => {
     const handleLogoClick = () => {
@@ -1708,280 +2116,160 @@ function App() {
                 )}
               </div>
 
-              {/* 원들 컨테이너 */}
-              <div className="floating-classes-container" style={{ position: 'relative', width: '100%', minHeight: '60vh' }}>
-                {classesLoaded && classes.map((className, index) => (
-              <div
-                key={`class-${index}`}
-                style={{ 
-                  position: 'absolute',
-                  left: classPositions[index]?.x || 0,
-                  top: classPositions[index]?.y || 0
-                }}
+              {/* 원들 컨테이너 - 캔버스로 전환 */}
+              <div 
+                className="floating-classes-container" 
+                ref={classesContainerRef}
+                style={{ position: 'relative', width: '100%', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
               >
-                {editingClassIndex === index && isAdmin ? (
-                  <div className="floating-class-button">
-                    <Form.Control
-                      type="text"
-                      value={editingClassName}
-                      onChange={(e) => setEditingClassName(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleSaveClassName(index);
-                        } else if (e.key === 'Escape') {
-                          handleCancelEdit();
-                        }
+                <canvas
+                  ref={classesCanvasRef}
+                  width={classesCanvasSize.width}
+                  height={classesCanvasSize.height}
+                  onMouseDown={handleClassesMouseDown}
+                  onMouseMove={handleClassesMouseMove}
+                  onMouseUp={handleClassesMouseUp}
+                  onMouseLeave={handleClassesMouseLeave}
+                  onClick={handleClassesClick}
+                  onContextMenu={handleClassesContextMenu}
+                  onTouchStart={handleClassesTouchStart}
+                  onTouchMove={handleClassesTouchMove}
+                  onTouchEnd={handleClassesTouchEnd}
+                  style={{ 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    cursor: isDraggingClass ? 'grabbing' : 'pointer',
+                    touchAction: 'none',
+                    maxWidth: '100%',
+                    height: 'auto'
+                  }}
+                />
+                {/* 우클릭 컨텍스트 메뉴 */}
+                {contextMenu && isAdmin && (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      left: contextMenu.x,
+                      top: contextMenu.y,
+                      background: '#ffffff',
+                      border: '1px solid #dadce0',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      zIndex: 10000,
+                      minWidth: '150px',
+                      padding: '8px 0'
+                    }}
+                    onMouseLeave={() => setContextMenu(null)}
+                  >
+                    <button
+                      onClick={() => {
+                        handleEditClassName(contextMenu.classIndex);
+                        setContextMenu(null);
                       }}
-                      onBlur={() => handleSaveClassName(index)}
-                      autoFocus
                       style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'white',
-                        textAlign: 'center',
-                        fontSize: 'inherit',
-                        fontWeight: 'inherit',
-                        padding: 0,
                         width: '100%',
-                        outline: 'none'
+                        padding: '8px 16px',
+                        border: 'none',
+                        background: 'transparent',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '14px'
                       }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ position: 'relative' }}>
-                    <Link 
-                      to={`/class/${index + 1}`} 
-                      style={{ 
-                        textDecoration: 'none',
-                        display: 'block'
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#f1f3f4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      <div 
-                        className="floating-class-button"
-                        style={{
-                          background: !classExistence[index + 1]?.imageData && classExistence[index + 1]?.color 
-                            ? `linear-gradient(135deg, ${classExistence[index + 1].color} 0%, ${classExistence[index + 1].color}dd 100%)`
-                            : undefined,
-                          position: 'relative',
-                          overflow: 'hidden',
-                          width: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150)}px`,
-                          height: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150)}px`,
-                          fontSize: `${(classExistence[index + 1]?.size || 1.0) * (screenSize.width < 768 ? 14 : 16)}px`
-                        }}
-                      >
-                        {classExistence[index + 1]?.imageData && classImageLoaded[index + 1] ? (
-                          <img
-                            src={classExistence[index + 1].imageData}
-                            alt="클래스 이미지"
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              borderRadius: '50%'
-                            }}
-                            onError={() => {
-                              setClassImageLoaded(prev => ({ ...prev, [index + 1]: false }));
-                            }}
-                          />
-                        ) : classExistence[index + 1]?.imageData ? (
-                          // 이미지 로딩 중
-                          <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: classExistence[index + 1]?.color || '#667eea',
-                            borderRadius: '50%'
-                          }}>
-                            <span style={{ fontSize: '20px', opacity: 0.5 }}>⏳</span>
-                          </div>
-                        ) : null}
-                        {!classExistence[index + 1]?.imageData && classExistence[index + 1]?.shape && classExistence[index + 1].shape !== 'circle' ? (
-                          <span style={{ fontSize: '40px', position: 'relative', zIndex: 1 }}>
-                            {classExistence[index + 1].shape === 'square' && '⬜'}
-                            {classExistence[index + 1].shape === 'triangle' && '🔺'}
-                            {classExistence[index + 1].shape === 'star' && '⭐'}
-                            {classExistence[index + 1].shape === 'heart' && '❤️'}
-                            {classExistence[index + 1].shape === 'smile' && '😊'}
-                            {classExistence[index + 1].shape === 'fire' && '🔥'}
-                            {classExistence[index + 1].shape === 'sun' && '☀️'}
-                            {classExistence[index + 1].shape === 'moon' && '🌙'}
-                            {classExistence[index + 1].shape === 'rainbow' && '🌈'}
-                            {classExistence[index + 1].shape === 'flower' && '🌸'}
-                            {classExistence[index + 1].shape === 'butterfly' && '🦋'}
-                            {classExistence[index + 1].shape === 'cat' && '🐱'}
-                            {classExistence[index + 1].shape === 'dog' && '🐶'}
-                            {classExistence[index + 1].shape === 'panda' && '🐼'}
-                          </span>
-                        ) : null}
-                      </div>
-                    </Link>
-                    {isAdmin && (
-                      <div style={{ 
-                        position: 'absolute',
-                        bottom: '-50px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        display: 'flex',
-                        gap: '8px',
-                        zIndex: 10
-                      }}>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleEditClassName(index);
-                          }}
-                          className="edit-class-btn"
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 이름 수정"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleOpenStudentManage(index);
-                          }}
-                          className="manage-students-btn"
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 관리"
-                        >
-                          👥
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedClassIndex(index);
-                            setShowClassCustomizeModal(true);
-                          }}
-                          className="customize-class-btn"
-                          style={{
-                            background: 'rgba(255, 193, 7, 0.9)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: 'white',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-                            transition: 'all 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 193, 7, 1)';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 편집"
-                        >
-                          🎨
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleDeleteClass(index);
-                          }}
-                          className="delete-class-btn"
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 삭제"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    )}
+                      ✏️ 이름 수정
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleOpenStudentManage(contextMenu.classIndex);
+                        setContextMenu(null);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: 'none',
+                        background: 'transparent',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#f1f3f4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      👥 학생 관리
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedClassIndex(contextMenu.classIndex);
+                        setShowClassCustomizeModal(true);
+                        setContextMenu(null);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: 'none',
+                        background: 'transparent',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#f1f3f4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      🎨 원 편집
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleDeleteClass(contextMenu.classIndex);
+                        setContextMenu(null);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '8px 16px',
+                        border: 'none',
+                        background: 'transparent',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        color: '#d93025'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#fce8e6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      🗑️ 삭제
+                    </button>
                   </div>
                 )}
-              </div>
-            ))}
+                {/* 관리자 모드에서 편집 버튼들을 위한 오버레이 (필요시) */}
+                {isAdmin && editingClassIndex !== null && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    zIndex: 1000
+                  }}>
+                    {/* 편집 UI는 별도 모달로 처리 */}
+                  </div>
+                )}
+                {/* 기존 div 기반 렌더링 제거됨 - 캔버스로 대체 */}
+                {/* 관리자 모드에서 우클릭 메뉴를 위한 컨텍스트 메뉴 (추후 구현 가능) */}
               </div>
             </div>
           </div>
