@@ -2229,24 +2229,212 @@ function App() {
       }
     };
 
+    // Figma 이미지 URL들
+    const imgIllustrationChair = "https://www.figma.com/api/mcp/asset/473f8cca-f65f-44c1-bcef-56099a2d5c18";
+    const imgIllustrationBall = "https://www.figma.com/api/mcp/asset/40503047-7bfc-4238-bad7-1a29404d3b8a";
+    const imgIllustrationBook = "https://www.figma.com/api/mcp/asset/dc7f7dcd-909b-494b-bc9a-4c541217a42b";
+    const imgIllustrationCactus = "https://www.figma.com/api/mcp/asset/06f75026-36dc-4f6e-bb49-34e87ce2dc07";
+    const imgIllustrationBox = "https://www.figma.com/api/mcp/asset/b4358168-f96f-43e6-bd0c-8b6dcf822622";
+    const imgIllustrationWrench = "https://www.figma.com/api/mcp/asset/a1386f64-1690-4b7c-afb3-bbc36630a0aa";
+
     return (
-      <div className="existence-home">
-        <div className="existence-search-container">
-          <h1 className="existence-logo" onClick={handleLogoClick}>
-            <span className="existence-letter existence-letter-red">E</span>
-            <span className="existence-letter existence-letter-dark">x</span>
-            <span className="existence-letter existence-letter-green">i</span>
-            <span className="existence-letter existence-letter-dark">st</span>
-            <span className="existence-letter existence-letter-blue">e</span>
-            <span className="existence-letter existence-letter-dark">n</span>
-            <span className="existence-letter existence-letter-red">c</span>
-            <span className="existence-letter existence-letter-dark">e</span>
+      <div className="existence-home" style={{ 
+        backgroundColor: '#f5f2ee', 
+        minHeight: '100vh',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* 장식 일러스트레이션들 */}
+        <div style={{
+          position: 'absolute',
+          height: screenSize.width < 768 ? '300px' : '541px',
+          left: screenSize.width < 768 ? '-40px' : '-81px',
+          top: screenSize.width < 768 ? '200px' : '384px',
+          width: screenSize.width < 768 ? '100vw' : '1179px',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          opacity: screenSize.width < 768 ? 0.6 : 1
+        }}>
+          {/* 의자 */}
+          <div style={{
+            position: 'absolute',
+            left: '0.34%',
+            top: '2.96%',
+            right: '74.11%',
+            bottom: '5.05%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: '242.377px',
+              height: '470.292px',
+              transform: 'rotate(352.566deg)',
+              position: 'relative'
+            }}>
+              <img 
+                src={imgIllustrationChair} 
+                alt="Chair illustration" 
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+          
+          {/* 공 */}
+          <div style={{
+            position: 'absolute',
+            left: '23.52%',
+            top: '0.97%',
+            right: '54.61%',
+            bottom: '51.36%'
+          }}>
+            <img 
+              src={imgIllustrationBall} 
+              alt="Ball illustration" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          
+          {/* 책 */}
+          <div style={{
+            position: 'absolute',
+            left: '345px',
+            top: '221px',
+            width: '379.44px',
+            height: '292.075px'
+          }}>
+            <img 
+              src={imgIllustrationBook} 
+              alt="Book illustration" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          
+          {/* 선인장 */}
+          <div style={{
+            position: 'absolute',
+            left: '77.02%',
+            top: '0%',
+            right: '-1.36%',
+            bottom: '5.64%'
+          }}>
+            <img 
+              src={imgIllustrationCactus} 
+              alt="Cactus illustration" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          
+          {/* 박스 */}
+          <div style={{
+            position: 'absolute',
+            left: '47.16%',
+            top: '-3.14%',
+            right: '23.34%',
+            bottom: '47.19%'
+          }}>
+            <img 
+              src={imgIllustrationBox} 
+              alt="Box illustration" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          
+          {/* 렌치 */}
+          <div style={{
+            position: 'absolute',
+            left: '22.6%',
+            top: '46.09%',
+            right: '58.38%',
+            bottom: '-0.04%'
+          }}>
+            <img 
+              src={imgIllustrationWrench} 
+              alt="Wrench illustration" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+        </div>
+
+        {/* 메인 콘텐츠 */}
+        <div className="existence-search-container" style={{
+          position: 'relative',
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '40px 20px'
+        }}>
+          {/* Existence 타이틀 */}
+          <h1 
+            className="existence-logo" 
+            onClick={handleLogoClick}
+            style={{
+              fontFamily: "'Young Serif', serif",
+              fontSize: 'clamp(120px, 15vw, 207.603px)',
+              fontWeight: 400,
+              lineHeight: '1.066',
+              color: '#2d2d2d',
+              textAlign: 'center',
+              letterSpacing: '-8.3041px',
+              margin: '0 0 20px 0',
+              cursor: 'pointer',
+              position: 'relative',
+              zIndex: 10
+            }}
+          >
+            Existence
           </h1>
-          <div className="existence-buttons">
+          
+          {/* 서브타이틀 */}
+          <p style={{
+            fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontWeight: 700,
+            fontSize: 'clamp(18px, 2vw, 24px)',
+            lineHeight: 'normal',
+            color: '#2d2d2d',
+            textAlign: 'center',
+            letterSpacing: '1.2px',
+            margin: '0 0 60px 0',
+            maxWidth: '824px',
+            position: 'relative',
+            zIndex: 10
+          }}>
+            Reflect deeply, Record consistently, Collaborate together!
+          </p>
+          
+          {/* 버튼들 */}
+          <div className="existence-buttons" style={{
+            position: 'relative',
+            zIndex: 10,
+            marginTop: '40px'
+          }}>
             <button
               type="button"
               className="existence-button"
               onClick={() => navigate('/being')}
+              style={{
+                backgroundColor: '#ffffff',
+                border: '2px solid #2d2d2d',
+                borderRadius: '8px',
+                color: '#2d2d2d',
+                padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
+                fontSize: screenSize.width < 768 ? '16px' : '18px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                margin: screenSize.width < 768 ? '0 4px' : '0 8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2d2d2d';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.color = '#2d2d2d';
+              }}
             >
               존재
             </button>
@@ -2254,6 +2442,26 @@ function App() {
               type="button"
               className="existence-button"
               onClick={() => navigate('/purpose')}
+              style={{
+                backgroundColor: '#ffffff',
+                border: '2px solid #2d2d2d',
+                borderRadius: '8px',
+                color: '#2d2d2d',
+                padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
+                fontSize: screenSize.width < 768 ? '16px' : '18px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                margin: screenSize.width < 768 ? '0 4px' : '0 8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2d2d2d';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.color = '#2d2d2d';
+              }}
             >
               목적
             </button>
@@ -2262,11 +2470,65 @@ function App() {
                 type="button"
                 className="existence-button"
                 onClick={() => setShowAIModal(true)}
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '2px solid #2d2d2d',
+                  borderRadius: '8px',
+                  color: '#2d2d2d',
+                  padding: '12px 32px',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  margin: '0 8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2d2d2d';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.color = '#2d2d2d';
+                }}
               >
                 질문
               </button>
             )}
           </div>
+        </div>
+
+        {/* 하단 텍스트 */}
+        <div style={{
+          position: 'absolute',
+          bottom: screenSize.width < 768 ? '10px' : '20px',
+          left: screenSize.width < 768 ? '20px' : '51px',
+          fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontWeight: 700,
+          fontSize: screenSize.width < 768 ? '14px' : '24px',
+          lineHeight: 'normal',
+          color: '#2d2d2d',
+          letterSpacing: '0.48px',
+          zIndex: 10
+        }}>
+          <p style={{ margin: 0 }}>&nbsp;</p>
+          <p style={{ margin: 0 }}>Made by Yunho Choi</p>
+        </div>
+        
+        <div style={{
+          position: 'absolute',
+          bottom: screenSize.width < 768 ? '10px' : '20px',
+          right: screenSize.width < 768 ? '20px' : '51px',
+          fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontWeight: 700,
+          fontSize: screenSize.width < 768 ? '14px' : '24px',
+          lineHeight: 'normal',
+          color: '#2d2d2d',
+          textAlign: 'right',
+          letterSpacing: '0.48px',
+          zIndex: 10
+        }}>
+          <p style={{ margin: 0 }}>&nbsp;</p>
+          <p style={{ margin: 0 }}>Established 2025.11.18.</p>
         </div>
       </div>
     );
