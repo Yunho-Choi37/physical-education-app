@@ -587,7 +587,7 @@ const PurposePage = () => {
                   }}>
                     {goal.title}
                   </h3>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap' }}>
                     <button
                       type="button"
                       className="existence-button"
@@ -595,7 +595,8 @@ const PurposePage = () => {
                       style={{ 
                         padding: '6px 16px',
                         fontSize: '14px',
-                        minWidth: 'auto'
+                        minWidth: 'auto',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       수정
@@ -610,7 +611,8 @@ const PurposePage = () => {
                         minWidth: 'auto',
                         backgroundColor: '#f8f9fa',
                         borderColor: '#dadce0',
-                        color: '#d93025'
+                        color: '#d93025',
+                        whiteSpace: 'nowrap'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = '#f1f3f4';
