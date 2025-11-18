@@ -2240,6 +2240,8 @@ function App() {
     return (
       <div className="existence-home" style={{ 
         backgroundColor: '#f5f2ee', 
+        width: '100%',
+        height: '100vh',
         minHeight: '100vh',
         position: 'relative',
         overflow: 'hidden'
@@ -2425,7 +2427,11 @@ function App() {
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                margin: screenSize.width < 768 ? '0 4px' : '0 8px'
+                margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2d2d2d';
@@ -2452,7 +2458,11 @@ function App() {
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                margin: screenSize.width < 768 ? '0 4px' : '0 8px'
+                margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: '1'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2d2d2d';
@@ -2475,12 +2485,16 @@ function App() {
                   border: '2px solid #2d2d2d',
                   borderRadius: '8px',
                   color: '#2d2d2d',
-                  padding: '12px 32px',
-                  fontSize: '18px',
+                  padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
+                  fontSize: screenSize.width < 768 ? '16px' : '18px',
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
-                  margin: '0 8px'
+                  margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: '1'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#2d2d2d';
