@@ -15,6 +15,66 @@ interface ClassExistence {
   border: string;
   customName?: string;
   imageData?: string;
+  showElectrons?: boolean;
+  showProtonsNeutrons?: boolean;
+  atom?: {
+    protons: Array<{
+      keyword: string;
+      strength: number;
+      color: string;
+      emoji: string;
+      imageData?: string;
+      description?: string;
+      hashtags?: string[];
+    }>;
+    neutrons: Array<{
+      keyword: string;
+      category: string;
+      color: string;
+      emoji: string;
+      imageData?: string;
+      description?: string;
+      hashtags?: string[];
+    }>;
+    electrons: {
+      kShell: Array<{
+        activity: string;
+        frequency: number;
+        emoji: string;
+        description?: string;
+        hashtags?: string[];
+        activityTime?: number;
+        date?: string;
+      }>;
+      lShell: Array<{
+        activity: string;
+        frequency: number;
+        emoji: string;
+        description?: string;
+        hashtags?: string[];
+        activityTime?: number;
+        date?: string;
+      }>;
+      mShell: Array<{
+        activity: string;
+        frequency: number;
+        emoji: string;
+        description?: string;
+        hashtags?: string[];
+        activityTime?: number;
+        date?: string;
+      }>;
+      valence: Array<{
+        activity: string;
+        cooperation: number;
+        emoji: string;
+        description?: string;
+        hashtags?: string[];
+        activityTime?: number;
+        date?: string;
+      }>;
+    };
+  };
 }
 
 interface Goal {
@@ -1230,7 +1290,8 @@ function App() {
       }
 
       // 이미지가 있으면 이미지 그리기
-      if (existence?.imageData && classImageLoaded[index + 1]) {
+      let imageDrawn = false;
+      if (existence?.imageData) {
         const cache = classImageCacheRef.current;
         let cachedImage = cache.get(existence.imageData);
         
@@ -1238,7 +1299,8 @@ function App() {
           const img = new Image();
           img.onload = () => {
             cache.set(existence.imageData!, img);
-            // 이미지 로드 후 다시 그리기 (requestAnimationFrame으로 최적화)
+            setClassImageLoaded(prev => ({ ...prev, [index + 1]: true }));
+            // 이미지 로드 후 다시 그리기
             requestAnimationFrame(() => {
               drawClasses();
             });
@@ -1251,16 +1313,26 @@ function App() {
           cache.set(existence.imageData, img);
         }
 
-        if (cachedImage.complete && cachedImage.naturalWidth > 0) {
+        if (cachedImage && cachedImage.complete && cachedImage.naturalWidth > 0) {
           ctx.save();
+          // 배경 색상 먼저 그리기
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
+          ctx.fillStyle = existence?.color || '#667eea';
+          ctx.fill();
+          // 원형 클리핑
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, 2 * Math.PI);
           ctx.clip();
+          // 이미지 그리기
           ctx.drawImage(cachedImage, x - radius, y - radius, size, size);
           ctx.restore();
+          imageDrawn = true;
         }
-      } else {
-        // 색상으로 그리기
+      }
+      
+      // 이미지가 없거나 로드되지 않았으면 색상으로 그리기
+      if (!imageDrawn) {
         const color = existence?.color || '#667eea';
         ctx.fillStyle = color;
         ctx.beginPath();
@@ -1299,6 +1371,119 @@ function App() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(displayText, x, y);
+
+      // 원자 모델 그리기 (전자/양성자/중성자)
+      if (existence?.atom) {
+        const atom = existence.atom;
+        const hasProtons = atom.protons && atom.protons.length > 0;
+        const hasNeutrons = atom.neutrons && atom.neutrons.length > 0;
+        const hasElectrons = atom.electrons && (
+          (atom.electrons.kShell && atom.electrons.kShell.length > 0) ||
+          (atom.electrons.lShell && atom.electrons.lShell.length > 0) ||
+          (atom.electrons.mShell && atom.electrons.mShell.length > 0) ||
+          (atom.electrons.valence && atom.electrons.valence.length > 0)
+        );
+
+        const time = Date.now();
+        const seed = index * 1000;
+
+        // 양성자/중성자 그리기
+        if ((hasProtons || hasNeutrons) && existence.showProtonsNeutrons) {
+          const numP = atom.protons?.length || 0;
+          const numN = atom.neutrons?.length || 0;
+          const protonOrbit = radius * 1.1;
+          const neutronOrbit = radius * 1.3;
+          const particleSize = Math.max(8, radius * 0.15);
+
+          // 양성자 그리기
+          if (numP > 0 && atom.protons) {
+            atom.protons.forEach((proton: any, pIdx: number) => {
+              const angle = (time * 0.00005 + pIdx * (2 * Math.PI / numP)) % (2 * Math.PI);
+              const px = x + Math.cos(angle) * protonOrbit;
+              const py = y + Math.sin(angle) * protonOrbit;
+              
+              ctx.beginPath();
+              ctx.arc(px, py, particleSize, 0, 2 * Math.PI);
+              ctx.fillStyle = proton.color || '#FF6B6B';
+              ctx.fill();
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              
+              // 이모티콘 표시
+              if (proton.emoji) {
+                ctx.font = `${particleSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(proton.emoji, px, py);
+              }
+            });
+          }
+
+          // 중성자 그리기
+          if (numN > 0 && atom.neutrons) {
+            atom.neutrons.forEach((neutron: any, nIdx: number) => {
+              const angle = (time * 0.00003 + Math.PI / 6 + nIdx * (2 * Math.PI / numN)) % (2 * Math.PI);
+              const nx = x + Math.cos(angle) * neutronOrbit;
+              const ny = y + Math.sin(angle) * neutronOrbit;
+              
+              ctx.beginPath();
+              ctx.arc(nx, ny, particleSize, 0, 2 * Math.PI);
+              ctx.fillStyle = neutron.color || '#4ECDC4';
+              ctx.fill();
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              
+              // 이모티콘 표시
+              if (neutron.emoji) {
+                ctx.font = `${particleSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(neutron.emoji, nx, ny);
+              }
+            });
+          }
+        }
+
+        // 전자 그리기
+        if (hasElectrons && existence.showElectrons && atom.electrons) {
+          const orbits = [
+            { shell: 'kShell', radius: radius * 1.5, color: '#FF6B6B' },
+            { shell: 'lShell', radius: radius * 2.0, color: '#4ECDC4' },
+            { shell: 'mShell', radius: radius * 2.5, color: '#45B7D1' },
+            { shell: 'valence', radius: radius * 3.0, color: '#96CEB4' }
+          ];
+
+          orbits.forEach((orbit, orbitIdx) => {
+            const electrons = (atom.electrons as any)[orbit.shell];
+            if (!electrons || electrons.length === 0) return;
+
+            electrons.forEach((electron: any, eIdx: number) => {
+              const angle = (time * (0.00005 + orbitIdx * 0.00001) + eIdx * (2 * Math.PI / electrons.length)) % (2 * Math.PI);
+              const ex = x + Math.cos(angle) * orbit.radius;
+              const ey = y + Math.sin(angle) * orbit.radius;
+              const electronSize = Math.max(6, radius * 0.12);
+              
+              ctx.beginPath();
+              ctx.arc(ex, ey, electronSize, 0, 2 * Math.PI);
+              ctx.fillStyle = orbit.color;
+              ctx.fill();
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              
+              // 이모티콘 표시
+              if (electron.emoji) {
+                ctx.font = `${electronSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(electron.emoji, ex, ey);
+              }
+            });
+          });
+        }
+      }
 
       ctx.shadowBlur = 0;
     });
