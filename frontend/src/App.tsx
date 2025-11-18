@@ -67,6 +67,7 @@ interface ClassExistence {
       valence: Array<{
         activity: string;
         cooperation: number;
+        social: boolean;
         emoji: string;
         description?: string;
         hashtags?: string[];
@@ -1297,16 +1298,20 @@ function App() {
         
         if (!cachedImage) {
           const img = new Image();
+          let loadHandled = false;
           img.onload = () => {
-            cache.set(existence.imageData!, img);
-            setClassImageLoaded(prev => ({ ...prev, [index + 1]: true }));
-            // 이미지 로드 후 다시 그리기
-            requestAnimationFrame(() => {
-              drawClasses();
-            });
+            if (!loadHandled) {
+              loadHandled = true;
+              cache.set(existence.imageData!, img);
+              setClassImageLoaded(prev => ({ ...prev, [index + 1]: true }));
+              // 애니메이션 루프가 자동으로 다시 그리므로 별도 호출 불필요
+            }
           };
           img.onerror = () => {
-            setClassImageLoaded(prev => ({ ...prev, [index + 1]: false }));
+            if (!loadHandled) {
+              loadHandled = true;
+              setClassImageLoaded(prev => ({ ...prev, [index + 1]: false }));
+            }
           };
           img.src = existence.imageData;
           cachedImage = img;
@@ -1489,11 +1494,22 @@ function App() {
     });
   }, [classes, classesLoaded, classPositions, classExistence, classImageLoaded, screenSize, draggedClassIndex]);
 
-  // drawClasses를 useEffect로 호출
+  // drawClasses를 useEffect로 호출 (애니메이션을 위한 반복 호출)
   useEffect(() => {
-    if (classesLoaded && classPositions.length > 0) {
+    if (!classesLoaded || classPositions.length === 0) return;
+    
+    let animationFrameId: number;
+    const animate = () => {
       drawClasses();
-    }
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [drawClasses, classesLoaded, classPositions]);
 
   // 전역 클릭으로 컨텍스트 메뉴 닫기
@@ -2975,11 +2991,11 @@ function App() {
               energy: 60,
               personality: 'active',
               customName: classExistence[selectedClassIndex + 1].customName,
-              imageData: classExistence[selectedClassIndex + 1].imageData,
+              imageData: classExistence[selectedClassIndex + 1].imageData || '',
               records: [],
-              showElectrons: false,
-              showProtonsNeutrons: false,
-              atom: {
+              showElectrons: classExistence[selectedClassIndex + 1].showElectrons || false,
+              showProtonsNeutrons: classExistence[selectedClassIndex + 1].showProtonsNeutrons || false,
+              atom: classExistence[selectedClassIndex + 1].atom || {
                 protons: [],
                 neutrons: [],
                 electrons: {
@@ -3006,7 +3022,19 @@ function App() {
               glow: updatedStudent.existence?.glow || false,
               border: updatedStudent.existence?.border || 'normal',
               customName: updatedStudent.existence?.customName,
-              imageData: updatedStudent.existence?.imageData
+              imageData: updatedStudent.existence?.imageData || '',
+              showElectrons: updatedStudent.existence?.showElectrons || false,
+              showProtonsNeutrons: updatedStudent.existence?.showProtonsNeutrons || false,
+              atom: updatedStudent.existence?.atom || {
+                protons: [],
+                neutrons: [],
+                electrons: {
+                  kShell: [],
+                  lShell: [],
+                  mShell: [],
+                  valence: []
+                }
+              }
             };
             
             try {
