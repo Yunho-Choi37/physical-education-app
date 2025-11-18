@@ -1581,10 +1581,10 @@ function App() {
             const imageData = existence[classId]?.imageData;
             if (imageData && imageData.startsWith('data:image')) {
               const cache = classImageCacheRef.current;
-              if (!cache.has(classId)) {
+              if (!cache.has(imageData)) {
                 const img = new Image();
                 img.onload = () => {
-                  cache.set(classId, img);
+                  cache.set(imageData, img);
                   setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
                 };
                 img.onerror = () => {
