@@ -2270,11 +2270,12 @@ function App() {
             bottom: '5.05%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'none'
           }}>
             <div style={{
-              width: screenSize.width < 768 ? `${242.377 * (screenSize.width / 1179)}px` : '242.377px',
-              height: screenSize.width < 768 ? `${470.292 * (screenSize.width / 1179)}px` : '470.292px',
+              width: screenSize.width < 768 ? `${Math.min(242.377 * (screenSize.width / 1179), 242.377)}px` : '242.377px',
+              height: screenSize.width < 768 ? `${Math.min(470.292 * (screenSize.width / 1179), 470.292)}px` : '470.292px',
               maxWidth: '242.377px',
               maxHeight: '470.292px',
               transform: 'rotate(352.566deg)',
@@ -2308,10 +2309,10 @@ function App() {
           {/* 책 */}
           <div style={{
             position: 'absolute',
-            left: '345px',
-            top: '221px',
-            width: screenSize.width < 768 ? `${379.44 * (screenSize.width / 1179)}px` : '379.44px',
-            height: screenSize.width < 768 ? `${292.075 * (screenSize.width / 1179)}px` : '292.075px',
+            left: screenSize.width < 768 ? `${345 * (screenSize.width / 1179)}px` : '345px',
+            top: screenSize.width < 768 ? `${221 * (screenSize.width / 1179)}px` : '221px',
+            width: screenSize.width < 768 ? `${Math.min(379.44 * (screenSize.width / 1179), 379.44)}px` : '379.44px',
+            height: screenSize.width < 768 ? `${Math.min(292.075 * (screenSize.width / 1179), 292.075)}px` : '292.075px',
             maxWidth: '379.44px',
             maxHeight: '292.075px',
             transition: 'none'
