@@ -893,24 +893,24 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 원자 모델 편집 - 패널 전환: nucleus */}
         {activePanel === 'nucleus' && (
         <Card className="mb-3">
-          <Card.Header>⚛️ Circle Edit</Card.Header>
+          <Card.Header>⚛️ 원자 편집</Card.Header>
           <Card.Body>
             {/* 양성자/중성자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="Show Circles"
+                label="원 표시"
                 checked={showProtonsNeutrons}
                 onChange={(e) => setShowProtonsNeutrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                Check to display edited circles on screen.
+                편집한 원을 화면에 표시하려면 체크하세요.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={6}>
-                <h6>🔴 Circle</h6>
+                <h6>🔴 원</h6>
                 {atomModel.protons.map((proton, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1151,7 +1151,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               </Col>
               
               <Col md={6}>
-                <h6>🔵 Circle</h6>
+                <h6>🔵 원</h6>
                 {atomModel.neutrons.map((neutron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1398,24 +1398,24 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         {/* 전자 껍질 편집 - 패널 전환: shells */}
         {activePanel === 'shells' && (
         <Card className="mb-3">
-          <Card.Header>⚡ Circle Edit</Card.Header>
+          <Card.Header>⚡ 전자 편집</Card.Header>
           <Card.Body>
             {/* 전자 표시 여부 체크박스 */}
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="Show Circles"
+                label="원 표시"
                 checked={showElectrons}
                 onChange={(e) => setShowElectrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                Check to display edited circles on screen.
+                편집한 원을 화면에 표시하려면 체크하세요.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
             <Row>
               <Col md={3}>
-                <h6>🟠 Circle</h6>
+                <h6>🟠 원</h6>
                 {atomModel.electrons.kShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -1771,7 +1771,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               </Col>
 
               <Col md={3}>
-                <h6>🟡 Circle</h6>
+                <h6>🟡 원</h6>
                 {atomModel.electrons.lShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -2073,7 +2073,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               </Col>
 
               <Col md={3}>
-                <h6>🟢 Circle</h6>
+                <h6>🟢 원</h6>
                 {atomModel.electrons.mShell.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
@@ -2375,7 +2375,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               </Col>
 
               <Col md={3}>
-                <h6>🔵 Circle</h6>
+                <h6>🔵 원</h6>
                 {atomModel.electrons.valence.map((electron, index) => (
                   <div key={index} className="mb-2 p-2 border rounded">
                     <div className="d-flex align-items-center mb-2">
