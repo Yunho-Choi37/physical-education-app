@@ -2420,19 +2420,24 @@ function App() {
                   const screenX = rect.left + position.x * scaleX;
                   const screenY = rect.top + position.y * scaleY;
                   
-                  return (
-                    <div
-                      key={`edit-buttons-${index}`}
-                      style={{
-                        position: 'fixed',
-                        left: screenX + radius + 10,
-                        top: screenY - 20,
-                        display: 'flex',
-                        gap: '6px',
-                        zIndex: 1000,
-                        pointerEvents: 'auto'
-                      }}
-                    >
+                    // 버튼들의 총 너비 계산 (4개 버튼 + 3개 gap)
+                    const buttonWidth = 32;
+                    const gapSize = 6;
+                    const totalButtonsWidth = (buttonWidth * 4) + (gapSize * 3);
+                    
+                    return (
+                      <div
+                        key={`edit-buttons-${index}`}
+                        style={{
+                          position: 'fixed',
+                          left: screenX - (totalButtonsWidth / 2), // 원의 중앙에 버튼들 배치
+                          top: screenY + radius + 10, // 원의 아래에 배치
+                          display: 'flex',
+                          gap: '6px',
+                          zIndex: 1000,
+                          pointerEvents: 'auto'
+                        }}
+                      >
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
