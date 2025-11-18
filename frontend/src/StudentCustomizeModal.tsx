@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Row, Col, Card, Badge } from 'react-bootstrap';
 import { getApiUrl } from './config';
 
@@ -277,10 +277,25 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     }
   }, [show]);
 
-  // 학생이 변경될 때마다 상태 초기화
+  // 학생이 변경될 때마다 상태 초기화 (모달이 처음 열릴 때만 탭 리셋)
+  const prevStudentIdRef = useRef<number | undefined>(undefined);
+  const prevShowRef = useRef<boolean>(false);
+  
+  useEffect(() => {
+    // 모달이 닫혔다가 다시 열릴 때 리셋
+    if (!prevShowRef.current && show && student) {
+      prevStudentIdRef.current = undefined;
+    }
+    prevShowRef.current = show;
+  }, [show]);
+  
   useEffect(() => {
     if (student && show) {
-      setActivePanel('shape');
+      // 학생 ID가 변경될 때만 탭을 리셋 (같은 학생의 경우 탭 유지)
+      if (prevStudentIdRef.current !== student.id) {
+        setActivePanel('shape');
+        prevStudentIdRef.current = student.id;
+      }
       setCustomization({
         color: student.existence?.color || '#FF6B6B',
         shape: student.existence?.shape || 'circle',

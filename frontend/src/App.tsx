@@ -1369,8 +1369,8 @@ function App() {
         }
       }
 
-      // 클래스 이름 또는 번호
-      const displayText = existence?.customName || className !== '.' ? className : `${index + 1}`;
+      // 클래스 이름 또는 번호 (customName이 있으면 우선 사용)
+      const displayText = existence?.customName || (className !== '.' ? className : `${index + 1}`);
       ctx.fillStyle = '#ffffff';
       ctx.font = `bold ${radius * 0.3}px "Roboto", sans-serif`;
       ctx.textAlign = 'center';
@@ -3075,6 +3075,33 @@ function App() {
               
               setClassExistence(updatedClassExistence);
               
+              // customName이 있으면 클래스 이름도 업데이트
+              if (existence.customName && selectedClassIndex !== null) {
+                const newClasses = [...classes];
+                newClasses[selectedClassIndex] = existence.customName;
+                setClasses(newClasses);
+                
+                // 클래스 이름도 API에 저장
+                try {
+                  const classesResponse = await fetch(`${getApiUrl()}/api/classes`);
+                  if (classesResponse.ok) {
+                    const classesData = await classesResponse.json();
+                    const allClassNames = classesData.classNames || classes;
+                    allClassNames[selectedClassIndex] = existence.customName;
+                    
+                    await fetch(`${getApiUrl()}/api/classes`, {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ classNames: allClassNames }),
+                    });
+                  }
+                } catch (error) {
+                  console.error('클래스 이름 저장 오류:', error);
+                }
+              }
+              
               // 이미지가 있으면 사전 로드
               const imageData = existence.imageData;
               if (imageData && imageData.startsWith('data:image')) {
@@ -3084,6 +3111,10 @@ function App() {
                   img.onload = () => {
                     cache.set(imageData, img);
                     setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                    // 이미지 로드 후 캔버스 다시 그리기
+                    requestAnimationFrame(() => {
+                      drawClasses();
+                    });
                   };
                   img.onerror = () => {
                     console.error(`이미지 로드 실패: 클래스 ${classId}`);
