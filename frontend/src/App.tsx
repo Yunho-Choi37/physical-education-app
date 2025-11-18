@@ -2611,19 +2611,20 @@ function App() {
               setClassExistence(updatedClassExistence);
               
               // 이미지가 있으면 사전 로드
-              if (existence.imageData && existence.imageData.startsWith('data:image')) {
+              const imageData = existence.imageData;
+              if (imageData && imageData.startsWith('data:image')) {
                 const cache = classImageCacheRef.current;
-                if (!cache.has(existence.imageData)) {
+                if (!cache.has(imageData)) {
                   const img = new Image();
                   img.onload = () => {
-                    cache.set(existence.imageData, img);
+                    cache.set(imageData, img);
                     setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
                   };
                   img.onerror = () => {
                     console.error(`이미지 로드 실패: 클래스 ${classId}`);
                     setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
                   };
-                  img.src = existence.imageData;
+                  img.src = imageData;
                 } else {
                   setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
                 }
