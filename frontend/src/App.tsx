@@ -3111,10 +3111,7 @@ function App() {
                   img.onload = () => {
                     cache.set(imageData, img);
                     setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
-                    // 이미지 로드 후 캔버스 다시 그리기
-                    requestAnimationFrame(() => {
-                      drawClasses();
-                    });
+                    // 이미지 로드 후 캔버스 다시 그리기 (애니메이션 루프가 자동으로 처리)
                   };
                   img.onerror = () => {
                     console.error(`이미지 로드 실패: 클래스 ${classId}`);
