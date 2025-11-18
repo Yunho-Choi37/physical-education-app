@@ -3096,13 +3096,13 @@ function App() {
                 setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
               }
               
-              // 저장 성공 후에만 모달 닫기
-              setShowClassCustomizeModal(false);
-              setSelectedClassIndex(null);
+              // 저장 성공 - 모달은 StudentCustomizeModal의 handleSave에서 닫음
             } catch (error) {
               console.error('❌ Error saving class existence:', error);
-              alert(`저장 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}\n\n모달은 열려있으니 다시 시도해주세요.`);
-              // 에러 발생 시 모달을 닫지 않음
+              const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+              alert(`저장 중 오류가 발생했습니다: ${errorMessage}\n\n모달은 열려있으니 다시 시도해주세요.`);
+              // 에러 발생 시 reject하여 StudentCustomizeModal에서 처리하도록 함
+              throw error;
             }
           }}
         />
