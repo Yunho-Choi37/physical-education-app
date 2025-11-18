@@ -1465,6 +1465,15 @@ function App() {
 
   const handleClassesTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
+    
+    // 드래그가 없었으면 클릭으로 처리
+    if (!hasDraggedClass && e.changedTouches.length > 0) {
+      const touch = e.changedTouches[0];
+      setTimeout(() => {
+        handleClassesTouchEndClick(touch.clientX, touch.clientY);
+      }, 100);
+    }
+    
     handleClassesPointerUp();
   };
 
@@ -1475,10 +1484,42 @@ function App() {
       return;
     }
 
+    // 편집 버튼 클릭인지 확인
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="button"]')) {
+      return; // 편집 버튼 클릭이면 무시
+    }
+
     // 우클릭 메뉴 닫기
     setContextMenu(null);
 
     const coords = getClassesCanvasCoordinates(e.clientX, e.clientY);
+    if (!coords) return;
+
+    const { x, y } = coords;
+    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+    const nodeSize = baseSize / 2;
+
+    const clickedIndex = classes.findIndex((_, index) => {
+      const position = classPositions[index];
+      if (!position) return false;
+      const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+      return distance <= nodeSize;
+    });
+
+    if (clickedIndex >= 0) {
+      navigate(`/class/${clickedIndex + 1}`);
+    }
+  }, [hasDraggedClass, getClassesCanvasCoordinates, classes, classPositions, screenSize, navigate]);
+
+  // 터치 클릭 처리
+  const handleClassesTouchEndClick = useCallback((clientX: number, clientY: number) => {
+    // 드래그가 있었으면 클릭 무시
+    if (hasDraggedClass) {
+      return;
+    }
+
+    const coords = getClassesCanvasCoordinates(clientX, clientY);
     if (!coords) return;
 
     const { x, y } = coords;
@@ -2163,40 +2204,38 @@ function App() {
                     height: 'auto'
                   }}
                 />
-                {/* 관리자 모드에서 호버 시 편집 버튼 표시 */}
-                {isAdmin && hoveredClassIndex !== null && !isDraggingClass && (
-                  (() => {
-                    const position = classPositions[hoveredClassIndex];
-                    if (!position) return null;
-                    const canvas = classesCanvasRef.current;
-                    if (!canvas) return null;
-                    const rect = canvas.getBoundingClientRect();
-                    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
-                    const radius = baseSize / 2;
-                    const devicePixelRatio = window.devicePixelRatio || 1;
-                    const scaleX = rect.width / (canvas.width / devicePixelRatio);
-                    const scaleY = rect.height / (canvas.height / devicePixelRatio);
-                    const screenX = rect.left + position.x * scaleX;
-                    const screenY = rect.top + position.y * scaleY;
-                    
-                    return (
-                      <div
-                        style={{
-                          position: 'fixed',
-                          left: screenX + radius + 10,
-                          top: screenY - 20,
-                          display: 'flex',
-                          gap: '6px',
-                          zIndex: 1000,
-                          pointerEvents: 'auto'
-                        }}
-                        onMouseEnter={() => setHoveredClassIndex(hoveredClassIndex)}
-                        onMouseLeave={() => setHoveredClassIndex(null)}
-                      >
+                {/* 관리자 모드에서 모든 원에 편집 버튼 항상 표시 */}
+                {isAdmin && !isDraggingClass && classesLoaded && classes.map((_, index) => {
+                  const position = classPositions[index];
+                  if (!position) return null;
+                  const canvas = classesCanvasRef.current;
+                  if (!canvas) return null;
+                  const rect = canvas.getBoundingClientRect();
+                  const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+                  const radius = baseSize / 2;
+                  const devicePixelRatio = window.devicePixelRatio || 1;
+                  const scaleX = rect.width / (canvas.width / devicePixelRatio);
+                  const scaleY = rect.height / (canvas.height / devicePixelRatio);
+                  const screenX = rect.left + position.x * scaleX;
+                  const screenY = rect.top + position.y * scaleY;
+                  
+                  return (
+                    <div
+                      key={`edit-buttons-${index}`}
+                      style={{
+                        position: 'fixed',
+                        left: screenX + radius + 10,
+                        top: screenY - 20,
+                        display: 'flex',
+                        gap: '6px',
+                        zIndex: 1000,
+                        pointerEvents: 'auto'
+                      }}
+                    >
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditClassName(hoveredClassIndex);
+                            handleEditClassName(index);
                           }}
                           style={{
                             background: '#424242',
@@ -2231,7 +2270,7 @@ function App() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenStudentManage(hoveredClassIndex);
+                            handleOpenStudentManage(index);
                           }}
                           style={{
                             background: '#424242',
@@ -2266,7 +2305,7 @@ function App() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedClassIndex(hoveredClassIndex);
+                            setSelectedClassIndex(index);
                             setShowClassCustomizeModal(true);
                           }}
                           style={{
@@ -2300,7 +2339,7 @@ function App() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteClass(hoveredClassIndex);
+                            handleDeleteClass(index);
                           }}
                           style={{
                             background: '#424242',
@@ -2334,8 +2373,7 @@ function App() {
                         </button>
                       </div>
                     );
-                  })()
-                )}
+                  }).filter(Boolean)}
                 {/* 우클릭 컨텍스트 메뉴 */}
                 {contextMenu && isAdmin && (
                   <div
