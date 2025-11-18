@@ -1596,6 +1596,53 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       // 그림자 초기화
       ctx.shadowBlur = 0;
     });
+
+    // 해시태그 기반 전자 연결선 그리기
+    // 모든 전자의 해시태그를 수집하고 같은 해시태그를 가진 전자들 사이에 연결선 그리기
+    const hashtagGroups = new Map<string, Array<{ x: number; y: number; studentId: number; electron: any }>>();
+    
+    // particlePositionsRef에서 전자 정보 수집
+    particlePositionsRef.current.forEach(particle => {
+      if (particle.type === 'electron' && particle.data && particle.data.hashtags && Array.isArray(particle.data.hashtags)) {
+        particle.data.hashtags.forEach((hashtag: string) => {
+          if (hashtag && hashtag.trim()) {
+            const normalizedTag = hashtag.trim().toLowerCase();
+            if (!hashtagGroups.has(normalizedTag)) {
+              hashtagGroups.set(normalizedTag, []);
+            }
+            hashtagGroups.get(normalizedTag)!.push({
+              x: particle.x,
+              y: particle.y,
+              studentId: particle.studentId,
+              electron: particle.data
+            });
+          }
+        });
+      }
+    });
+
+    // 같은 해시태그를 가진 전자들 사이에 검정색 점선 연결
+    hashtagGroups.forEach((electronList, hashtag) => {
+      if (electronList.length > 1) {
+        // 같은 해시태그를 가진 전자들 사이에 모두 연결 (완전 그래프)
+        for (let i = 0; i < electronList.length; i++) {
+          for (let j = i + 1; j < electronList.length; j++) {
+            const from = electronList[i];
+            const to = electronList[j];
+            
+            // 검정색 점선으로 연결
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+            ctx.lineTo(to.x, to.y);
+            ctx.strokeStyle = '#000000'; // 검정색
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]); // 점선 패턴
+            ctx.stroke();
+            ctx.setLineDash([]); // 점선 초기화
+          }
+        }
+      }
+    });
   }, [draggedStudent, hoveredStudent, students, canvasSize, studentPositions, studentGroups, nodeColors, calculateSimilarity, findConnectedGroups, generateStudentExistence, sessionSeedRef, imageCacheRef, allParticlesRef, drawProtonNeutronSatellites, drawElectronOrbits, drawShape, drawPattern, drawConnection]);
 
   useEffect(() => {
