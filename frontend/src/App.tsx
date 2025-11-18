@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Form, Card, ListGroup } from 'react-bootstrap';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
@@ -2237,6 +2237,51 @@ function App() {
     const imgIllustrationBox = "https://www.figma.com/api/mcp/asset/b4358168-f96f-43e6-bd0c-8b6dcf822622";
     const imgIllustrationWrench = "https://www.figma.com/api/mcp/asset/a1386f64-1690-4b7c-afb3-bbc36630a0aa";
 
+    // 일러스트레이션 스타일 메모이제이션 (깜빡임 방지)
+    const isMobile = screenSize.width < 768;
+    const scaleRatio = isMobile ? Math.min(screenSize.width / 1179, 1) : 1;
+    
+    const illustrationContainerStyle = useMemo(() => ({
+      position: 'absolute' as const,
+      height: isMobile ? '300px' : '541px',
+      left: '50%',
+      top: isMobile ? '200px' : '384px',
+      width: isMobile ? '100%' : '1179px',
+      maxWidth: isMobile ? '100%' : 'none',
+      transform: 'translateX(-50%)',
+      overflow: 'hidden',
+      pointerEvents: 'none' as const,
+      opacity: isMobile ? 0.6 : 1,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const,
+      WebkitBackfaceVisibility: 'hidden' as const,
+      transformStyle: 'preserve-3d' as const
+    }), [isMobile]);
+
+    const chairStyle = useMemo(() => ({
+      width: isMobile ? `${Math.min(242.377 * scaleRatio, 242.377)}px` : '242.377px',
+      height: isMobile ? `${Math.min(470.292 * scaleRatio, 470.292)}px` : '470.292px',
+      maxWidth: '242.377px',
+      maxHeight: '470.292px',
+      transform: 'rotate(352.566deg)',
+      position: 'relative' as const,
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const,
+      WebkitBackfaceVisibility: 'hidden' as const
+    }), [isMobile, scaleRatio]);
+
+    const bookStyle = useMemo(() => ({
+      left: isMobile ? `${345 * scaleRatio}px` : '345px',
+      top: isMobile ? `${221 * scaleRatio}px` : '221px',
+      width: isMobile ? `${Math.min(379.44 * scaleRatio, 379.44)}px` : '379.44px',
+      height: isMobile ? `${Math.min(292.075 * scaleRatio, 292.075)}px` : '292.075px',
+      maxWidth: '379.44px',
+      maxHeight: '292.075px',
+      willChange: 'transform',
+      backfaceVisibility: 'hidden' as const,
+      WebkitBackfaceVisibility: 'hidden' as const
+    }), [isMobile, scaleRatio]);
+
     return (
       <div className="existence-home" style={{ 
         backgroundColor: '#f5f2ee', 
@@ -2248,19 +2293,7 @@ function App() {
         overflowX: 'hidden'
       }}>
         {/* 장식 일러스트레이션들 */}
-        <div style={{
-          position: 'absolute',
-          height: screenSize.width < 768 ? '300px' : '541px',
-          left: '50%',
-          top: screenSize.width < 768 ? '200px' : '384px',
-          width: screenSize.width < 768 ? '100%' : '1179px',
-          maxWidth: screenSize.width < 768 ? '100%' : 'none',
-          transform: 'translateX(-50%)',
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          opacity: screenSize.width < 768 ? 0.6 : 1,
-          transition: 'none'
-        }}>
+        <div style={illustrationContainerStyle}>
           {/* 의자 */}
           <div style={{
             position: 'absolute',
@@ -2273,19 +2306,13 @@ function App() {
             justifyContent: 'center',
             transition: 'none'
           }}>
-            <div style={{
-              width: screenSize.width < 768 ? `${Math.min(242.377 * (screenSize.width / 1179), 242.377)}px` : '242.377px',
-              height: screenSize.width < 768 ? `${Math.min(470.292 * (screenSize.width / 1179), 470.292)}px` : '470.292px',
-              maxWidth: '242.377px',
-              maxHeight: '470.292px',
-              transform: 'rotate(352.566deg)',
-              position: 'relative',
-              transition: 'none'
-            }}>
+            <div style={chairStyle}>
               <img 
                 src={imgIllustrationChair} 
                 alt="Chair illustration" 
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                loading="eager"
+                decoding="async"
               />
             </div>
           </div>
@@ -2303,24 +2330,22 @@ function App() {
               src={imgIllustrationBall} 
               alt="Ball illustration" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              loading="eager"
+              decoding="async"
             />
           </div>
           
           {/* 책 */}
           <div style={{
             position: 'absolute',
-            left: screenSize.width < 768 ? `${345 * (screenSize.width / 1179)}px` : '345px',
-            top: screenSize.width < 768 ? `${221 * (screenSize.width / 1179)}px` : '221px',
-            width: screenSize.width < 768 ? `${Math.min(379.44 * (screenSize.width / 1179), 379.44)}px` : '379.44px',
-            height: screenSize.width < 768 ? `${Math.min(292.075 * (screenSize.width / 1179), 292.075)}px` : '292.075px',
-            maxWidth: '379.44px',
-            maxHeight: '292.075px',
-            transition: 'none'
+            ...bookStyle
           }}>
             <img 
               src={imgIllustrationBook} 
               alt="Book illustration" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              loading="eager"
+              decoding="async"
             />
           </div>
           
@@ -2337,6 +2362,8 @@ function App() {
               src={imgIllustrationCactus} 
               alt="Cactus illustration" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              loading="eager"
+              decoding="async"
             />
           </div>
           
@@ -2353,6 +2380,8 @@ function App() {
               src={imgIllustrationBox} 
               alt="Box illustration" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              loading="eager"
+              decoding="async"
             />
           </div>
           
@@ -2369,6 +2398,8 @@ function App() {
               src={imgIllustrationWrench} 
               alt="Wrench illustration" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              loading="eager"
+              decoding="async"
             />
           </div>
         </div>
