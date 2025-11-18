@@ -648,6 +648,10 @@ const getDatabaseContext = async () => {
         
         if (student.existence) {
           const ex = student.existence;
+          // 원의 이름 (customName) - 학생을 식별하는 중요한 정보
+          if (ex.customName && ex.customName.trim()) {
+            context += `  - 원의 이름: ${ex.customName}\n`;
+          }
           context += `  - 현재 활동: ${ex.activity || '없음'}\n`;
           context += `  - 에너지 레벨: ${ex.energy || 60}/100\n`;
           context += `  - 개성: ${ex.personality || '없음'}\n`;
