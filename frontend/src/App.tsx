@@ -986,7 +986,7 @@ function App() {
   const [showClassCustomizeModal, setShowClassCustomizeModal] = useState(false);
   const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
   const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
-  const classImageCacheRef = useRef<Map<number, HTMLImageElement>>(new Map());
+  const classImageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
   // 캔버스 관련 상태
   const classesCanvasRef = useRef<HTMLCanvasElement>(null);
