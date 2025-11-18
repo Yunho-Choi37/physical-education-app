@@ -2522,34 +2522,36 @@ function App() {
         <div style={{
           position: 'absolute',
           bottom: screenSize.width < 768 ? '10px' : '20px',
-          left: screenSize.width < 768 ? '20px' : '51px',
+          left: screenSize.width < 768 ? '16px' : '51px',
           fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '14px' : '24px',
+          fontSize: screenSize.width < 768 ? '12px' : '24px',
           lineHeight: 'normal',
           color: '#2d2d2d',
           letterSpacing: '0.48px',
-          zIndex: 10
+          zIndex: 10,
+          maxWidth: screenSize.width < 768 ? 'calc(50% - 20px)' : 'none'
         }}>
           <p style={{ margin: 0 }}>&nbsp;</p>
-          <p style={{ margin: 0 }}>Made by Yunho Choi</p>
+          <p style={{ margin: 0, wordBreak: 'break-word' }}>Made by Yunho Choi</p>
         </div>
         
         <div style={{
           position: 'absolute',
           bottom: screenSize.width < 768 ? '10px' : '20px',
-          right: screenSize.width < 768 ? '20px' : '51px',
+          right: screenSize.width < 768 ? '16px' : '51px',
           fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '14px' : '24px',
+          fontSize: screenSize.width < 768 ? '12px' : '24px',
           lineHeight: 'normal',
           color: '#2d2d2d',
           textAlign: 'right',
           letterSpacing: '0.48px',
-          zIndex: 10
+          zIndex: 10,
+          maxWidth: screenSize.width < 768 ? 'calc(50% - 20px)' : 'none'
         }}>
           <p style={{ margin: 0 }}>&nbsp;</p>
-          <p style={{ margin: 0 }}>Established 2025.11.18.</p>
+          <p style={{ margin: 0, wordBreak: 'break-word' }}>Established 2025.11.18.</p>
         </div>
       </div>
     );
