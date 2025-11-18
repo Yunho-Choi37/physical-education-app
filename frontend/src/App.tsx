@@ -2251,31 +2251,35 @@ function App() {
         <div style={{
           position: 'absolute',
           height: screenSize.width < 768 ? '300px' : '541px',
-          left: screenSize.width < 768 ? '0' : '-81px',
+          left: '50%',
           top: screenSize.width < 768 ? '200px' : '384px',
           width: screenSize.width < 768 ? '100%' : '1179px',
           maxWidth: screenSize.width < 768 ? '100%' : 'none',
+          transform: 'translateX(-50%)',
           overflow: 'hidden',
           pointerEvents: 'none',
-          opacity: screenSize.width < 768 ? 0.6 : 1
+          opacity: screenSize.width < 768 ? 0.6 : 1,
+          transition: 'none'
         }}>
           {/* 의자 */}
           <div style={{
             position: 'absolute',
-            left: screenSize.width < 768 ? '0%' : '0.34%',
+            left: '0.34%',
             top: '2.96%',
-            right: screenSize.width < 768 ? '70%' : '74.11%',
+            right: '74.11%',
             bottom: '5.05%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            maxWidth: screenSize.width < 768 ? '30%' : 'none'
+            justifyContent: 'center'
           }}>
             <div style={{
-              width: screenSize.width < 768 ? '100%' : '242.377px',
-              height: screenSize.width < 768 ? 'auto' : '470.292px',
-              transform: screenSize.width < 768 ? 'rotate(352.566deg) scale(0.5)' : 'rotate(352.566deg)',
-              position: 'relative'
+              width: screenSize.width < 768 ? `${242.377 * (screenSize.width / 1179)}px` : '242.377px',
+              height: screenSize.width < 768 ? `${470.292 * (screenSize.width / 1179)}px` : '470.292px',
+              maxWidth: '242.377px',
+              maxHeight: '470.292px',
+              transform: 'rotate(352.566deg)',
+              position: 'relative',
+              transition: 'none'
             }}>
               <img 
                 src={imgIllustrationChair} 
@@ -2291,7 +2295,8 @@ function App() {
             left: '23.52%',
             top: '0.97%',
             right: '54.61%',
-            bottom: '51.36%'
+            bottom: '51.36%',
+            transition: 'none'
           }}>
             <img 
               src={imgIllustrationBall} 
@@ -2305,8 +2310,11 @@ function App() {
             position: 'absolute',
             left: '345px',
             top: '221px',
-            width: '379.44px',
-            height: '292.075px'
+            width: screenSize.width < 768 ? `${379.44 * (screenSize.width / 1179)}px` : '379.44px',
+            height: screenSize.width < 768 ? `${292.075 * (screenSize.width / 1179)}px` : '292.075px',
+            maxWidth: '379.44px',
+            maxHeight: '292.075px',
+            transition: 'none'
           }}>
             <img 
               src={imgIllustrationBook} 
@@ -2318,11 +2326,11 @@ function App() {
           {/* 선인장 */}
           <div style={{
             position: 'absolute',
-            left: screenSize.width < 768 ? '70%' : '77.02%',
+            left: '77.02%',
             top: '0%',
-            right: screenSize.width < 768 ? '0%' : '-1.36%',
+            right: '-1.36%',
             bottom: '5.64%',
-            maxWidth: screenSize.width < 768 ? '30%' : 'none'
+            transition: 'none'
           }}>
             <img 
               src={imgIllustrationCactus} 
@@ -2337,7 +2345,8 @@ function App() {
             left: '47.16%',
             top: '-3.14%',
             right: '23.34%',
-            bottom: '47.19%'
+            bottom: '47.19%',
+            transition: 'none'
           }}>
             <img 
               src={imgIllustrationBox} 
@@ -2352,7 +2361,8 @@ function App() {
             left: '22.6%',
             top: '46.09%',
             right: '58.38%',
-            bottom: '-0.04%'
+            bottom: '-0.04%',
+            transition: 'none'
           }}>
             <img 
               src={imgIllustrationWrench} 
@@ -2382,16 +2392,21 @@ function App() {
             onClick={handleLogoClick}
             style={{
               fontFamily: "'Young Serif', serif",
-              fontSize: 'clamp(120px, 15vw, 207.603px)',
+              fontSize: screenSize.width < 768 ? 'clamp(60px, 12vw, 120px)' : 'clamp(120px, 15vw, 207.603px)',
               fontWeight: 400,
               lineHeight: '1.066',
               color: '#2d2d2d',
               textAlign: 'center',
-              letterSpacing: '-8.3041px',
+              letterSpacing: screenSize.width < 768 ? 'clamp(-2px, -1vw, -4px)' : '-8.3041px',
               margin: '0 0 20px 0',
               cursor: 'pointer',
               position: 'relative',
-              zIndex: 10
+              zIndex: 10,
+              width: '100%',
+              padding: screenSize.width < 768 ? '0 16px' : '0',
+              boxSizing: 'border-box',
+              wordBreak: 'keep-all',
+              whiteSpace: 'nowrap'
             }}
           >
             Existence
