@@ -106,7 +106,7 @@ interface StudentCustomizeModalProps {
   student: Student | null;
   show: boolean;
   onHide: () => void;
-  onSave: (updatedStudent: Student) => void;
+  onSave: (updatedStudent: Student) => void | Promise<void>;
 }
 
 const normalizeHashtagValue = (value: string): string => {
@@ -468,8 +468,22 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
     console.log('  - 크기:', updatedStudent.existence.size);
     console.log('  - 전체 데이터 크기:', `${(JSON.stringify(updatedStudent).length / 1024).toFixed(2)}KB`);
 
-    onSave(updatedStudent);
-    onHide();
+    // onSave가 Promise를 반환하면 await하고, 성공 시에만 모달 닫기
+    const saveResult = onSave(updatedStudent);
+    if (saveResult instanceof Promise) {
+      saveResult
+        .then(() => {
+          // 저장 성공 시에만 모달 닫기
+          onHide();
+        })
+        .catch((error) => {
+          console.error('저장 중 오류:', error);
+          // 저장 실패 시 모달은 열어둠
+        });
+    } else {
+      // 동기 함수인 경우 바로 모달 닫기
+      onHide();
+    }
   };
 
   const handleAddRecord = () => {

@@ -3013,7 +3013,18 @@ function App() {
             setSelectedClassIndex(null);
           }}
           onSave={async (updatedStudent) => {
-            const classId = selectedClassIndex + 1;
+            const classId = selectedClassIndex !== null ? selectedClassIndex + 1 : null;
+            if (!classId) {
+              console.error('클래스 ID가 없습니다.');
+              return;
+            }
+
+            console.log('💾 클래스 저장 시작:', classId);
+            console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+            console.log('⚛️ 원자 모델:', updatedStudent.existence?.atom ? '있음' : '없음');
+            console.log('🔬 전자 표시:', updatedStudent.existence?.showElectrons);
+            console.log('🔬 양성자/중성자 표시:', updatedStudent.existence?.showProtonsNeutrons);
+
             const existence: ClassExistence = {
               color: updatedStudent.existence?.color || '#667eea',
               shape: updatedStudent.existence?.shape || 'circle',
@@ -3038,13 +3049,23 @@ function App() {
             };
             
             try {
-              await fetch(`${getApiUrl()}/api/classes/${classId}/existence`, {
+              const response = await fetch(`${getApiUrl()}/api/classes/${classId}/existence`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ existence }),
               });
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ 저장 실패:', response.status, errorText);
+                alert(`저장 실패: ${response.status} ${errorText}`);
+                return; // 저장 실패 시 모달을 닫지 않음
+              }
+              
+              const result = await response.json();
+              console.log('✅ 클래스 저장 완료:', classId);
               
               const updatedClassExistence = {
                 ...classExistence,
@@ -3075,11 +3096,13 @@ function App() {
                 setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
               }
               
+              // 저장 성공 후에만 모달 닫기
               setShowClassCustomizeModal(false);
               setSelectedClassIndex(null);
             } catch (error) {
-              console.error('Error saving class existence:', error);
-              alert('Error occurred while saving class edit.');
+              console.error('❌ Error saving class existence:', error);
+              alert(`저장 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}\n\n모달은 열려있으니 다시 시도해주세요.`);
+              // 에러 발생 시 모달을 닫지 않음
             }
           }}
         />
