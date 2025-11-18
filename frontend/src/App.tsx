@@ -998,6 +998,8 @@ function App() {
   const [hasDraggedClass, setHasDraggedClass] = useState(false);
   const [classDragStartPos, setClassDragStartPos] = useState({ x: 0, y: 0 });
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; classIndex: number } | null>(null);
+  const [hoveredClassIndex, setHoveredClassIndex] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isAdmin, setIsAdmin] = useState(() => {
     // localStorage에서 관리자 토큰 확인
     const savedToken = localStorage.getItem('adminToken');
@@ -1367,13 +1369,29 @@ function App() {
 
   // 클래스 드래그 이동 처리
   const handleClassesPointerMove = useCallback((clientX: number, clientY: number) => {
-    if (!isDraggingClass || draggedClassIndex === null) return;
-
     const coords = getClassesCanvasCoordinates(clientX, clientY);
     if (!coords) return;
 
     const { x, y } = coords;
-    
+    setMousePos({ x: clientX, y: clientY });
+
+    // 호버된 클래스 찾기 (드래그 중이 아닐 때만)
+    if (!isDraggingClass) {
+      const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+      const nodeSize = baseSize / 2;
+
+      const hoveredIndex = classes.findIndex((_, index) => {
+        const position = classPositions[index];
+        if (!position) return false;
+        const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
+        return distance <= nodeSize;
+      });
+
+      setHoveredClassIndex(hoveredIndex >= 0 ? hoveredIndex : null);
+    }
+
+    if (!isDraggingClass || draggedClassIndex === null) return;
+
     // 드래그 거리 계산 (5px 이상 움직였을 때만 드래그로 인식)
     const dragDistance = Math.sqrt(
       (x - classDragStartPos.x) ** 2 + (y - classDragStartPos.y) ** 2
@@ -1395,7 +1413,7 @@ function App() {
     const newPositions = [...classPositions];
     newPositions[draggedClassIndex] = { x: clampedX, y: clampedY };
     setClassPositions(newPositions);
-  }, [isDraggingClass, draggedClassIndex, classDragOffset, classDragStartPos, getClassesCanvasCoordinates, classesCanvasSize, classPositions, screenSize]);
+  }, [isDraggingClass, draggedClassIndex, classDragOffset, classDragStartPos, getClassesCanvasCoordinates, classesCanvasSize, classPositions, screenSize, classes]);
 
   // 클래스 드래그 종료 처리
   const handleClassesPointerUp = useCallback(() => {
@@ -1425,6 +1443,7 @@ function App() {
 
   const handleClassesMouseLeave = () => {
     handleClassesPointerUp();
+    setHoveredClassIndex(null);
   };
 
   // 터치 이벤트 핸들러
@@ -2144,6 +2163,179 @@ function App() {
                     height: 'auto'
                   }}
                 />
+                {/* 관리자 모드에서 호버 시 편집 버튼 표시 */}
+                {isAdmin && hoveredClassIndex !== null && !isDraggingClass && (
+                  (() => {
+                    const position = classPositions[hoveredClassIndex];
+                    if (!position) return null;
+                    const canvas = classesCanvasRef.current;
+                    if (!canvas) return null;
+                    const rect = canvas.getBoundingClientRect();
+                    const baseSize = screenSize.width < 768 ? 100 : screenSize.width < 1024 ? 130 : 150;
+                    const radius = baseSize / 2;
+                    const devicePixelRatio = window.devicePixelRatio || 1;
+                    const scaleX = rect.width / (canvas.width / devicePixelRatio);
+                    const scaleY = rect.height / (canvas.height / devicePixelRatio);
+                    const screenX = rect.left + position.x * scaleX;
+                    const screenY = rect.top + position.y * scaleY;
+                    
+                    return (
+                      <div
+                        style={{
+                          position: 'fixed',
+                          left: screenX + radius + 10,
+                          top: screenY - 20,
+                          display: 'flex',
+                          gap: '6px',
+                          zIndex: 1000,
+                          pointerEvents: 'auto'
+                        }}
+                        onMouseEnter={() => setHoveredClassIndex(hoveredClassIndex)}
+                        onMouseLeave={() => setHoveredClassIndex(null)}
+                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClassName(hoveredClassIndex);
+                          }}
+                          style={{
+                            background: '#424242',
+                            border: '1px solid #616161',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: '#e0e0e0',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                            transition: 'all 0.3s ease',
+                            padding: 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#616161';
+                            e.currentTarget.style.borderColor = '#757575';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#424242';
+                            e.currentTarget.style.borderColor = '#616161';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 이름 수정"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenStudentManage(hoveredClassIndex);
+                          }}
+                          style={{
+                            background: '#424242',
+                            border: '1px solid #616161',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: '#e0e0e0',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                            transition: 'all 0.3s ease',
+                            padding: 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#616161';
+                            e.currentTarget.style.borderColor = '#757575';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#424242';
+                            e.currentTarget.style.borderColor = '#616161';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="학생 관리"
+                        >
+                          👥
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedClassIndex(hoveredClassIndex);
+                            setShowClassCustomizeModal(true);
+                          }}
+                          style={{
+                            background: 'rgba(255, 193, 7, 0.9)',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'white',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                            transition: 'all 0.3s ease',
+                            padding: 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 193, 7, 1)';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 편집"
+                        >
+                          🎨
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClass(hoveredClassIndex);
+                          }}
+                          style={{
+                            background: '#424242',
+                            border: '1px solid #616161',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: '#e0e0e0',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                            transition: 'all 0.3s ease',
+                            padding: 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#616161';
+                            e.currentTarget.style.borderColor = '#757575';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#424242';
+                            e.currentTarget.style.borderColor = '#616161';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="원 삭제"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    );
+                  })()
+                )}
                 {/* 우클릭 컨텍스트 메뉴 */}
                 {contextMenu && isAdmin && (
                   <div
