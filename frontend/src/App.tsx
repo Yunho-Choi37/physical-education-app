@@ -2366,8 +2366,11 @@ function App() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          width: '100%',
+          height: '100vh',
           minHeight: '100vh',
-          padding: '40px 20px'
+          padding: screenSize.width < 768 ? '20px 16px' : '40px 20px',
+          boxSizing: 'border-box'
         }}>
           {/* Existence 타이틀 */}
           <h1 
