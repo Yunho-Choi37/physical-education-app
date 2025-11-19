@@ -2281,25 +2281,7 @@ function App() {
       }
     };
 
-    // 사용자 제공 이미지
-    const userIllustrationImage = "/강박이.png";
-
-    // 일러스트레이션 스타일 메모이제이션 (깜빡임 방지)
     const isMobile = screenSize.width < 768;
-
-    const illustrationStyle = useMemo(() => ({
-      position: 'absolute' as const,
-      left: '50%',
-      top: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: isMobile ? '80%' : '600px',
-      maxWidth: '800px',
-      height: 'auto',
-      objectFit: 'contain' as const,
-      pointerEvents: 'none' as const,
-      opacity: 0.7,
-      zIndex: 1
-    }), [isMobile]);
 
     return (
       <div className="existence-home" style={{
@@ -2312,13 +2294,7 @@ function App() {
         overflowX: 'hidden'
       }}>
         {/* 가운데 일러스트레이션 */}
-        <img
-          src={userIllustrationImage}
-          alt="Illustration"
-          style={illustrationStyle}
-          loading="eager"
-          decoding="async"
-        />
+
 
         {/* 메인 콘텐츠 */}
         <div className="existence-search-container" style={{
@@ -2484,38 +2460,7 @@ function App() {
         </div>
 
         {/* 하단 텍스트 */}
-        <div style={{
-          position: 'absolute',
-          bottom: screenSize.width < 768 ? '5px' : '10px',
-          left: screenSize.width < 768 ? '10px' : '20px',
-          fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '10px' : '18px',
-          lineHeight: 'normal',
-          color: '#2d2d2d',
-          letterSpacing: '0.48px',
-          zIndex: 10,
-          maxWidth: screenSize.width < 768 ? 'calc(50% - 15px)' : 'none'
-        }}>
-          <p style={{ margin: 0, wordBreak: 'break-word' }}>Made by Yunho Choi</p>
-        </div>
 
-        <div style={{
-          position: 'absolute',
-          bottom: screenSize.width < 768 ? '5px' : '10px',
-          right: screenSize.width < 768 ? '10px' : '20px',
-          fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '10px' : '18px',
-          lineHeight: 'normal',
-          color: '#2d2d2d',
-          textAlign: 'right',
-          letterSpacing: '0.48px',
-          zIndex: 10,
-          maxWidth: screenSize.width < 768 ? 'calc(50% - 15px)' : 'none'
-        }}>
-          <p style={{ margin: 0, wordBreak: 'break-word' }}>Established 2025.11.18.</p>
-        </div>
       </div>
     );
   };
