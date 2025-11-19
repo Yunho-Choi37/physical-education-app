@@ -765,6 +765,128 @@
   transform: translateY(-1px);
 }
 
+/* 경기 기록 패널 */
+.game-records-panel {
+  margin-top: 24px;
+  padding: 20px;
+  background: #141414;
+  border: 1px solid #3a3a3a;
+  border-radius: 18px;
+}
+
+.game-records-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.game-records-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.game-record-card {
+  background: #1f1f1f;
+  border: 1px solid #3a3a3a;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.game-record-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.game-record-sport {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.game-record-date {
+  font-size: 14px;
+  color: #bdbdbd;
+}
+
+.game-record-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-record-stat-chip {
+  flex: 1 1 120px;
+  min-width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2c2c2c;
+  border-radius: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #f5f5f5;
+  font-size: 14px;
+  gap: 6px;
+}
+
+.game-record-stat-chip .stat-emoji {
+  font-size: 16px;
+}
+
+.game-record-stat-chip .stat-label {
+  flex: 1;
+  font-weight: 500;
+  color: #d7d7d7;
+}
+
+.game-record-stat-chip .stat-value {
+  font-weight: 700;
+  color: #ffd54f;
+}
+
+.game-record-notes {
+  margin-top: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #f1f1f1;
+  line-height: 1.5;
+}
+
+.game-record-empty {
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #bdbdbd;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .game-record-card {
+    padding: 14px;
+  }
+  
+  .game-record-stat-chip {
+    flex: 1 1 100px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .game-records-panel {
+    padding: 16px;
+  }
+}
+
 /* 입자 상세 보기 모달 */
 .particle-detail-modal-overlay {
   position: fixed;

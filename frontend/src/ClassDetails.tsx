@@ -6,6 +6,9 @@ import StudentDetailsModal from './StudentDetailsModal';
 import AddStudentModal from './AddStudentModal';
 import StudentCustomizeModal from './StudentCustomizeModal';
 import { getApiUrl } from './config';
+import { SportType, sportNames, sportStats } from './gameRecordConfig';
+
+const isSportType = (value: string): value is SportType => Object.prototype.hasOwnProperty.call(sportStats, value);
 
 interface Student {
   id: number;
@@ -29,11 +32,16 @@ interface Student {
           imageData?: string;    // 로컬 업로드 이미지(Data URL)
           showElectrons?: boolean; // 전자 표시 여부
           showProtonsNeutrons?: boolean; // 양성자/중성자 표시 여부
+          showGameRecords?: boolean; // 경기 기록 표시 여부
           records: Array<{      // 활동 기록
             date: string;
             activity: string;
             duration: number;
             notes: string;
+            gameRecord?: {
+              sport: SportType | string;
+              stats: Record<string, number>;
+            };
           }>;
           // 원자 모델 구조
           atom?: {
@@ -99,6 +107,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [hoveredStudent, setHoveredStudent] = useState<number | null>(null);
   const [showParticleListModal, setShowParticleListModal] = useState(false);
   const [selectedStudentForParticles, setSelectedStudentForParticles] = useState<Student | null>(null);
+  const selectedStudentGameRecords = selectedStudentForParticles?.existence?.records?.filter(record => record.gameRecord && record.gameRecord.sport) || [];
+  const shouldShowGameRecords = Boolean(
+    selectedStudentForParticles &&
+    selectedStudentForParticles.existence?.showGameRecords !== false &&
+    selectedStudentGameRecords.length > 0
+  );
   // 입자 상세 보기 모달 상태
   const [selectedParticleDetail, setSelectedParticleDetail] = useState<{ type: 'proton' | 'neutron' | 'electron'; name?: string; description?: string; emoji?: string; imageData?: string; images?: string[]; primaryImageIndex?: number; goalItem?: string; date?: string; activityTime?: number; attemptCount?: number; successCount?: number } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -1180,6 +1194,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       records: [],
       showElectrons: false, // 초기/리셋 시 전자는 보이지 않음
       showProtonsNeutrons: false, // 초기/리셋 시 양성자/중성자는 보이지 않음
+      showGameRecords: true,
       // 원자 모델 초기화 - 처음에는 모두 빈 배열
       atom: {
         protons: [],
@@ -2540,6 +2555,62 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                     </>
                   )}
                 </>
+              )}
+              {shouldShowGameRecords && (
+                <div className="game-records-panel">
+                  <div className="game-records-title">⚽ 경기 기록</div>
+                  <div className="game-records-grid">
+                    {selectedStudentGameRecords.map((record, recordIndex) => {
+                      const gameRecord = record.gameRecord!;
+                      const sportId = typeof gameRecord.sport === 'string' ? gameRecord.sport : '';
+                      const knownSport = isSportType(sportId);
+                      const displayName = knownSport ? sportNames[sportId] : (sportId || '경기');
+                      const statsConfig = knownSport ? sportStats[sportId] : null;
+                      const statEntries = statsConfig
+                        ? statsConfig
+                            .map(stat => ({
+                              key: stat.key,
+                              label: stat.label,
+                              emoji: stat.emoji,
+                              value: gameRecord.stats?.[stat.key] || 0
+                            }))
+                            .filter(entry => entry.value > 0)
+                        : Object.entries(gameRecord.stats || {}).map(([key, value]) => ({
+                            key,
+                            label: key,
+                            emoji: '•',
+                            value: value as number
+                          }));
+                      
+                      return (
+                        <div key={`game-record-${recordIndex}`} className="game-record-card">
+                          <div className="game-record-card-header">
+                            <div className="game-record-sport">{displayName}</div>
+                            {record.date && <div className="game-record-date">📅 {record.date}</div>}
+                          </div>
+                          <div className="game-record-stats">
+                            {statEntries.length === 0 ? (
+                              <div className="game-record-empty">기록된 수치가 없습니다.</div>
+                            ) : (
+                              statEntries.map(entry => (
+                                <div key={entry.key} className="game-record-stat-chip">
+                                  <span className="stat-emoji">{entry.emoji}</span>
+                                  <span className="stat-label">{entry.label}</span>
+                                  <span className="stat-value">{entry.value}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          {record.notes && (
+                            <div className="game-record-notes">
+                              📝 {record.notes}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           </div>
