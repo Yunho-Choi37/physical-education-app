@@ -692,10 +692,36 @@ const getDatabaseContext = async () => {
           }
           
           if (ex.records && ex.records.length > 0) {
-            context += `  - 상세 기록 (최근 ${Math.min(5, ex.records.length)}개):\n`;
-            ex.records.slice(-5).forEach(record => {
-              context += `    * 날짜: ${record.date || '날짜 없음'}, 활동: ${record.activity || '활동 없음'}, 시간: ${record.duration || 0}분, 메모: ${record.notes || '메모 없음'}\n`;
-            });
+            // 경기기록과 일반 기록 분리
+            const gameRecords = ex.records.filter(r => r.gameRecord);
+            const regularRecords = ex.records.filter(r => !r.gameRecord);
+            
+            if (gameRecords.length > 0) {
+              context += `  - 경기기록 (총 ${gameRecords.length}개):\n`;
+              gameRecords.forEach(record => {
+                const gr = record.gameRecord;
+                context += `    * 날짜: ${record.date || '날짜 없음'}, 종목: ${gr.sport || '없음'}\n`;
+                if (gr.stats && Object.keys(gr.stats).length > 0) {
+                  context += `      기록 항목:\n`;
+                  Object.entries(gr.stats).forEach(([key, value]) => {
+                    if (value > 0) {
+                      context += `        - ${key}: ${value}\n`;
+                    }
+                  });
+                }
+                if (record.notes) {
+                  context += `      메모: ${record.notes}\n`;
+                }
+              });
+            }
+            
+            if (regularRecords.length > 0) {
+              context += `  - 일반 활동 기록 (최근 ${Math.min(5, regularRecords.length)}개):\n`;
+              regularRecords.slice(-5).forEach(record => {
+                context += `    * 날짜: ${record.date || '날짜 없음'}, 활동: ${record.activity || '활동 없음'}, 시간: ${record.duration || 0}분, 메모: ${record.notes || '메모 없음'}\n`;
+              });
+            }
+            
             // 전체 기록의 총 시간도 표시
             const allRecordsDuration = ex.records.reduce((sum, record) => {
               return sum + (parseInt(record.duration) || 0);

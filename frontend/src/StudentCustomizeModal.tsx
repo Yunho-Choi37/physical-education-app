@@ -222,74 +222,99 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   // 구기 스포츠 타입 정의
   type SportType = 'soccer' | 'basketball' | 'volleyball' | 'baseball' | 'tabletennis' | 'badminton' | 'handball';
 
-  // 스포츠별 기록 항목 정의
-  const sportStats: Record<SportType, Array<{ key: string; label: string; emoji: string }>> = {
+  // 스포츠별 기록 항목 정의 (시도/성공, 수비 성공 포함)
+  const sportStats: Record<SportType, Array<{ key: string; label: string; emoji: string; category?: 'attempt' | 'success' | 'defense' | 'other' }>> = {
     soccer: [
-      { key: 'goals', label: '골', emoji: '⚽' },
-      { key: 'assists', label: '도움', emoji: '🎯' },
-      { key: 'passes', label: '패스', emoji: '📤' },
-      { key: 'passSuccess', label: '패스 성공', emoji: '✅' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'goals', label: '골', emoji: '⚽', category: 'success' },
+      { key: 'shotAttempts', label: '슛 시도', emoji: '🎯', category: 'attempt' },
+      { key: 'shotSuccess', label: '슛 성공', emoji: '✅', category: 'success' },
+      { key: 'assists', label: '도움', emoji: '🎯', category: 'other' },
+      { key: 'passAttempts', label: '패스 시도', emoji: '📤', category: 'attempt' },
+      { key: 'passSuccess', label: '패스 성공', emoji: '✅', category: 'success' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'tackles', label: '태클', emoji: '⚔️', category: 'defense' },
+      { key: 'interceptions', label: '인터셉트', emoji: '👋', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     basketball: [
-      { key: 'points', label: '득점', emoji: '🏀' },
-      { key: 'assists', label: '어시스트', emoji: '🎯' },
-      { key: 'rebounds', label: '리바운드', emoji: '📊' },
-      { key: 'steals', label: '스틸', emoji: '👋' },
-      { key: 'blocks', label: '블록', emoji: '🛡️' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'points', label: '득점', emoji: '🏀', category: 'success' },
+      { key: 'shotAttempts', label: '슛 시도', emoji: '🎯', category: 'attempt' },
+      { key: 'shotSuccess', label: '슛 성공', emoji: '✅', category: 'success' },
+      { key: 'freeThrowAttempts', label: '자유투 시도', emoji: '🎯', category: 'attempt' },
+      { key: 'freeThrowSuccess', label: '자유투 성공', emoji: '✅', category: 'success' },
+      { key: 'assists', label: '어시스트', emoji: '🎯', category: 'other' },
+      { key: 'rebounds', label: '리바운드', emoji: '📊', category: 'other' },
+      { key: 'steals', label: '스틸', emoji: '👋', category: 'defense' },
+      { key: 'blocks', label: '블록', emoji: '🛡️', category: 'defense' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     volleyball: [
-      { key: 'spikes', label: '스파이크', emoji: '💥' },
-      { key: 'blocks', label: '블로킹', emoji: '🛡️' },
-      { key: 'serves', label: '서브', emoji: '🎾' },
-      { key: 'digs', label: '디그', emoji: '🤲' },
-      { key: 'sets', label: '세트', emoji: '👆' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'spikeAttempts', label: '스파이크 시도', emoji: '💥', category: 'attempt' },
+      { key: 'spikeSuccess', label: '스파이크 성공', emoji: '✅', category: 'success' },
+      { key: 'blockAttempts', label: '블로킹 시도', emoji: '🛡️', category: 'attempt' },
+      { key: 'blockSuccess', label: '블로킹 성공', emoji: '✅', category: 'success' },
+      { key: 'serveAttempts', label: '서브 시도', emoji: '🎾', category: 'attempt' },
+      { key: 'serveSuccess', label: '서브 성공', emoji: '✅', category: 'success' },
+      { key: 'digs', label: '디그', emoji: '🤲', category: 'defense' },
+      { key: 'sets', label: '세트', emoji: '👆', category: 'other' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     baseball: [
-      { key: 'hits', label: '안타', emoji: '⚾' },
-      { key: 'runs', label: '득점', emoji: '🏃' },
-      { key: 'rbis', label: '타점', emoji: '💯' },
-      { key: 'strikeouts', label: '삼진', emoji: '❌' },
-      { key: 'walks', label: '볼넷', emoji: '🚶' },
-      { key: 'errors', label: '실책', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'hits', label: '안타', emoji: '⚾', category: 'success' },
+      { key: 'atBats', label: '타석', emoji: '🎯', category: 'attempt' },
+      { key: 'runs', label: '득점', emoji: '🏃', category: 'success' },
+      { key: 'rbis', label: '타점', emoji: '💯', category: 'other' },
+      { key: 'strikeouts', label: '삼진', emoji: '❌', category: 'other' },
+      { key: 'walks', label: '볼넷', emoji: '🚶', category: 'other' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'errors', label: '실책', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     tabletennis: [
-      { key: 'points', label: '득점', emoji: '🏓' },
-      { key: 'serves', label: '서브', emoji: '🎾' },
-      { key: 'smash', label: '스매시', emoji: '💥' },
-      { key: 'spin', label: '회전', emoji: '🌀' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'points', label: '득점', emoji: '🏓', category: 'success' },
+      { key: 'serveAttempts', label: '서브 시도', emoji: '🎾', category: 'attempt' },
+      { key: 'serveSuccess', label: '서브 성공', emoji: '✅', category: 'success' },
+      { key: 'smashAttempts', label: '스매시 시도', emoji: '💥', category: 'attempt' },
+      { key: 'smashSuccess', label: '스매시 성공', emoji: '✅', category: 'success' },
+      { key: 'spin', label: '회전', emoji: '🌀', category: 'other' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     badminton: [
-      { key: 'points', label: '득점', emoji: '🏸' },
-      { key: 'smashes', label: '스매시', emoji: '💥' },
-      { key: 'drops', label: '드롭', emoji: '⬇️' },
-      { key: 'clears', label: '클리어', emoji: '⬆️' },
-      { key: 'serves', label: '서브', emoji: '🎾' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'points', label: '득점', emoji: '🏸', category: 'success' },
+      { key: 'smashAttempts', label: '스매시 시도', emoji: '💥', category: 'attempt' },
+      { key: 'smashSuccess', label: '스매시 성공', emoji: '✅', category: 'success' },
+      { key: 'serveAttempts', label: '서브 시도', emoji: '🎾', category: 'attempt' },
+      { key: 'serveSuccess', label: '서브 성공', emoji: '✅', category: 'success' },
+      { key: 'drops', label: '드롭', emoji: '⬇️', category: 'other' },
+      { key: 'clears', label: '클리어', emoji: '⬆️', category: 'other' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ],
     handball: [
-      { key: 'goals', label: '골', emoji: '🥅' },
-      { key: 'assists', label: '도움', emoji: '🎯' },
-      { key: 'saves', label: '세이브', emoji: '🛡️' },
-      { key: 'steals', label: '스틸', emoji: '👋' },
-      { key: 'fouls', label: '파울', emoji: '⚠️' },
-      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
-      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+      { key: 'goals', label: '골', emoji: '🥅', category: 'success' },
+      { key: 'shotAttempts', label: '슛 시도', emoji: '🎯', category: 'attempt' },
+      { key: 'shotSuccess', label: '슛 성공', emoji: '✅', category: 'success' },
+      { key: 'assists', label: '도움', emoji: '🎯', category: 'other' },
+      { key: 'saves', label: '세이브', emoji: '🛡️', category: 'defense' },
+      { key: 'steals', label: '스틸', emoji: '👋', category: 'defense' },
+      { key: 'defenseSuccess', label: '수비 성공', emoji: '🛡️', category: 'defense' },
+      { key: 'fouls', label: '파울', emoji: '⚠️', category: 'other' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝', category: 'other' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌', category: 'other' }
     ]
   };
 
@@ -2808,67 +2833,143 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                 {selectedSport && (
                   <>
                     <Form.Group className="mb-4">
-                      <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '15px' }}>
-                        기록 항목 (터치/클릭으로 횟수 조정)
+                      <Form.Label style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#2d2d2d' }}>
+                        📊 기록 항목 (터치/클릭으로 횟수 조정)
                       </Form.Label>
-                      <div className="row g-3">
-                        {sportStats[selectedSport].map((stat) => (
-                          <Col key={stat.key} xs={6} md={4} lg={3}>
-                            <Card className="text-center" style={{ border: '2px solid #e0e0e0' }}>
-                              <Card.Body style={{ padding: '15px' }}>
-                                <div style={{ fontSize: '24px', marginBottom: '8px' }}>
-                                  {stat.emoji}
-                                </div>
-                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', color: '#666' }}>
-                                  {stat.label}
-                                </div>
-                                <div className="d-flex align-items-center justify-content-center gap-2">
-                                  <Button
-                                    variant="outline-secondary"
-                                    size="sm"
-                                    onClick={() => {
-                                      const currentValue = gameRecord.stats[stat.key] || 0;
-                                      if (currentValue > 0) {
-                                        setGameRecord(prev => ({
-                                          ...prev,
-                                          stats: { ...prev.stats, [stat.key]: currentValue - 1 }
-                                        }));
-                                      }
-                                    }}
-                                    style={{ minWidth: '35px', fontSize: '18px' }}
+                      {(['attempt', 'success', 'defense', 'other'] as const).map((category) => {
+                        const categoryStats = sportStats[selectedSport].filter(stat => stat.category === category);
+                        if (categoryStats.length === 0) return null;
+                        
+                        const categoryLabels = {
+                          attempt: { label: '시도', emoji: '🎯', color: '#ff9800' },
+                          success: { label: '성공', emoji: '✅', color: '#4caf50' },
+                          defense: { label: '수비', emoji: '🛡️', color: '#2196f3' },
+                          other: { label: '기타', emoji: '📝', color: '#9e9e9e' }
+                        };
+                        
+                        return (
+                          <div key={category} className="mb-4">
+                            <div style={{ 
+                              fontSize: '16px', 
+                              fontWeight: 'bold', 
+                              marginBottom: '15px',
+                              color: categoryLabels[category].color,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <span>{categoryLabels[category].emoji}</span>
+                              <span>{categoryLabels[category].label}</span>
+                            </div>
+                            <div className="row g-3">
+                              {categoryStats.map((stat) => (
+                                <Col key={stat.key} xs={6} md={4} lg={3}>
+                                  <Card className="text-center" style={{ 
+                                    border: `2px solid ${categoryLabels[category].color}`,
+                                    borderRadius: '12px',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                    transition: 'all 0.2s ease',
+                                    cursor: 'pointer'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                                  }}
                                   >
-                                    −
-                                  </Button>
-                                  <div
-                                    style={{
-                                      fontSize: '24px',
-                                      fontWeight: 'bold',
-                                      minWidth: '50px',
-                                      color: '#007bff'
-                                    }}
-                                  >
-                                    {gameRecord.stats[stat.key] || 0}
-                                  </div>
-                                  <Button
-                                    variant="outline-primary"
-                                    size="sm"
-                                    onClick={() => {
-                                      const currentValue = gameRecord.stats[stat.key] || 0;
-                                      setGameRecord(prev => ({
-                                        ...prev,
-                                        stats: { ...prev.stats, [stat.key]: currentValue + 1 }
-                                      }));
-                                    }}
-                                    style={{ minWidth: '35px', fontSize: '18px' }}
-                                  >
-                                    +
-                                  </Button>
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        ))}
-                      </div>
+                                    <Card.Body style={{ padding: '20px 15px' }}>
+                                      <div style={{ fontSize: '32px', marginBottom: '10px' }}>
+                                        {stat.emoji}
+                                      </div>
+                                      <div style={{ 
+                                        fontSize: '13px', 
+                                        fontWeight: '600', 
+                                        marginBottom: '15px', 
+                                        color: '#333',
+                                        minHeight: '32px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                      }}>
+                                        {stat.label}
+                                      </div>
+                                      <div className="d-flex align-items-center justify-content-center gap-3">
+                                        <Button
+                                          variant="outline-secondary"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const currentValue = gameRecord.stats[stat.key] || 0;
+                                            if (currentValue > 0) {
+                                              setGameRecord(prev => ({
+                                                ...prev,
+                                                stats: { ...prev.stats, [stat.key]: currentValue - 1 }
+                                              }));
+                                            }
+                                          }}
+                                          style={{ 
+                                            minWidth: '40px', 
+                                            height: '40px',
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            borderRadius: '8px',
+                                            border: '2px solid #ddd',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                          }}
+                                        >
+                                          −
+                                        </Button>
+                                        <div
+                                          style={{
+                                            fontSize: '28px',
+                                            fontWeight: 'bold',
+                                            minWidth: '60px',
+                                            color: categoryLabels[category].color,
+                                            textAlign: 'center'
+                                          }}
+                                        >
+                                          {gameRecord.stats[stat.key] || 0}
+                                        </div>
+                                        <Button
+                                          variant="outline-primary"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const currentValue = gameRecord.stats[stat.key] || 0;
+                                            setGameRecord(prev => ({
+                                              ...prev,
+                                              stats: { ...prev.stats, [stat.key]: currentValue + 1 }
+                                            }));
+                                          }}
+                                          style={{ 
+                                            minWidth: '40px',
+                                            height: '40px',
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            borderRadius: '8px',
+                                            border: `2px solid ${categoryLabels[category].color}`,
+                                            color: categoryLabels[category].color,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                          }}
+                                        >
+                                          +
+                                        </Button>
+                                      </div>
+                                    </Card.Body>
+                                  </Card>
+                                </Col>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </Form.Group>
 
                     <Form.Group className="mb-4">
@@ -2953,21 +3054,55 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                             📅 {record.date}
                           </div>
                           {record.gameRecord && (
-                            <div className="mt-2 p-2 bg-white rounded" style={{ fontSize: '14px' }}>
-                              <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>📊 경기 기록:</div>
-                              <div className="d-flex flex-wrap gap-2">
-                                {sportStats[record.gameRecord.sport].map((stat) => {
-                                  const value = record.gameRecord!.stats[stat.key] || 0;
-                                  if (value > 0) {
-                                    return (
-                                      <span key={stat.key} className="badge bg-info text-dark">
-                                        {stat.emoji} {stat.label}: {value}
-                                      </span>
-                                    );
-                                  }
-                                  return null;
-                                })}
+                            <div className="mt-2 p-3 bg-white rounded" style={{ fontSize: '14px', border: '1px solid #e0e0e0' }}>
+                              <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '16px', color: '#2d2d2d' }}>
+                                📊 경기 기록
                               </div>
+                              {(['attempt', 'success', 'defense', 'other'] as const).map((category) => {
+                                const categoryStats = sportStats[record.gameRecord!.sport as SportType]?.filter(stat => stat.category === category) || [];
+                                const categoryRecords = categoryStats
+                                  .map(stat => ({ stat, value: record.gameRecord!.stats[stat.key] || 0 }))
+                                  .filter(item => item.value > 0);
+                                
+                                if (categoryRecords.length === 0) return null;
+                                
+                                const categoryLabels = {
+                                  attempt: { label: '시도', emoji: '🎯', color: '#ff9800' },
+                                  success: { label: '성공', emoji: '✅', color: '#4caf50' },
+                                  defense: { label: '수비', emoji: '🛡️', color: '#2196f3' },
+                                  other: { label: '기타', emoji: '📝', color: '#9e9e9e' }
+                                };
+                                
+                                return (
+                                  <div key={category} className="mb-3">
+                                    <div style={{ 
+                                      fontSize: '13px', 
+                                      fontWeight: '600', 
+                                      marginBottom: '8px',
+                                      color: categoryLabels[category].color
+                                    }}>
+                                      {categoryLabels[category].emoji} {categoryLabels[category].label}
+                                    </div>
+                                    <div className="d-flex flex-wrap gap-2">
+                                      {categoryRecords.map(({ stat, value }) => (
+                                        <span 
+                                          key={stat.key} 
+                                          className="badge" 
+                                          style={{ 
+                                            backgroundColor: categoryLabels[category].color,
+                                            color: 'white',
+                                            fontSize: '12px',
+                                            padding: '6px 10px',
+                                            borderRadius: '6px'
+                                          }}
+                                        >
+                                          {stat.emoji} {stat.label}: {value}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                           {record.notes && (
