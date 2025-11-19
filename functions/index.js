@@ -845,36 +845,58 @@ apiRouter.post('/ai/ask', async (req, res) => {
     // Gemini 클라이언트 초기화 (런타임에만 실행)
     const geminiClient = getGeminiClient();
     if (!geminiClient) {
-      console.error('❌ Gemini 클라이언트 초기화 실패');
       return res.status(500).json({ 
         error: 'Gemini API 키가 설정되지 않았습니다.',
         hint: '환경 변수 GEMINI_API_KEY를 설정하거나 firebase functions:config:set gemini.api_key="YOUR_API_KEY"를 실행하세요.'
       });
     }
 
-    // 데이터베이스 컨텍스트 가져오기 (오류 발생 시 빈 문자열 사용)
-    let context = '';
+    // 데이터베이스 컨텍스트 가져오기
+    const context = await getDatabaseContext();
+    
+    // 사용 가능한 모델 목록 확인 (디버깅용)
+    let availableModelNames = [];
     try {
-      context = await getDatabaseContext();
-      console.log('✅ 데이터베이스 컨텍스트 가져오기 성공');
-    } catch (contextError) {
-      console.error('⚠️ 데이터베이스 컨텍스트 가져오기 실패:', contextError.message);
-      context = '데이터베이스 정보를 가져올 수 없습니다.';
+      console.log('🔍 listModels() 호출 시작...');
+      const modelsResponse = await geminiClient.listModels();
+      console.log('📦 listModels() 응답 타입:', typeof modelsResponse);
+      console.log('📦 listModels() 응답:', JSON.stringify(modelsResponse).substring(0, 500));
+      
+      if (modelsResponse && modelsResponse.models) {
+        availableModelNames = modelsResponse.models.map(m => m.name || m).filter(Boolean);
+        console.log('✅ 사용 가능한 모델 목록:', availableModelNames);
+      } else if (modelsResponse && Array.isArray(modelsResponse)) {
+        availableModelNames = modelsResponse.map(m => m.name || m).filter(Boolean);
+        console.log('✅ 사용 가능한 모델 목록 (배열):', availableModelNames);
+      } else {
+        console.warn('⚠️ listModels() 응답 형식이 예상과 다릅니다. 전체 응답:', modelsResponse);
+      }
+    } catch (listError) {
+      console.error('❌ 모델 목록 조회 실패:', listError.message);
+      console.error('❌ 에러 스택:', listError.stack);
+      // listModels 실패해도 계속 진행
     }
     
     // Gemini 모델 초기화 및 API 호출
-    // 원래 작동하던 모델부터 시도
-    const modelsToTry = [
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'models/gemini-1.5-flash',
-      'models/gemini-1.5-pro',
-      'gemini-pro',
-      'models/gemini-pro',
-      'models/gemini-2.5-flash-preview-05-20',
-      'models/gemini-2.5-pro-preview-03-25'
-    ];
-    console.log('📋 모델 시도 목록:', modelsToTry);
+    // 사용 가능한 모델이 있으면 그것부터 시도, 없으면 기본 모델 시도
+    let modelsToTry = [];
+    if (availableModelNames.length > 0) {
+      // listModels로 확인된 모델 사용
+      modelsToTry = availableModelNames.slice(0, 5); // 최대 5개만 시도
+      console.log('📋 확인된 모델로 시도:', modelsToTry);
+    } else {
+      // 기본 모델 시도 (실제 사용 가능한 모델)
+      modelsToTry = [
+        'models/gemini-2.5-flash-preview-05-20',
+        'models/gemini-2.5-pro-preview-03-25',
+        'gemini-2.5-flash-preview-05-20',
+        'gemini-2.5-pro-preview-03-25',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-pro'
+      ];
+      console.log('📋 기본 모델로 시도:', modelsToTry);
+    }
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
@@ -893,26 +915,22 @@ ${context}
     // 여러 모델 시도
     for (const modelName of modelsToTry) {
       try {
-        console.log(`🔄 모델 시도: ${modelName}`);
+        console.log(`모델 시도: ${modelName}`);
         const model = geminiClient.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         answer = response.text();
-        console.log(`✅ 모델 ${modelName} 성공, 답변 길이: ${answer?.length || 0}`);
+        console.log(`✅ 모델 ${modelName} 성공`);
         break; // 성공하면 루프 종료
       } catch (modelError) {
         console.error(`❌ 모델 ${modelName} 실패:`, modelError.message);
-        console.error(`❌ 에러 상세:`, modelError);
         lastError = modelError;
         continue; // 다음 모델 시도
       }
     }
     
     if (!answer) {
-      const errorMsg = lastError?.message || '알 수 없는 오류';
-      const errorStack = lastError?.stack ? `\n스택: ${lastError.stack.substring(0, 300)}` : '';
-      console.error(`❌ 모든 모델 시도 실패. 마지막 에러: ${errorMsg}${errorStack}`);
-      throw new Error(`모든 모델 시도 실패. 마지막 에러: ${errorMsg}. Gemini API 키와 모델 이름을 확인하세요.`);
+      throw new Error(`모든 모델 시도 실패. 마지막 에러: ${lastError?.message || '알 수 없는 오류'}. 사용 가능한 모델을 확인하세요.`);
     }
 
     res.json({ 
