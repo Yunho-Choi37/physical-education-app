@@ -2229,13 +2229,17 @@ function App() {
       }
     };
 
-    // Figma 이미지 URL들
-    const imgIllustrationChair = "https://www.figma.com/api/mcp/asset/473f8cca-f65f-44c1-bcef-56099a2d5c18";
-    const imgIllustrationBall = "https://www.figma.com/api/mcp/asset/40503047-7bfc-4238-bad7-1a29404d3b8a";
-    const imgIllustrationBook = "https://www.figma.com/api/mcp/asset/dc7f7dcd-909b-494b-bc9a-4c541217a42b";
-    const imgIllustrationCactus = "https://www.figma.com/api/mcp/asset/06f75026-36dc-4f6e-bb49-34e87ce2dc07";
-    const imgIllustrationBox = "https://www.figma.com/api/mcp/asset/b4358168-f96f-43e6-bd0c-8b6dcf822622";
-    const imgIllustrationWrench = "https://www.figma.com/api/mcp/asset/a1386f64-1690-4b7c-afb3-bbc36630a0aa";
+    // 사용자 제공 이미지 URL (모든 일러스트레이션에 동일하게 적용)
+    // TODO: 실제 이미지 URL로 교체 필요
+    const userIllustrationImage = "https://www.figma.com/api/mcp/asset/473f8cca-f65f-44c1-bcef-56099a2d5c18"; // 임시로 의자 이미지 사용, 실제 이미지 URL로 교체 필요
+    
+    // 모든 일러스트레이션에 동일한 이미지 사용
+    const imgIllustrationChair = userIllustrationImage;
+    const imgIllustrationBall = userIllustrationImage;
+    const imgIllustrationBook = userIllustrationImage;
+    const imgIllustrationCactus = userIllustrationImage;
+    const imgIllustrationBox = userIllustrationImage;
+    const imgIllustrationWrench = userIllustrationImage;
 
     // 일러스트레이션 스타일 메모이제이션 (깜빡임 방지)
     const isMobile = screenSize.width < 768;
