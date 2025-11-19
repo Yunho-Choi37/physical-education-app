@@ -2229,9 +2229,8 @@ function App() {
       }
     };
 
-    // 사용자 제공 이미지 URL (모든 일러스트레이션에 동일하게 적용)
-    // TODO: 실제 이미지 URL로 교체 필요
-    const userIllustrationImage = "https://www.figma.com/api/mcp/asset/473f8cca-f65f-44c1-bcef-56099a2d5c18"; // 임시로 의자 이미지 사용, 실제 이미지 URL로 교체 필요
+    // 사용자 제공 이미지 (모든 일러스트레이션에 동일하게 적용)
+    const userIllustrationImage = "/강박이.png";
     
     // 모든 일러스트레이션에 동일한 이미지 사용
     const imgIllustrationChair = userIllustrationImage;
