@@ -2279,7 +2279,8 @@ function App() {
           width: '100%',
           height: '100vh',
           minHeight: '100vh',
-          padding: screenSize.width < 768 ? '20px 16px' : '40px 20px',
+          padding: '0',
+          margin: '0',
           boxSizing: 'border-box'
         }}>
           {/* Existence 타이틀 */}
@@ -2288,18 +2289,18 @@ function App() {
             onClick={handleLogoClick}
             style={{
               fontFamily: "'Young Serif', serif",
-              fontSize: screenSize.width < 768 ? 'clamp(60px, 12vw, 120px)' : 'clamp(120px, 15vw, 207.603px)',
+              fontSize: screenSize.width < 768 ? 'clamp(50px, 10vw, 100px)' : 'clamp(100px, 12vw, 180px)',
               fontWeight: 400,
               lineHeight: '1.066',
               color: '#2d2d2d',
               textAlign: 'center',
               letterSpacing: screenSize.width < 768 ? 'clamp(-2px, -1vw, -4px)' : '-8.3041px',
-              margin: '0 0 20px 0',
+              margin: '0 0 10px 0',
               cursor: 'pointer',
               position: 'relative',
               zIndex: 10,
               width: '100%',
-              padding: screenSize.width < 768 ? '0 16px' : '0',
+              padding: screenSize.width < 768 ? '0 10px' : '0',
               boxSizing: 'border-box',
               wordBreak: 'keep-all',
               whiteSpace: 'nowrap'
@@ -2312,15 +2313,16 @@ function App() {
           <p style={{
             fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             fontWeight: 700,
-            fontSize: 'clamp(18px, 2vw, 24px)',
+            fontSize: 'clamp(16px, 1.8vw, 22px)',
             lineHeight: 'normal',
             color: '#2d2d2d',
             textAlign: 'center',
             letterSpacing: '1.2px',
-            margin: '0 0 60px 0',
+            margin: '0 0 20px 0',
             maxWidth: '824px',
             position: 'relative',
-            zIndex: 10
+            zIndex: 10,
+            padding: screenSize.width < 768 ? '0 10px' : '0'
           }}>
             Reflect deeply, Record consistently, Collaborate together!
           </p>
@@ -2329,7 +2331,7 @@ function App() {
           <div className="existence-buttons" style={{
             position: 'relative',
             zIndex: 10,
-            marginTop: '40px'
+            marginTop: '10px'
           }}>
             <button
               type="button"
@@ -2432,36 +2434,34 @@ function App() {
         {/* 하단 텍스트 */}
         <div style={{
           position: 'absolute',
-          bottom: screenSize.width < 768 ? '10px' : '20px',
-          left: screenSize.width < 768 ? '16px' : '51px',
+          bottom: screenSize.width < 768 ? '5px' : '10px',
+          left: screenSize.width < 768 ? '10px' : '20px',
           fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '12px' : '24px',
+          fontSize: screenSize.width < 768 ? '10px' : '18px',
           lineHeight: 'normal',
           color: '#2d2d2d',
           letterSpacing: '0.48px',
           zIndex: 10,
-          maxWidth: screenSize.width < 768 ? 'calc(50% - 20px)' : 'none'
+          maxWidth: screenSize.width < 768 ? 'calc(50% - 15px)' : 'none'
         }}>
-          <p style={{ margin: 0 }}>&nbsp;</p>
           <p style={{ margin: 0, wordBreak: 'break-word' }}>Made by Yunho Choi</p>
         </div>
         
         <div style={{
           position: 'absolute',
-          bottom: screenSize.width < 768 ? '10px' : '20px',
-          right: screenSize.width < 768 ? '16px' : '51px',
+          bottom: screenSize.width < 768 ? '5px' : '10px',
+          right: screenSize.width < 768 ? '10px' : '20px',
           fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontWeight: 700,
-          fontSize: screenSize.width < 768 ? '12px' : '24px',
+          fontSize: screenSize.width < 768 ? '10px' : '18px',
           lineHeight: 'normal',
           color: '#2d2d2d',
           textAlign: 'right',
           letterSpacing: '0.48px',
           zIndex: 10,
-          maxWidth: screenSize.width < 768 ? 'calc(50% - 20px)' : 'none'
+          maxWidth: screenSize.width < 768 ? 'calc(50% - 15px)' : 'none'
         }}>
-          <p style={{ margin: 0 }}>&nbsp;</p>
           <p style={{ margin: 0, wordBreak: 'break-word' }}>Established 2025.11.18.</p>
         </div>
       </div>
