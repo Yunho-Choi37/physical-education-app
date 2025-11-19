@@ -31,7 +31,7 @@ interface Student {
         duration: number;
         notes: string;
         gameRecord?: {
-          sport: SportType | string;
+          sport: string;
           stats: Record<string, number>;
         };
       }>;
