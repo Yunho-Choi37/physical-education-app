@@ -410,11 +410,11 @@ const PurposePage = () => {
         // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('purposeAdminToken', data.token);
         localStorage.setItem('purposeAdminTokenExpires', data.expiresAt.toString());
-        setIsAdmin(true);
+      setIsAdmin(true);
         setAdminPassword(''); // 비밀번호 필드 초기화
-        setShowAdminLogin(false);
+      setShowAdminLogin(false);
         console.log('✅ 관리자 모드 활성화 완료');
-      } else {
+    } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
         setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
@@ -1156,11 +1156,11 @@ function App() {
         // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminTokenExpires', data.expiresAt.toString());
-        setIsAdmin(true);
+      setIsAdmin(true);
         setAdminPassword(''); // 비밀번호 필드 초기화
-        setShowAdminLogin(false);
+      setShowAdminLogin(false);
         console.log('✅ 관리자 모드 활성화 완료');
-      } else {
+    } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
         setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
@@ -2728,15 +2728,15 @@ function App() {
                   onTouchStart={handleClassesTouchStart}
                   onTouchMove={handleClassesTouchMove}
                   onTouchEnd={handleClassesTouchEnd}
-                  style={{ 
-                    border: 'none', 
+                      style={{
+                        border: 'none',
                     borderRadius: '8px', 
                     cursor: isDraggingClass ? 'grabbing' : 'pointer',
                     touchAction: 'none',
                     maxWidth: '100%',
                     height: 'auto'
-                  }}
-                />
+                      }}
+                    />
                 {/* 관리자 모드에서 모든 원에 편집 버튼 항상 표시 */}
                 {isAdmin && !isDraggingClass && classesLoaded && classes.map((_, index) => {
                   const position = classPositions[index];
@@ -3022,9 +3022,9 @@ function App() {
                       }}
                     >
                       🗑️ 삭제
-                    </button>
-                  </div>
-                )}
+                        </button>
+                      </div>
+                    )}
                 {/* 관리자 모드에서 편집 버튼들을 위한 오버레이 (필요시) */}
                 {isAdmin && editingClassIndex !== null && (
                   <div style={{
@@ -3313,9 +3313,9 @@ function App() {
       {selectedClassIndex !== null && (() => {
         const currentExistence = classExistence[selectedClassIndex + 1];
         const studentData = {
-          id: selectedClassIndex + 1,
-          name: classes[selectedClassIndex],
-          classId: selectedClassIndex + 1,
+            id: selectedClassIndex + 1,
+            name: classes[selectedClassIndex],
+            classId: selectedClassIndex + 1,
           existence: currentExistence ? {
             color: currentExistence.color,
             shape: currentExistence.shape,
@@ -3323,26 +3323,26 @@ function App() {
             size: currentExistence.size,
             glow: currentExistence.glow,
             border: currentExistence.border,
-            activity: '',
-            activities: [],
-            energy: 60,
-            personality: 'active',
+              activity: '',
+              activities: [],
+              energy: 60,
+              personality: 'active',
             customName: currentExistence.customName,
             imageData: currentExistence.imageData || '',
-            records: [],
+              records: [],
             showElectrons: currentExistence.showElectrons || false,
             showProtonsNeutrons: currentExistence.showProtonsNeutrons || false,
             atom: currentExistence.atom || {
-              protons: [],
-              neutrons: [],
-              electrons: {
-                kShell: [],
-                lShell: [],
-                mShell: [],
-                valence: []
+                protons: [],
+                neutrons: [],
+                electrons: {
+                  kShell: [],
+                  lShell: [],
+                  mShell: [],
+                  valence: []
+                }
               }
-            }
-          } : undefined
+            } : undefined
         };
         return (
           <StudentCustomizeModal
@@ -3397,7 +3397,7 @@ function App() {
                 },
                 body: JSON.stringify({ existence }),
               });
-
+              
               if (!response.ok) {
                 const errorText = await response.text();
                 console.error('❌ 저장 실패:', response.status, errorText);
@@ -3412,12 +3412,12 @@ function App() {
               // 저장 성공 후 상태 업데이트는 모달이 닫힌 후에 수행 (모달 리셋 방지)
               // 모달이 닫힌 후에 상태를 업데이트하기 위해 setTimeout 사용
               setTimeout(() => {
-                const updatedClassExistence = {
-                  ...classExistence,
-                  [classId]: existence
-                };
-                
-                setClassExistence(updatedClassExistence);
+              const updatedClassExistence = {
+                ...classExistence,
+                [classId]: existence
+              };
+              
+              setClassExistence(updatedClassExistence);
                 
                 // customName이 있으면 클래스 이름도 업데이트
                 if (existence.customName && selectedClassIndex !== null) {
@@ -3485,7 +3485,7 @@ function App() {
               throw error;
             }
           }}
-          />
+        />
         );
       })()}
 
