@@ -871,39 +871,15 @@ ${context}
 
 답변:`;
 
-    // 사용 가능한 모델 목록 확인
-    let availableModels = [];
-    try {
-      console.log('🔍 listModels() 호출 중...');
-      const listResponse = await geminiClient.listModels();
-      console.log('📦 listModels() 응답:', JSON.stringify(listResponse).substring(0, 1000));
-      
-      // 응답 구조 확인
-      if (listResponse && listResponse.models) {
-        availableModels = listResponse.models
-          .map(m => {
-            const name = m.name || m;
-            // "models/" 접두사 제거
-            return name.replace(/^models\//, '');
-          })
-          .filter(Boolean);
-        console.log('✅ 사용 가능한 모델 목록:', availableModels);
-      }
-    } catch (listError) {
-      console.error('❌ listModels() 실패:', listError.message);
-      console.error('❌ listModels() 스택:', listError.stack);
-    }
-    
-    // 시도할 모델 목록 (확인된 모델이 있으면 우선 사용, 없으면 기본 모델)
-    const modelsToTry = availableModels.length > 0 
-      ? availableModels.slice(0, 5)
-      : [
-          'gemini-1.5-flash',
-          'gemini-1.5-pro',
-          'gemini-pro',
-          'gemini-1.5-flash-latest',
-          'gemini-1.5-pro-latest'
-        ];
+    // 시도할 모델 목록 (최신 Gemini API 모델명)
+    // 2024-2025년 최신 모델명 우선 시도
+    const modelsToTry = [
+      'gemini-1.5-flash',           // 가장 안정적이고 빠른 모델
+      'gemini-1.5-pro',             // 더 강력한 모델
+      'gemini-2.0-flash-exp',       // 실험적 최신 모델
+      'gemini-2.0-pro-exp',         // 실험적 최신 프로 모델
+      'gemini-pro'                  // 구버전 (fallback)
+    ];
     
     console.log('📋 시도할 모델 목록:', modelsToTry);
 
@@ -912,25 +888,32 @@ ${context}
     
     // 여러 모델 시도
     for (const modelName of modelsToTry) {
-      try {
-        console.log(`🔄 모델 시도 중: ${modelName}`);
-        
-        // 모델명에 "models/" 접두사가 없으면 추가
-        const fullModelName = modelName.startsWith('models/') ? modelName : `models/${modelName}`;
-        
-        const model = geminiClient.getGenerativeModel({ model: fullModelName });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        answer = response.text();
-        
-        console.log(`✅ 모델 ${fullModelName} 성공! 답변 길이: ${answer.length}자`);
-        break; // 성공하면 루프 종료
-      } catch (modelError) {
-        const errorMsg = modelError.message || String(modelError);
-        console.error(`❌ 모델 ${modelName} 실패:`, errorMsg);
-        lastError = modelError;
-        continue; // 다음 모델 시도
+      // 두 가지 형식 모두 시도: "models/xxx"와 "xxx"
+      const modelNameVariants = [
+        modelName.startsWith('models/') ? modelName : `models/${modelName}`,
+        modelName.replace(/^models\//, '')
+      ];
+      
+      for (const fullModelName of modelNameVariants) {
+        try {
+          console.log(`🔄 모델 시도 중: ${fullModelName}`);
+          
+          const model = geminiClient.getGenerativeModel({ model: fullModelName });
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          answer = response.text();
+          
+          console.log(`✅ 모델 ${fullModelName} 성공! 답변 길이: ${answer.length}자`);
+          break; // 성공하면 루프 종료
+        } catch (modelError) {
+          const errorMsg = modelError.message || String(modelError);
+          console.error(`❌ 모델 ${fullModelName} 실패:`, errorMsg);
+          lastError = modelError;
+          continue; // 다음 형식 시도
+        }
       }
+      
+      if (answer) break; // 성공했으면 외부 루프도 종료
     }
     
     if (!answer) {
