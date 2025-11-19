@@ -25,6 +25,7 @@ interface Student {
     imageData?: string;
     showElectrons?: boolean; // 전자 표시 여부
     showProtonsNeutrons?: boolean; // 양성자/중성자 표시 여부
+    showGameRecords?: boolean; // 경기 기록 표시 여부
       records: Array<{
         date: string;
         activity: string;
@@ -356,6 +357,8 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   const [showElectrons, setShowElectrons] = useState(false);
   // 양성자/중성자 표시 여부 상태
   const [showProtonsNeutrons, setShowProtonsNeutrons] = useState(false);
+  // 경기 기록 표시 여부 상태
+  const [showGameRecords, setShowGameRecords] = useState(false);
   
   // 목표 선택 관련 상태
   const [goals, setGoals] = useState<Array<{ id: string; title: string; description: string; items: string[] }>>([]);
@@ -463,6 +466,8 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         setShowElectrons(student.existence?.showElectrons || false);
         // 양성자/중성자 표시 여부 초기화
         setShowProtonsNeutrons(student.existence?.showProtonsNeutrons || false);
+        // 경기 기록 표시 여부 초기화
+        setShowGameRecords(student.existence?.showGameRecords !== false);
         
         // 원자 모델 초기화 (description 필드를 기본값 ''로 보정)
         if (student.existence?.atom) {
@@ -620,6 +625,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         imageData: customization.imageData || '', // 빈 문자열로 초기화
         showElectrons: showElectrons, // 전자 표시 여부 저장
         showProtonsNeutrons: showProtonsNeutrons, // 양성자/중성자 표시 여부 저장
+        showGameRecords: showGameRecords, // 경기 기록 표시 여부 저장
         records: localRecords, // localRecords를 그대로 사용
         atom: atomModel // 원자 모델 저장
       }
@@ -1511,12 +1517,25 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
             <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="원 표시"
+                label="전자 껍질 표시"
                 checked={showElectrons}
                 onChange={(e) => setShowElectrons(e.target.checked)}
               />
               <Form.Text className="text-muted">
-                편집한 원을 화면에 표시하려면 체크하세요.
+                전자 껍질을 화면에 표시하려면 체크하세요.
+              </Form.Text>
+            </Form.Group>
+
+            {/* 경기 기록 표시 여부 체크박스 */}
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="경기 기록 표시"
+                checked={showGameRecords}
+                onChange={(e) => setShowGameRecords(e.target.checked)}
+              />
+              <Form.Text className="text-muted">
+                경기 기록을 원 주변에 표시하려면 체크하세요.
               </Form.Text>
             </Form.Group>
             <hr className="mb-3" />
@@ -2861,42 +2880,43 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                               <span>{categoryLabels[category].emoji}</span>
                               <span>{categoryLabels[category].label}</span>
                             </div>
-                            <div className="row g-3">
+                            <div className="row g-2">
                               {categoryStats.map((stat) => (
-                                <Col key={stat.key} xs={6} md={4} lg={3}>
+                                <Col key={stat.key} xs={4} sm={3} md={2} lg={2}>
                                   <Card className="text-center" style={{ 
-                                    border: `2px solid ${categoryLabels[category].color}`,
-                                    borderRadius: '12px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                    border: `1.5px solid ${categoryLabels[category].color}`,
+                                    borderRadius: '8px',
+                                    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
                                     transition: 'all 0.2s ease',
                                     cursor: 'pointer'
                                   }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
                                   }}
                                   onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
                                   }}
                                   >
-                                    <Card.Body style={{ padding: '20px 15px' }}>
-                                      <div style={{ fontSize: '32px', marginBottom: '10px' }}>
+                                    <Card.Body style={{ padding: '10px 8px' }}>
+                                      <div style={{ fontSize: '20px', marginBottom: '6px' }}>
                                         {stat.emoji}
                                       </div>
                                       <div style={{ 
-                                        fontSize: '13px', 
+                                        fontSize: '10px', 
                                         fontWeight: '600', 
-                                        marginBottom: '15px', 
+                                        marginBottom: '8px', 
                                         color: '#333',
-                                        minHeight: '32px',
+                                        minHeight: '24px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        lineHeight: '1.2'
                                       }}>
                                         {stat.label}
                                       </div>
-                                      <div className="d-flex align-items-center justify-content-center gap-3">
+                                      <div className="d-flex align-items-center justify-content-center gap-1">
                                         <Button
                                           variant="outline-secondary"
                                           size="sm"
@@ -2911,12 +2931,13 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                             }
                                           }}
                                           style={{ 
-                                            minWidth: '40px', 
-                                            height: '40px',
-                                            fontSize: '20px',
+                                            minWidth: '28px', 
+                                            height: '28px',
+                                            fontSize: '16px',
                                             fontWeight: 'bold',
-                                            borderRadius: '8px',
-                                            border: '2px solid #ddd',
+                                            borderRadius: '6px',
+                                            border: '1.5px solid #ddd',
+                                            padding: '0',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'
@@ -2926,9 +2947,9 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                         </Button>
                                         <div
                                           style={{
-                                            fontSize: '28px',
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
-                                            minWidth: '60px',
+                                            minWidth: '35px',
                                             color: categoryLabels[category].color,
                                             textAlign: 'center'
                                           }}
@@ -2947,13 +2968,14 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                             }));
                                           }}
                                           style={{ 
-                                            minWidth: '40px',
-                                            height: '40px',
-                                            fontSize: '20px',
+                                            minWidth: '28px',
+                                            height: '28px',
+                                            fontSize: '16px',
                                             fontWeight: 'bold',
-                                            borderRadius: '8px',
-                                            border: `2px solid ${categoryLabels[category].color}`,
+                                            borderRadius: '6px',
+                                            border: `1.5px solid ${categoryLabels[category].color}`,
                                             color: categoryLabels[category].color,
+                                            padding: '0',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'

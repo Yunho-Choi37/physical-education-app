@@ -17,6 +17,17 @@ interface ClassExistence {
   imageData?: string;
   showElectrons?: boolean;
   showProtonsNeutrons?: boolean;
+  showGameRecords?: boolean;
+  records?: Array<{
+    date: string;
+    activity: string;
+    duration: number;
+    notes: string;
+    gameRecord?: {
+      sport: string;
+      stats: Record<string, number>;
+    };
+  }>;
   atom?: {
     protons: Array<{
       keyword: string;
@@ -1487,6 +1498,47 @@ function App() {
               }
             });
           });
+        }
+
+        // 경기 기록 그리기 (원 주변에 표시)
+        if (existence?.records && existence.showGameRecords !== false) {
+          const gameRecords = existence.records.filter(r => r.gameRecord);
+          if (gameRecords.length > 0) {
+            const time = Date.now();
+            const gameRecordOrbit = radius * 3.5; // 전자보다 바깥쪽
+            const gameRecordSize = Math.max(8, radius * 0.14);
+            
+            gameRecords.forEach((record, rIdx: number) => {
+              const angle = (time * 0.00002 + rIdx * (2 * Math.PI / gameRecords.length)) % (2 * Math.PI);
+              const gx = x + Math.cos(angle) * gameRecordOrbit;
+              const gy = y + Math.sin(angle) * gameRecordOrbit;
+              
+              // 경기 기록 아이콘 그리기
+              ctx.beginPath();
+              ctx.arc(gx, gy, gameRecordSize, 0, 2 * Math.PI);
+              ctx.fillStyle = '#FFA500'; // 주황색
+              ctx.fill();
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              
+              // 경기 기록 이모티콘 (스포츠별)
+              const sportEmojis: Record<string, string> = {
+                'soccer': '⚽',
+                'basketball': '🏀',
+                'volleyball': '🏐',
+                'baseball': '⚾',
+                'tabletennis': '🏓',
+                'badminton': '🏸',
+                'handball': '🥅'
+              };
+              const sportEmoji = sportEmojis[record.gameRecord?.sport || ''] || '🏆';
+              ctx.font = `${gameRecordSize * 1.3}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(sportEmoji, gx, gy);
+            });
+          }
         }
       }
 
@@ -3193,9 +3245,10 @@ function App() {
               personality: 'active',
             customName: currentExistence.customName,
             imageData: currentExistence.imageData || '',
-              records: [],
+              records: currentExistence.records || [],
             showElectrons: currentExistence.showElectrons || false,
             showProtonsNeutrons: currentExistence.showProtonsNeutrons || false,
+            showGameRecords: currentExistence.showGameRecords !== false,
             atom: currentExistence.atom || {
                 protons: [],
                 neutrons: [],
@@ -3241,6 +3294,8 @@ function App() {
               imageData: updatedStudent.existence?.imageData || '',
               showElectrons: updatedStudent.existence?.showElectrons || false,
               showProtonsNeutrons: updatedStudent.existence?.showProtonsNeutrons || false,
+              showGameRecords: updatedStudent.existence?.showGameRecords !== false,
+              records: updatedStudent.existence?.records || [],
               atom: updatedStudent.existence?.atom || {
                 protons: [],
                 neutrons: [],
