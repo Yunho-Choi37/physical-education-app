@@ -31,7 +31,7 @@ interface Student {
         duration: number;
         notes: string;
         gameRecord?: {
-          sport: string;
+          sport: SportType | string;
           stats: Record<string, number>;
         };
       }>;
@@ -417,8 +417,14 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
           imageData: student.existence?.imageData || ''
         });
         setPassword(student.password || '0000');
-        // records 배열을 정확히 복사하여 초기화
-        setLocalRecords(student.existence?.records ? [...student.existence.records] : []);
+        // records 배열을 정확히 복사하여 초기화 (타입 변환 포함)
+        setLocalRecords(student.existence?.records ? student.existence.records.map(record => ({
+          ...record,
+          gameRecord: record.gameRecord ? {
+            ...record.gameRecord,
+            sport: record.gameRecord.sport as SportType
+          } : undefined
+        })) : []);
         // 경기기록 초기화
         setGameRecord({
           date: new Date().toISOString().split('T')[0],
