@@ -25,12 +25,16 @@ interface Student {
     imageData?: string;
     showElectrons?: boolean; // 전자 표시 여부
     showProtonsNeutrons?: boolean; // 양성자/중성자 표시 여부
-    records: Array<{
-      date: string;
-      activity: string;
-      duration: number;
-      notes: string;
-    }>;
+      records: Array<{
+        date: string;
+        activity: string;
+        duration: number;
+        notes: string;
+        gameRecord?: {
+          sport: string;
+          stats: Record<string, number>;
+        };
+      }>;
     // 원자 모델 구조
     atom?: {
       protons: Array<{
@@ -215,16 +219,112 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
   // 간소화된 편집 패널 전환: shape | nucleus | shells | records
   const [activePanel, setActivePanel] = useState<'shape' | 'nucleus' | 'shells' | 'records'>('shape');
 
-  const [activityRecord, setActivityRecord] = useState({
-    activity: '',
-    duration: 30,
+  // 구기 스포츠 타입 정의
+  type SportType = 'soccer' | 'basketball' | 'volleyball' | 'baseball' | 'tabletennis' | 'badminton' | 'handball';
+
+  // 스포츠별 기록 항목 정의
+  const sportStats: Record<SportType, Array<{ key: string; label: string; emoji: string }>> = {
+    soccer: [
+      { key: 'goals', label: '골', emoji: '⚽' },
+      { key: 'assists', label: '도움', emoji: '🎯' },
+      { key: 'passes', label: '패스', emoji: '📤' },
+      { key: 'passSuccess', label: '패스 성공', emoji: '✅' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    basketball: [
+      { key: 'points', label: '득점', emoji: '🏀' },
+      { key: 'assists', label: '어시스트', emoji: '🎯' },
+      { key: 'rebounds', label: '리바운드', emoji: '📊' },
+      { key: 'steals', label: '스틸', emoji: '👋' },
+      { key: 'blocks', label: '블록', emoji: '🛡️' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    volleyball: [
+      { key: 'spikes', label: '스파이크', emoji: '💥' },
+      { key: 'blocks', label: '블로킹', emoji: '🛡️' },
+      { key: 'serves', label: '서브', emoji: '🎾' },
+      { key: 'digs', label: '디그', emoji: '🤲' },
+      { key: 'sets', label: '세트', emoji: '👆' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    baseball: [
+      { key: 'hits', label: '안타', emoji: '⚾' },
+      { key: 'runs', label: '득점', emoji: '🏃' },
+      { key: 'rbis', label: '타점', emoji: '💯' },
+      { key: 'strikeouts', label: '삼진', emoji: '❌' },
+      { key: 'walks', label: '볼넷', emoji: '🚶' },
+      { key: 'errors', label: '실책', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    tabletennis: [
+      { key: 'points', label: '득점', emoji: '🏓' },
+      { key: 'serves', label: '서브', emoji: '🎾' },
+      { key: 'smash', label: '스매시', emoji: '💥' },
+      { key: 'spin', label: '회전', emoji: '🌀' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    badminton: [
+      { key: 'points', label: '득점', emoji: '🏸' },
+      { key: 'smashes', label: '스매시', emoji: '💥' },
+      { key: 'drops', label: '드롭', emoji: '⬇️' },
+      { key: 'clears', label: '클리어', emoji: '⬆️' },
+      { key: 'serves', label: '서브', emoji: '🎾' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ],
+    handball: [
+      { key: 'goals', label: '골', emoji: '🥅' },
+      { key: 'assists', label: '도움', emoji: '🎯' },
+      { key: 'saves', label: '세이브', emoji: '🛡️' },
+      { key: 'steals', label: '스틸', emoji: '👋' },
+      { key: 'fouls', label: '파울', emoji: '⚠️' },
+      { key: 'sportsmanship', label: '스포츠맨십', emoji: '🤝' },
+      { key: 'unsportsmanship', label: '언스포츠맨십', emoji: '❌' }
+    ]
+  };
+
+  const sportNames: Record<SportType, string> = {
+    soccer: '축구 ⚽',
+    basketball: '농구 🏀',
+    volleyball: '배구 🏐',
+    baseball: '야구 ⚾',
+    tabletennis: '탁구 🏓',
+    badminton: '배드민턴 🏸',
+    handball: '핸드볼 🥅'
+  };
+
+  const [selectedSport, setSelectedSport] = useState<SportType | ''>('');
+  const [gameRecord, setGameRecord] = useState<{
+    date: string;
+    sport: SportType;
+    stats: Record<string, number>;
+    notes: string;
+  }>({
+    date: new Date().toISOString().split('T')[0],
+    sport: '' as SportType,
+    stats: {},
     notes: ''
   });
+  
   const [localRecords, setLocalRecords] = useState<Array<{
     date: string;
     activity: string;
     duration: number;
     notes: string;
+    gameRecord?: {
+      sport: SportType;
+      stats: Record<string, number>;
+    };
   }>>([]);
 
   // 전자 표시 여부 상태
@@ -317,13 +417,16 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
           imageData: student.existence?.imageData || ''
         });
         setPassword(student.password || '0000');
-        setActivityRecord({
-          activity: student.existence?.activity || '',
-          duration: 30,
-          notes: ''
-        });
         // records 배열을 정확히 복사하여 초기화
         setLocalRecords(student.existence?.records ? [...student.existence.records] : []);
+        // 경기기록 초기화
+        setGameRecord({
+          date: new Date().toISOString().split('T')[0],
+          sport: '' as SportType,
+          stats: {},
+          notes: ''
+        });
+        setSelectedSport('');
         
         // 전자 표시 여부 초기화
         setShowElectrons(student.existence?.showElectrons || false);
@@ -478,7 +581,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         size: customization.size, // 크기 저장 확인
         glow: customization.glow,
         border: customization.border,
-        activity: activityRecord.activity,
+        activity: student.existence?.activity || '',
         activities: [], // activities 배열은 더 이상 사용하지 않음
         energy: student.existence?.energy || 60,
         personality: student.existence?.personality || 'active',
@@ -512,75 +615,6 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
       // 동기 함수인 경우 바로 모달 닫기
       onHide();
     }
-  };
-
-  const handleAddRecord = () => {
-    if (!student || !activityRecord.activity) return;
-
-    const record = {
-      date: new Date().toISOString().split('T')[0], // 오늘 날짜 자동 저장
-      activity: activityRecord.activity,
-      duration: activityRecord.duration,
-      notes: activityRecord.notes
-    };
-
-    // 로컬 상태에 즉시 추가하여 UI에 바로 반영
-    const newRecords = [...localRecords, record];
-    setLocalRecords(newRecords);
-
-    // 즉시 서버에 저장
-    const updatedStudent = {
-      ...student,
-      existence: {
-        color: student.existence?.color || '#FF6B6B',
-        shape: student.existence?.shape || 'circle',
-        pattern: student.existence?.pattern || 'solid',
-        size: student.existence?.size || 1.0,
-        glow: student.existence?.glow || false,
-        border: student.existence?.border || 'normal',
-        activity: activityRecord.activity,
-        activities: [], // activities 배열은 더 이상 사용하지 않음
-        energy: student.existence?.energy || 60,
-        personality: student.existence?.personality || 'active',
-        customName: customization.customName,
-        records: newRecords,
-        atom: atomModel // 원자 모델 포함
-      }
-    };
-
-    onSave(updatedStudent);
-    setActivityRecord({ activity: '', duration: 30, notes: '' });
-    // 모달을 닫지 않고 기록만 추가
-  };
-
-  const handleDeleteRecord = (index: number) => {
-    if (!student) return;
-
-    // 로컬 상태에서 삭제
-    const newRecords = localRecords.filter((_, i) => i !== index);
-    setLocalRecords(newRecords);
-
-    // 즉시 서버에 저장
-    const updatedStudent = {
-      ...student,
-      existence: {
-        color: student.existence?.color || '#FF6B6B',
-        shape: student.existence?.shape || 'circle',
-        pattern: student.existence?.pattern || 'solid',
-        size: student.existence?.size || 1.0,
-        glow: student.existence?.glow || false,
-        border: student.existence?.border || 'normal',
-        activity: student.existence?.activity || '',
-        activities: [], // activities 배열은 더 이상 사용하지 않음
-        energy: student.existence?.energy || 60,
-        personality: student.existence?.personality || 'active',
-        customName: customization.customName,
-        records: newRecords,
-        atom: atomModel // 원자 모델 포함
-      }
-    };
-
-    onSave(updatedStudent);
   };
 
   // 이모티콘 옵션들
@@ -641,7 +675,7 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
               size="sm"
               onClick={() => setActivePanel('records')}
             >
-              활동 기록
+              경기기록
             </Button>
           </div>
           <hr className="mt-3" />
@@ -2722,75 +2756,170 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
         </Card>
         )}
 
-        {/* 활동 기록 - 패널 전환: records */}
+        {/* 경기기록 - 패널 전환: records */}
         {activePanel === 'records' && (
           <>
             <Card className="mb-3">
-              <Card.Header>📝 활동 기록 추가</Card.Header>
+              <Card.Header>🏆 경기기록 추가</Card.Header>
               <Card.Body>
                 <Form.Group className="mb-4">
                   <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    활동
+                    경기 날짜
                   </Form.Label>
                   <Form.Control
-                    type="text"
-                    value={activityRecord.activity}
-                    onChange={(e) => setActivityRecord(prev => ({ ...prev, activity: e.target.value }))}
-                    placeholder="활동을 입력하세요"
+                    type="date"
+                    value={gameRecord.date}
+                    onChange={(e) => setGameRecord(prev => ({ ...prev, date: e.target.value }))}
                     style={{ fontSize: '16px', padding: '10px' }}
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-4">
                   <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    시간 (분)
+                    구기 스포츠 선택
                   </Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={activityRecord.duration}
-                    onChange={(e) => setActivityRecord(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
-                    style={{ fontSize: '16px', padding: '10px' }}
-                  />
+                  <div className="d-flex flex-wrap gap-2">
+                    {(Object.keys(sportNames) as SportType[]).map((sport) => (
+                      <Button
+                        key={sport}
+                        variant={selectedSport === sport ? 'primary' : 'outline-primary'}
+                        onClick={() => {
+                          setSelectedSport(sport);
+                          setGameRecord(prev => ({
+                            ...prev,
+                            sport: sport,
+                            stats: {}
+                          }));
+                        }}
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                      >
+                        {sportNames[sport]}
+                      </Button>
+                    ))}
+                  </div>
                 </Form.Group>
 
-                <Form.Group className="mb-4">
-                  <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    메모 작성
-                  </Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={6}
-                    value={activityRecord.notes}
-                    onChange={(e) => setActivityRecord(prev => ({ ...prev, notes: e.target.value }))}
-                    placeholder="활동에 대한 메모를 자세히 작성하세요..."
-                    style={{ fontSize: '15px', padding: '12px', resize: 'vertical' }}
-                  />
-                  <Form.Text className="text-muted mt-2 d-block">
-                    활동에 대한 상세한 내용, 느낀 점, 배운 점 등을 자유롭게 작성하세요
-                  </Form.Text>
-                </Form.Group>
+                {selectedSport && (
+                  <>
+                    <Form.Group className="mb-4">
+                      <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '15px' }}>
+                        기록 항목 (터치/클릭으로 횟수 조정)
+                      </Form.Label>
+                      <div className="row g-3">
+                        {sportStats[selectedSport].map((stat) => (
+                          <Col key={stat.key} xs={6} md={4} lg={3}>
+                            <Card className="text-center" style={{ border: '2px solid #e0e0e0' }}>
+                              <Card.Body style={{ padding: '15px' }}>
+                                <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                                  {stat.emoji}
+                                </div>
+                                <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', color: '#666' }}>
+                                  {stat.label}
+                                </div>
+                                <div className="d-flex align-items-center justify-content-center gap-2">
+                                  <Button
+                                    variant="outline-secondary"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentValue = gameRecord.stats[stat.key] || 0;
+                                      if (currentValue > 0) {
+                                        setGameRecord(prev => ({
+                                          ...prev,
+                                          stats: { ...prev.stats, [stat.key]: currentValue - 1 }
+                                        }));
+                                      }
+                                    }}
+                                    style={{ minWidth: '35px', fontSize: '18px' }}
+                                  >
+                                    −
+                                  </Button>
+                                  <div
+                                    style={{
+                                      fontSize: '24px',
+                                      fontWeight: 'bold',
+                                      minWidth: '50px',
+                                      color: '#007bff'
+                                    }}
+                                  >
+                                    {gameRecord.stats[stat.key] || 0}
+                                  </div>
+                                  <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentValue = gameRecord.stats[stat.key] || 0;
+                                      setGameRecord(prev => ({
+                                        ...prev,
+                                        stats: { ...prev.stats, [stat.key]: currentValue + 1 }
+                                      }));
+                                    }}
+                                    style={{ minWidth: '35px', fontSize: '18px' }}
+                                  >
+                                    +
+                                  </Button>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))}
+                      </div>
+                    </Form.Group>
 
-                <Button 
-                  onClick={handleAddRecord} 
-                  disabled={!activityRecord.activity}
-                  size="lg"
-                  style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold' }}
-                >
-                  ✨ 기록 추가하기
-                </Button>
+                    <Form.Group className="mb-4">
+                      <Form.Label style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
+                        메모 작성
+                      </Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={4}
+                        value={gameRecord.notes}
+                        onChange={(e) => setGameRecord(prev => ({ ...prev, notes: e.target.value }))}
+                        placeholder="경기에 대한 메모를 작성하세요..."
+                        style={{ fontSize: '15px', padding: '12px', resize: 'vertical' }}
+                      />
+                    </Form.Group>
+
+                    <Button 
+                      onClick={() => {
+                        const newRecord = {
+                          date: gameRecord.date,
+                          activity: `${sportNames[selectedSport]} 경기`,
+                          duration: 0,
+                          notes: gameRecord.notes,
+                          gameRecord: {
+                            sport: selectedSport,
+                            stats: { ...gameRecord.stats }
+                          }
+                        };
+                        setLocalRecords(prev => [...prev, newRecord]);
+                        setGameRecord({
+                          date: new Date().toISOString().split('T')[0],
+                          sport: '' as SportType,
+                          stats: {},
+                          notes: ''
+                        });
+                        setSelectedSport('');
+                      }}
+                      size="lg"
+                      style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold' }}
+                    >
+                      ✨ 경기기록 추가하기
+                    </Button>
+                  </>
+                )}
               </Card.Body>
             </Card>
 
             <Card>
               <Card.Header style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                📋 활동 기록 내역 ({localRecords.length}개)
+                📋 경기기록 내역 ({localRecords.length}개)
               </Card.Header>
               <Card.Body style={{ maxHeight: '400px', overflowY: 'auto', padding: '15px' }}>
                 {localRecords.length === 0 ? (
                   <div className="text-center text-muted p-4" style={{ fontSize: '16px' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '10px' }}>📝</div>
-                    <div>아직 기록된 활동이 없습니다.</div>
-                    <div className="mt-2" style={{ fontSize: '14px' }}>위에서 활동을 추가해보세요!</div>
+                    <div style={{ fontSize: '48px', marginBottom: '10px' }}>🏆</div>
+                    <div>아직 기록된 경기가 없습니다.</div>
+                    <div className="mt-2" style={{ fontSize: '14px' }}>위에서 경기기록을 추가해보세요!</div>
                   </div>
                 ) : (
                   localRecords.map((record, index) => (
@@ -2805,16 +2934,36 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                       <div className="d-flex justify-content-between align-items-start">
                         <div style={{ flex: 1 }}>
                           <div className="d-flex align-items-center mb-2">
-                            <span style={{ fontSize: '24px', marginRight: '10px' }}>
+                            <span style={{ fontSize: '20px', marginRight: '10px', fontWeight: 'bold' }}>
                               {record.activity}
                             </span>
-                            <span className="badge bg-warning text-dark" style={{ fontSize: '14px' }}>
-                              {record.duration}분
-                            </span>
+                            {record.duration > 0 && (
+                              <span className="badge bg-warning text-dark" style={{ fontSize: '14px' }}>
+                                {record.duration}분
+                              </span>
+                            )}
                           </div>
                           <div className="text-muted mb-2" style={{ fontSize: '14px' }}>
                             📅 {record.date}
                           </div>
+                          {record.gameRecord && (
+                            <div className="mt-2 p-2 bg-white rounded" style={{ fontSize: '14px' }}>
+                              <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>📊 경기 기록:</div>
+                              <div className="d-flex flex-wrap gap-2">
+                                {sportStats[record.gameRecord.sport].map((stat) => {
+                                  const value = record.gameRecord!.stats[stat.key] || 0;
+                                  if (value > 0) {
+                                    return (
+                                      <span key={stat.key} className="badge bg-info text-dark">
+                                        {stat.emoji} {stat.label}: {value}
+                                      </span>
+                                    );
+                                  }
+                                  return null;
+                                })}
+                              </div>
+                            </div>
+                          )}
                           {record.notes && (
                             <div className="mt-2 p-2 bg-white rounded" style={{ fontSize: '15px', lineHeight: '1.6' }}>
                               {record.notes}
@@ -2824,7 +2973,9 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => handleDeleteRecord(index)}
+                          onClick={() => {
+                            setLocalRecords(prev => prev.filter((_, i) => i !== index));
+                          }}
                           style={{ 
                             minWidth: '35px', 
                             height: '35px', 
