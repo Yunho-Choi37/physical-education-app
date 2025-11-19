@@ -836,29 +836,52 @@ const getDatabaseContext = async () => {
 // API: AI 질문 답변
 apiRouter.post('/ai/ask', async (req, res) => {
   try {
+    console.log('🚀 AI 질문 요청 수신');
+    console.log('📥 Request body:', JSON.stringify(req.body).substring(0, 200));
+    
     const { question } = req.body;
     
     if (!question || !question.trim()) {
+      console.error('❌ 질문이 없거나 비어있음');
       return res.status(400).json({ error: '질문을 입력해주세요.' });
     }
 
     console.log('🚀 AI 질문 요청 시작:', question.substring(0, 50));
 
     // Gemini 클라이언트 초기화
-    const geminiClient = getGeminiClient();
-    if (!geminiClient) {
-      console.error('❌ Gemini 클라이언트 초기화 실패');
+    let geminiClient;
+    try {
+      geminiClient = getGeminiClient();
+      if (!geminiClient) {
+        console.error('❌ Gemini 클라이언트 초기화 실패: getGeminiClient()가 null 반환');
+        return res.status(500).json({ 
+          error: 'Gemini API 키가 설정되지 않았습니다.',
+          hint: '환경 변수 GEMINI_API_KEY를 설정하거나 firebase functions:config:set gemini.api_key="YOUR_API_KEY"를 실행하세요.'
+        });
+      }
+      console.log('✅ Gemini 클라이언트 초기화 성공');
+    } catch (clientError) {
+      console.error('❌ Gemini 클라이언트 초기화 중 예외 발생:', clientError);
+      console.error('❌ 스택:', clientError.stack);
       return res.status(500).json({ 
-        error: 'Gemini API 키가 설정되지 않았습니다.',
-        hint: '환경 변수 GEMINI_API_KEY를 설정하거나 firebase functions:config:set gemini.api_key="YOUR_API_KEY"를 실행하세요.'
+        error: 'Gemini 클라이언트 초기화 실패',
+        details: clientError.message
       });
     }
 
-    console.log('✅ Gemini 클라이언트 초기화 성공');
-
     // 데이터베이스 컨텍스트 가져오기
-    const context = await getDatabaseContext();
-    console.log('✅ 데이터베이스 컨텍스트 가져오기 완료');
+    let context;
+    try {
+      context = await getDatabaseContext();
+      console.log('✅ 데이터베이스 컨텍스트 가져오기 완료, 길이:', context.length);
+    } catch (contextError) {
+      console.error('❌ 데이터베이스 컨텍스트 가져오기 실패:', contextError);
+      console.error('❌ 스택:', contextError.stack);
+      return res.status(500).json({ 
+        error: '데이터베이스 컨텍스트 가져오기 실패',
+        details: contextError.message
+      });
+    }
     
     // 프롬프트 구성
     const prompt = `당신은 체육 교육 앱의 데이터베이스 정보를 바탕으로 질문에 답변하는 AI 어시스턴트입니다.
@@ -899,15 +922,24 @@ ${context}
           console.log(`🔄 모델 시도 중: ${fullModelName}`);
           
           const model = geminiClient.getGenerativeModel({ model: fullModelName });
+          console.log(`📝 모델 객체 생성 완료, generateContent 호출 중...`);
+          
           const result = await model.generateContent(prompt);
+          console.log(`📥 generateContent 응답 수신, response 가져오는 중...`);
+          
           const response = await result.response;
+          console.log(`📥 response 객체 획득, text() 호출 중...`);
+          
           answer = response.text();
           
           console.log(`✅ 모델 ${fullModelName} 성공! 답변 길이: ${answer.length}자`);
           break; // 성공하면 루프 종료
         } catch (modelError) {
           const errorMsg = modelError.message || String(modelError);
+          const errorStack = modelError.stack || '스택 없음';
           console.error(`❌ 모델 ${fullModelName} 실패:`, errorMsg);
+          console.error(`❌ 에러 상세:`, JSON.stringify(modelError).substring(0, 500));
+          console.error(`❌ 스택:`, errorStack.substring(0, 1000));
           lastError = modelError;
           continue; // 다음 형식 시도
         }
