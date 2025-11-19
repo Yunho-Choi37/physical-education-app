@@ -2229,61 +2229,25 @@ function App() {
       }
     };
 
-    // 사용자 제공 이미지 (모든 일러스트레이션에 동일하게 적용)
+    // 사용자 제공 이미지
     const userIllustrationImage = "/강박이.png";
     
-    // 모든 일러스트레이션에 동일한 이미지 사용
-    const imgIllustrationChair = userIllustrationImage;
-    const imgIllustrationBall = userIllustrationImage;
-    const imgIllustrationBook = userIllustrationImage;
-    const imgIllustrationCactus = userIllustrationImage;
-    const imgIllustrationBox = userIllustrationImage;
-    const imgIllustrationWrench = userIllustrationImage;
-
     // 일러스트레이션 스타일 메모이제이션 (깜빡임 방지)
     const isMobile = screenSize.width < 768;
-    const scaleRatio = isMobile ? Math.min(screenSize.width / 1179, 1) : 1;
     
-    const illustrationContainerStyle = useMemo(() => ({
+    const illustrationStyle = useMemo(() => ({
       position: 'absolute' as const,
-      height: isMobile ? '300px' : '541px',
       left: '50%',
-      top: isMobile ? '200px' : '384px',
-      width: isMobile ? '100%' : '1179px',
-      maxWidth: isMobile ? '100%' : 'none',
-      transform: 'translateX(-50%)',
-      overflow: 'hidden',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: isMobile ? '80%' : '600px',
+      maxWidth: '800px',
+      height: 'auto',
+      objectFit: 'contain' as const,
       pointerEvents: 'none' as const,
-      opacity: isMobile ? 0.6 : 1,
-      willChange: 'transform',
-      backfaceVisibility: 'hidden' as const,
-      WebkitBackfaceVisibility: 'hidden' as const,
-      transformStyle: 'preserve-3d' as const
+      opacity: 0.7,
+      zIndex: 1
     }), [isMobile]);
-
-    const chairStyle = useMemo(() => ({
-      width: isMobile ? `${Math.min(242.377 * scaleRatio, 242.377)}px` : '242.377px',
-      height: isMobile ? `${Math.min(470.292 * scaleRatio, 470.292)}px` : '470.292px',
-      maxWidth: '242.377px',
-      maxHeight: '470.292px',
-      transform: 'rotate(352.566deg)',
-      position: 'relative' as const,
-      willChange: 'transform',
-      backfaceVisibility: 'hidden' as const,
-      WebkitBackfaceVisibility: 'hidden' as const
-    }), [isMobile, scaleRatio]);
-
-    const bookStyle = useMemo(() => ({
-      left: isMobile ? `${345 * scaleRatio}px` : '345px',
-      top: isMobile ? `${221 * scaleRatio}px` : '221px',
-      width: isMobile ? `${Math.min(379.44 * scaleRatio, 379.44)}px` : '379.44px',
-      height: isMobile ? `${Math.min(292.075 * scaleRatio, 292.075)}px` : '292.075px',
-      maxWidth: '379.44px',
-      maxHeight: '292.075px',
-      willChange: 'transform',
-      backfaceVisibility: 'hidden' as const,
-      WebkitBackfaceVisibility: 'hidden' as const
-    }), [isMobile, scaleRatio]);
 
     return (
       <div className="existence-home" style={{ 
@@ -2295,117 +2259,14 @@ function App() {
         overflow: 'hidden',
         overflowX: 'hidden'
       }}>
-        {/* 장식 일러스트레이션들 */}
-        <div style={illustrationContainerStyle}>
-          {/* 의자 */}
-          <div style={{
-            position: 'absolute',
-            left: '0.34%',
-            top: '2.96%',
-            right: '74.11%',
-            bottom: '5.05%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'none'
-          }}>
-            <div style={chairStyle}>
-              <img 
-                src={imgIllustrationChair} 
-                alt="Chair illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          </div>
-          
-          {/* 공 */}
-          <div style={{
-            position: 'absolute',
-            left: '23.52%',
-            top: '0.97%',
-            right: '54.61%',
-            bottom: '51.36%',
-            transition: 'none'
-          }}>
-            <img 
-              src={imgIllustrationBall} 
-              alt="Ball illustration" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          
-          {/* 책 */}
-          <div style={{
-            position: 'absolute',
-            ...bookStyle
-          }}>
-            <img 
-              src={imgIllustrationBook} 
-              alt="Book illustration" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          
-          {/* 선인장 */}
-          <div style={{
-            position: 'absolute',
-            left: '77.02%',
-            top: '0%',
-            right: '-1.36%',
-            bottom: '5.64%',
-            transition: 'none'
-          }}>
-            <img 
-              src={imgIllustrationCactus} 
-              alt="Cactus illustration" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          
-          {/* 박스 */}
-          <div style={{
-            position: 'absolute',
-            left: '47.16%',
-            top: '-3.14%',
-            right: '23.34%',
-            bottom: '47.19%',
-            transition: 'none'
-          }}>
-            <img 
-              src={imgIllustrationBox} 
-              alt="Box illustration" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          
-          {/* 렌치 */}
-          <div style={{
-            position: 'absolute',
-            left: '22.6%',
-            top: '46.09%',
-            right: '58.38%',
-            bottom: '-0.04%',
-            transition: 'none'
-          }}>
-            <img 
-              src={imgIllustrationWrench} 
-              alt="Wrench illustration" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-        </div>
+        {/* 가운데 일러스트레이션 */}
+        <img 
+          src={userIllustrationImage} 
+          alt="Illustration" 
+          style={illustrationStyle}
+          loading="eager"
+          decoding="async"
+        />
 
         {/* 메인 콘텐츠 */}
         <div className="existence-search-container" style={{
