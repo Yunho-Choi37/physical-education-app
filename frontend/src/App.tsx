@@ -3417,97 +3417,13 @@ function App() {
         }
         .App.landing-view {
           min-height: 100vh;
-          background: #ffffff;
+          background: url(/gangbak.png) no-repeat center center fixed;
+          background-size: cover;
           display: flex;
           justify-content: center;
           align-items: flex-start;
           padding: clamp(48px, 8vh, 96px) 0 120px;
           overflow-x: hidden;
-        }
-        .App.legacy-view {
-          background: radial-gradient(circle at top, #ffffff 0%, #f4f6fb 55%, #eef1f9 100%);
-          overflow: hidden;
-        }
-        .existence-home {
-          width: 100%;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 56px;
-        }
-        .existence-search-container {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-        .existence-logo {
-          font-size: clamp(60px, 8vw, 88px);
-          font-weight: 800;
-          letter-spacing: -0.04em;
-          margin: 0;
-          cursor: pointer;
-        }
-        .existence-subtitle {
-          margin: 0;
-          font-size: 1rem;
-          color: #5f6368;
-          text-align: center;
-        }
-        .existence-letter {
-          display: inline-block;
-        }
-        .existence-letter-dark { color: #FFD700; } /* 노란색으로 변경 */
-        .existence-letter-gray { color: #5f6368; }
-        .existence-letter-green { color: #188038; }
-        .existence-letter-blue { color: #1a73e8; }
-        .existence-letter-red { color: #d93025; }
-        .existence-buttons {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          margin-top: 8px;
-        }
-        .existence-button {
-          background-color: #f8f9fa;
-          border: 1px solid #f8f9fa;
-          border-radius: 4px;
-          color: #3c4043;
-          font-family: Arial, sans-serif;
-          font-size: 14px;
-          line-height: 27px;
-          height: 36px;
-          min-width: 120px;
-          padding: 0 16px;
-          margin: 11px 4px;
-          cursor: pointer;
-          user-select: none;
-          transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-        }
-        .existence-button:hover {
-          border-color: #dadce0;
-          box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-          transform: translateY(-1px);
-        }
-        @media (max-width: 480px) {
-          .existence-buttons {
-            width: 100%;
-            max-width: 360px;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            gap: 0;
-          }
-          .existence-button {
-            flex: 1 1 auto;
-            min-width: auto;
-            padding: 0 10px;
-            margin: 6px 2px;
-            font-size: 12px;
-            height: 34px;
-            line-height: 25px;
-          }
         }
         @media (max-width: 768px) {
           .App.landing-view {

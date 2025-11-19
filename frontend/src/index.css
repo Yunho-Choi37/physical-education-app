@@ -28,3 +28,49 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.existence-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
+.existence-button {
+  background-color: #f8f9fa;
+  border: 1px solid #f8f9fa;
+  border-radius: 4px;
+  color: #3c4043;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 27px;
+  height: 36px;
+  min-width: 120px;
+  padding: 0 16px;
+  margin: 11px 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.existence-button:hover {
+  border-color: #dadce0;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  transform: translateY(-1px);
+}
+@media (max-width: 480px) {
+  .existence-buttons {
+    width: 100%;
+    max-width: 360px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0;
+  }
+  .existence-button {
+    flex: 1 1 auto;
+    min-width: auto;
+    padding: 0 10px;
+    margin: 6px 2px;
+    font-size: 12px;
+    height: 34px;
+    line-height: 25px;
+  }
+}

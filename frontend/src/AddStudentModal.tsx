@@ -26,11 +26,11 @@ const AddStudentModal: React.FC<Props> = ({ show, onHide, onSave }) => {
       <Modal.Body>
         <Form.Group>
           <Form.Label><strong>Enter the number of circles to add:</strong></Form.Label>
-          <Form.Control 
-            type="number" 
-            min="1" 
+          <Form.Control
+            type="number"
+            min="1"
             max="50"
-            value={count} 
+            value={count}
             onChange={(e) => {
               const val = parseInt(e.target.value) || 1;
               setCount(Math.max(1, Math.min(50, val)));
@@ -43,12 +43,12 @@ const AddStudentModal: React.FC<Props> = ({ show, onHide, onSave }) => {
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleSave}>
+        <button className="existence-button" onClick={handleSave}>
           Add
-        </Button>
-        <Button variant="secondary" onClick={onHide}>
+        </button>
+        <button className="existence-button" onClick={onHide}>
           Cancel
-        </Button>
+        </button>
       </Modal.Footer>
     </Modal>
   );

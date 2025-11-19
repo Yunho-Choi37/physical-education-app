@@ -2080,38 +2080,38 @@ const ClassDetails = ({ isAdmin = false, onOpenAdminLogin, onOpenAIModal }: { is
     <div className="class-details">
       <div className="header-controls">
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link to="/being" className="modern-btn back-btn">
+          <Link to="/being" className="existence-button" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <span className="btn-icon">←</span>
             <span className="btn-text">원 선택으로 돌아가기</span>
           </Link>
-          <Link to="/" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
+          <Link to="/" className="existence-button" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span className="btn-text">홈</span>
           </Link>
-          <Link to="/purpose" className="modern-btn" style={{ background: '#ffffff', color: '#191970', border: '1px solid #dfe1e5', textDecoration: 'none' }}>
+          <Link to="/purpose" className="existence-button" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span className="btn-text">목적</span>
           </Link>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           {isAdmin && (
-            <button className="modern-btn add-btn" onClick={() => setShowAddModal(true)}>
+            <button className="existence-button" onClick={() => setShowAddModal(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <span className="btn-icon">+</span>
               <span className="btn-text">원 추가</span>
             </button>
           )}
           {isAdmin && (
-            <button className="modern-btn reset-btn" onClick={handleReset}>
+            <button className="existence-button" onClick={handleReset} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <span className="btn-icon">🔄</span>
               <span className="btn-text">초기화</span>
             </button>
           )}
           {isAdmin && onOpenAIModal && (
-            <button className="modern-btn ai-btn" onClick={onOpenAIModal} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', border: 'none' }}>
+            <button className="existence-button" onClick={onOpenAIModal} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <span className="btn-icon">🤖</span>
               <span className="btn-text">질문</span>
             </button>
           )}
           {!isAdmin && onOpenAdminLogin && (
-            <button className="modern-btn login-btn" onClick={onOpenAdminLogin} style={{ background: '#f8f9fa', color: '#3c4043', border: '1px solid #dadce0' }}>
+            <button className="existence-button" onClick={onOpenAdminLogin} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <span className="btn-icon">🔒</span>
               <span className="btn-text">관리자 로그인</span>
             </button>

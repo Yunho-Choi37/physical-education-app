@@ -2823,9 +2823,9 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                               }
                                             }}
                                             style={{
-                                              minWidth: '20px',
-                                              height: '20px',
-                                              fontSize: '13px',
+                                              minWidth: '28px',
+                                              height: '28px',
+                                              fontSize: '16px',
                                               fontWeight: 'bold',
                                               borderRadius: '5px',
                                               border: '1.2px solid #ddd',
@@ -2861,9 +2861,9 @@ const StudentCustomizeModal: React.FC<StudentCustomizeModalProps> = ({
                                               }));
                                             }}
                                             style={{
-                                              minWidth: '20px',
-                                              height: '20px',
-                                              fontSize: '13px',
+                                              minWidth: '28px',
+                                              height: '28px',
+                                              fontSize: '16px',
                                               fontWeight: 'bold',
                                               borderRadius: '5px',
                                               border: `1.2px solid ${categoryLabels[category].color}`,
