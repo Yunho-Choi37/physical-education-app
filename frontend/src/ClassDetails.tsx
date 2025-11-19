@@ -17,86 +17,86 @@ interface Student {
   password?: string;  // 4자리 비밀번호
   tags?: string[];
   connections?: number[];
-        existence?: {
-          color: string;         // 원의 색상
-          shape: string;         // 원의 형태 (circle, square, triangle, star, heart)
-          pattern: string;       // 패턴 (solid, stripes, dots, waves, grid)
-          size: number;          // 크기 (0.8-1.5)
-          glow: boolean;         // 빛나는 효과
-          border: string;        // 테두리 스타일 (normal, thick, dotted, dashed)
-          activity: string;      // 현재 활동
-          activities: string[];  // 활동 기록
-          energy: number;        // 에너지 레벨 (0-100)
-          personality: string;   // 개성 (active, calm, creative, etc.)
-          customName?: string;   // 사용자 정의 이름
-          imageData?: string;    // 로컬 업로드 이미지(Data URL)
-          showElectrons?: boolean; // 전자 표시 여부
-          showProtonsNeutrons?: boolean; // 양성자/중성자 표시 여부
-          showGameRecords?: boolean; // 경기 기록 표시 여부
-          records: Array<{      // 활동 기록
-            date: string;
-            activity: string;
-            duration: number;
-            notes: string;
-            gameRecord?: {
-              sport: SportType | string;
-              stats: Record<string, number>;
-            };
-          }>;
-          // 원자 모델 구조
-          atom?: {
-            protons: Array<{     // 양성자 (핵심 특성)
-              keyword: string;   // 대표 키워드
-              strength: number;  // 특성 강도 (1-5)
-              color: string;     // 양성자 색상
-              emoji: string;     // 선택된 이모티콘
-              imageData?: string; // 사진 (Data URL)
-              description?: string; // 설명
-            }>;
-            neutrons: Array<{    // 중성자 (균형적 특성)
-              keyword: string;   // 취미/관심사 키워드
-              category: string;  // 카테고리 (취미, 관심사, 개성)
-              color: string;     // 중성자 색상 (양성자와 다름)
-              emoji: string;     // 선택된 이모티콘
-              imageData?: string; // 사진 (Data URL)
-              description?: string; // 설명
-            }>;
-            electrons: {         // 전자 (활동 에너지 준위)
-              kShell: Array<{    // K 껍질 (필수 활동)
-                activity: string;
-                frequency: number; // 빈도 (1-7, 매일=7)
-                emoji: string;     // 선택된 이모티콘
-                description?: string; // 설명
-                imageData?: string; // 사진 (Data URL)
-              }>;
-              lShell: Array<{    // L 껍질 (선택 활동)
-                activity: string;
-                frequency: number; // 빈도 (1-7)
-                emoji: string;     // 선택된 이모티콘
-                description?: string; // 설명
-                imageData?: string; // 사진 (Data URL)
-              }>;
-              mShell: Array<{    // M 껍질 (특별 활동)
-                activity: string;
-                frequency: number; // 빈도 (1-7)
-                emoji: string;     // 선택된 이모티콘
-                description?: string; // 설명
-                imageData?: string; // 사진 (Data URL)
-              }>;
-              valence: Array<{   // 원자가 전자 (사회적 결합 활동)
-                activity: string;
-                cooperation: number; // 협력도 (1-5)
-                social: boolean;     // 사회적 활동 여부
-                emoji: string;       // 선택된 이모티콘
-                description?: string; // 설명
-                imageData?: string; // 사진 (Data URL)
-              }>;
-            };
-          };
-        };
+  existence?: {
+    color: string;         // 원의 색상
+    shape: string;         // 원의 형태 (circle, square, triangle, star, heart)
+    pattern: string;       // 패턴 (solid, stripes, dots, waves, grid)
+    size: number;          // 크기 (0.8-1.5)
+    glow: boolean;         // 빛나는 효과
+    border: string;        // 테두리 스타일 (normal, thick, dotted, dashed)
+    activity: string;      // 현재 활동
+    activities: string[];  // 활동 기록
+    energy: number;        // 에너지 레벨 (0-100)
+    personality: string;   // 개성 (active, calm, creative, etc.)
+    customName?: string;   // 사용자 정의 이름
+    imageData?: string;    // 로컬 업로드 이미지(Data URL)
+    showElectrons?: boolean; // 전자 표시 여부
+    showProtonsNeutrons?: boolean; // 양성자/중성자 표시 여부
+    showGameRecords?: boolean; // 경기 기록 표시 여부
+    records: Array<{      // 활동 기록
+      date: string;
+      activity: string;
+      duration: number;
+      notes: string;
+      gameRecord?: {
+        sport: SportType | string;
+        stats: Record<string, number>;
+      };
+    }>;
+    // 원자 모델 구조
+    atom?: {
+      protons: Array<{     // 양성자 (핵심 특성)
+        keyword: string;   // 대표 키워드
+        strength: number;  // 특성 강도 (1-5)
+        color: string;     // 양성자 색상
+        emoji: string;     // 선택된 이모티콘
+        imageData?: string; // 사진 (Data URL)
+        description?: string; // 설명
+      }>;
+      neutrons: Array<{    // 중성자 (균형적 특성)
+        keyword: string;   // 취미/관심사 키워드
+        category: string;  // 카테고리 (취미, 관심사, 개성)
+        color: string;     // 중성자 색상 (양성자와 다름)
+        emoji: string;     // 선택된 이모티콘
+        imageData?: string; // 사진 (Data URL)
+        description?: string; // 설명
+      }>;
+      electrons: {         // 전자 (활동 에너지 준위)
+        kShell: Array<{    // K 껍질 (필수 활동)
+          activity: string;
+          frequency: number; // 빈도 (1-7, 매일=7)
+          emoji: string;     // 선택된 이모티콘
+          description?: string; // 설명
+          imageData?: string; // 사진 (Data URL)
+        }>;
+        lShell: Array<{    // L 껍질 (선택 활동)
+          activity: string;
+          frequency: number; // 빈도 (1-7)
+          emoji: string;     // 선택된 이모티콘
+          description?: string; // 설명
+          imageData?: string; // 사진 (Data URL)
+        }>;
+        mShell: Array<{    // M 껍질 (특별 활동)
+          activity: string;
+          frequency: number; // 빈도 (1-7)
+          emoji: string;     // 선택된 이모티콘
+          description?: string; // 설명
+          imageData?: string; // 사진 (Data URL)
+        }>;
+        valence: Array<{   // 원자가 전자 (사회적 결합 활동)
+          activity: string;
+          cooperation: number; // 협력도 (1-5)
+          social: boolean;     // 사회적 활동 여부
+          emoji: string;       // 선택된 이모티콘
+          description?: string; // 설명
+          imageData?: string; // 사진 (Data URL)
+        }>;
+      };
+    };
+  };
 }
 
-const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
+const ClassDetails = ({ isAdmin = false, onOpenAdminLogin, onOpenAIModal }: { isAdmin?: boolean; onOpenAdminLogin?: () => void; onOpenAIModal?: () => void }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -127,29 +127,29 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 1000 });
   // 마우스 위치(피시아이/호버 효과용)
-  const [mousePos, setMousePos] = useState<{x: number, y: number} | null>(null);
-  const [studentPositions, setStudentPositions] = useState<Map<number, {x: number, y: number}>>(new Map());
+  const [mousePos, setMousePos] = useState<{ x: number, y: number } | null>(null);
+  const [studentPositions, setStudentPositions] = useState<Map<number, { x: number, y: number }>>(new Map());
   const [studentGroups, setStudentGroups] = useState<Map<number, number>>(new Map());
   // 입자 위치 추적 (클릭 감지용)
   const particlePositionsRef = useRef<Array<{ type: 'proton' | 'neutron' | 'electron'; x: number; y: number; radius: number; data: any; studentId: number; particleIndex: number; shellType: string }>>([]);
   // 모든 입자 위치 추적 (겹침 방지용)
   const allParticlesRef = useRef<Array<{ x: number; y: number; radius: number; studentId: number }>>([]);
-  const drawGraphRef = useRef<() => void>(() => {});
+  const drawGraphRef = useRef<() => void>(() => { });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { classId } = useParams<{ classId: string }>();
   // 새로고침/세션마다 바뀌는 랜덤 위상 시드(세션 내 안정성 보장)
   const sessionSeedRef = useRef<number>(Math.floor(Math.random() * 1_000_000_000));
-  
+
   // API에서 클래스 이름 가져오기
   const [className, setClassName] = useState<string>('');
   const [classNameLoaded, setClassNameLoaded] = useState(false);
-  
+
   const nodeColors = useMemo(() => (
     ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9']
   ), []);
 
-  const savePositionsToServer = useCallback(async (positions: Map<number, {x: number, y: number}>) => {
+  const savePositionsToServer = useCallback(async (positions: Map<number, { x: number, y: number }>) => {
     for (const [studentId, pos] of positions.entries()) {
       try {
         await fetch(`${getApiUrl()}/api/students/${studentId}/position`, {
@@ -185,7 +185,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     const startX = (containerWidth - totalWidth) / 2 + spacing / 2;
     const startY = (containerHeight - totalHeight) / 2 + spacing / 2;
 
-    const newPositions = new Map<number, {x: number, y: number}>();
+    const newPositions = new Map<number, { x: number, y: number }>();
 
     studentList.forEach((student, index) => {
       const col = index % cols;
@@ -281,20 +281,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         setClassNameLoaded(true);
       }
     };
-    
+
     // 즉시 로드 (지연 없이)
     updateClassName();
-    
+
     // 커스텀 이벤트 감지 (같은 탭에서 수정 시 즉시 반영)
     const handleClassNamesUpdated = (e: CustomEvent) => {
       updateClassName();
     };
-    
+
     window.addEventListener('classNamesUpdated', handleClassNamesUpdated as EventListener);
-    
+
     // 주기적으로 확인 (다른 기기 동기화를 위한 안전장치)
     const interval = setInterval(updateClassName, 3000);
-    
+
     return () => {
       window.removeEventListener('classNamesUpdated', handleClassNamesUpdated as EventListener);
       clearInterval(interval);
@@ -306,16 +306,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       try {
         const url = `${getApiUrl()}/api/classes/${classId}/students`;
         console.log('🔄 학생 목록 가져오기:', url);
-        
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('✅ 학생 데이터 수신:', data.length, '명');
-        
+
         // 학생들의 존재 초기화 (기존 데이터가 있으면 유지, 없으면 새로 생성)
         const studentsWithExistence = data.map((student: Student) => {
           // 이미지 데이터 확인 및 로깅
@@ -329,23 +329,23 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               크기: `${(imgData.length / 1024).toFixed(2)}KB`,
               미리보기: imgData.substring(0, 50) + '...'
             });
-            
+
             if (!isValid) {
               console.warn(`⚠️ 학생 ${student.id}의 이미지 데이터 형식이 올바르지 않습니다.`);
             }
           } else {
             console.log(`📸 학생 ${student.id} 이미지 데이터: 없음`);
           }
-          
+
           return {
             ...student,
             password: student.password || '0000', // 기본 비밀번호 0000
             existence: student.existence || generateStudentExistence(student.name, student.id)
           };
         });
-        
+
         setStudents(studentsWithExistence);
-        
+
         // 자동 배치 적용
         setTimeout(() => {
           updateAutoLayout(studentsWithExistence);
@@ -368,20 +368,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       if (containerRef.current) {
         const container = containerRef.current;
         const isMobile = window.innerWidth < 768;
-        
+
         // 모바일에서는 전체 화면 활용, 데스크톱에서는 제한된 크기
         const containerWidth = container.clientWidth || window.innerWidth;
-        const containerHeight = isMobile 
+        const containerHeight = isMobile
           ? window.innerHeight - 200 // 모바일: 거의 전체 높이
           : Math.max(600, window.innerHeight * 0.6); // 데스크톱: 화면 높이의 60%
-        
+
         const newSize = {
           width: Math.min(containerWidth - (isMobile ? 20 : 40), isMobile ? window.innerWidth : 1200),
           height: Math.min(containerHeight, isMobile ? window.innerHeight - 150 : 1000)
         };
-        
+
         setCanvasSize(newSize);
-        
+
         // 캔버스 고해상도 설정
         const canvas = canvasRef.current;
         if (canvas) {
@@ -396,7 +396,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
-    
+
     return () => window.removeEventListener('resize', updateCanvasSize);
   }, []);
 
@@ -404,12 +404,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const findConnectedGroups = (students: Student[]) => {
     const groups = new Map<number, number>();
     const groupColors = new Map<number, string>();
-    
+
     // 각 학생을 개별 그룹으로 초기화
     students.forEach(student => {
       groups.set(student.id, student.id);
     });
-    
+
     // 연결된 학생들을 같은 그룹으로 묶기
     students.forEach(student => {
       if (student.connections && student.connections.length > 0) {
@@ -422,20 +422,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         });
       }
     });
-    
+
     // 그룹별 색상 할당
     const uniqueGroups = new Set(groups.values());
     const groupColorArray = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
     ];
-    
+
     let colorIndex = 0;
     uniqueGroups.forEach(groupId => {
       groupColors.set(groupId, groupColorArray[colorIndex % groupColorArray.length]);
       colorIndex++;
     });
-    
+
     return { groups, groupColors };
   };
 
@@ -479,15 +479,15 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 활동 위성 그리기 함수
   const drawActivitySatellites = (ctx: CanvasRenderingContext2D, x: number, y: number, activities: string[], time: number) => {
     if (!activities || activities.length === 0) return;
-    
+
     const satelliteRadius = 40; // 위성 궤도 반지름
     const satelliteSize = 20; // 위성 크기
-    
+
     activities.forEach((activity, index) => {
       const angle = (time * 0.001 + index * (2 * Math.PI / activities.length)) % (2 * Math.PI);
       const satelliteX = x + Math.cos(angle) * satelliteRadius;
       const satelliteY = y + Math.sin(angle) * satelliteRadius;
-      
+
       // 위성 배경 원
       ctx.beginPath();
       ctx.arc(satelliteX, satelliteY, satelliteSize, 0, 2 * Math.PI);
@@ -496,7 +496,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.lineWidth = 1;
       ctx.stroke();
-      
+
       // 활동 이모티콘
       const emoji = getActivityEmoji(activity);
       ctx.font = `${satelliteSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
@@ -510,11 +510,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const getOptimalFontSize = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxHeight: number) => {
     let fontSize = Math.min(maxWidth, maxHeight) * 0.3; // 초기 크기
     ctx.font = `${fontSize}px "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-    
+
     const metrics = ctx.measureText(text);
     const textWidth = metrics.width;
     const textHeight = fontSize; // 대략적인 높이
-    
+
     // 텍스트가 영역을 벗어나면 크기 조절
     while ((textWidth > maxWidth || textHeight > maxHeight) && fontSize > 8) {
       fontSize -= 2;
@@ -522,7 +522,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const newMetrics = ctx.measureText(text);
       if (newMetrics.width <= maxWidth && fontSize <= maxHeight) break;
     }
-    
+
     return fontSize;
   };
 
@@ -595,13 +595,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
       // 입자 위치 계산 및 겹침 방지
       const particles: Array<{ item: any; x: number; y: number; scale: number; originalIndex: number }> = [];
-      
+
       for (let idx = 0; idx < items.length; idx++) {
         const item = items[idx];
         const angle = angleOffset + idx * angleStep;
         let baseX = x + Math.cos(angle) * adjRadius;
         let baseY = y + Math.sin(angle) * adjRadius;
-        
+
         // 피시아이 효과 계산
         let scale = scaleCap;
         let dx = 0, dy = 0;
@@ -615,25 +615,25 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        
+
         const particleRadius = baseParticleSize * scale;
         let finalX = baseX + dx;
         let finalY = baseY + dy;
-        
+
         // 겹침 방지: 다른 입자들과의 충돌 감지 및 회피
         const minDistance = particleRadius * 2.2;
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         while (attempts < maxAttempts) {
           let collision = false;
           // 모든 기존 입자들과 비교
           for (const existingParticle of allParticlesRef.current) {
             if (existingParticle.studentId === studentId) continue; // 같은 학생의 다른 입자는 제외 (같은 궤도 내)
-            
+
             const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
             const requiredDistance = Math.max(minDistance, particleRadius + existingParticle.radius);
-            
+
             if (distance < requiredDistance && distance > 0) {
               collision = true;
               // 충돌 방향으로 밀어내기
@@ -644,11 +644,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               break;
             }
           }
-          
+
           if (!collision) break;
           attempts++;
         }
-        
+
         // 최종 위치 저장
         allParticlesRef.current.push({
           x: finalX,
@@ -656,7 +656,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           radius: particleRadius,
           studentId: studentId
         });
-        
+
         particles.push({ item, x: finalX, y: finalY, scale, originalIndex: idx });
       }
 
@@ -689,11 +689,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         const images = item.images || (item.imageData ? [item.imageData] : []);
         const primaryIndex = item.primaryImageIndex !== undefined ? item.primaryImageIndex : (images.length > 0 ? 0 : -1);
         const displayImage = primaryIndex >= 0 && primaryIndex < images.length ? images[primaryIndex] : null;
-        
+
         if (displayImage) {
           const cache = imageCacheRef.current;
           let cached = cache.get(displayImage);
-          
+
           if (!cached) {
             // 캐시에 없으면 새로 로드
             const newImage = new Image();
@@ -714,7 +714,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             cached = newImage;
             cache.set(displayImage, newImage);
           }
-          
+
           if (cached && cached.complete && cached.naturalWidth > 0) {
             // 이미지가 완전히 로드되었으면 그리기
             try {
@@ -724,21 +724,21 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
               ctx.fillStyle = item.color || 'rgba(255,255,255,0.9)';
               ctx.fill();
-              
+
               // 원형 클리핑
               ctx.beginPath();
               ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
               ctx.clip();
-              
+
               // 이미지 그리기
               const drawX = px - particleRadius;
               const drawY = py - particleRadius;
               const drawWidth = particleRadius * 2;
               const drawHeight = particleRadius * 2;
               ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
-              
+
               ctx.restore();
-              
+
               // 테두리 다시 그리기
               ctx.beginPath();
               ctx.arc(px, py, particleRadius, 0, 2 * Math.PI);
@@ -781,7 +781,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 전자 궤도 그리기 함수
   const drawElectronOrbits = (ctx: CanvasRenderingContext2D, x: number, y: number, atom: any, size: number, time: number, seed: number, studentId: number) => {
     if (!atom?.electrons) return;
-    
+
     // 껍질 자체는 보이지 않도록 하되, 간격은 더 넓힘
     const orbits = [
       { shell: 'kShell', radius: size * 1.2, color: '#FF6B6B', name: 'K' },
@@ -789,7 +789,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       { shell: 'mShell', radius: size * 2.3, color: '#45B7D1', name: 'M' },
       { shell: 'valence', radius: size * 3.0, color: '#96CEB4', name: 'V' }
     ];
-    
+
     orbits.forEach((orbit, orbitIndex) => {
       const electrons = atom.electrons[orbit.shell];
       if (!electrons || electrons.length === 0) return;
@@ -806,7 +806,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
       // 먼저 위치/스케일 계산(피시아이/호버) 후, 스케일이 작은 것부터 그려 큰 것(호버)이 위로 오게
       const particles: Array<{ electron: any; x: number; y: number; scale: number; originalIndex: number }> = [];
-      
+
       for (let electronIndex = 0; electronIndex < electrons.length; electronIndex++) {
         const electron = electrons[electronIndex];
         const perElectronPhase = baseRand(seed + (orbitIndex + 1) * 1000 + electronIndex * 97) * (angleStep * 0.3);
@@ -829,24 +829,24 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           dx = dirX * repel;
           dy = dirY * repel;
         }
-        
+
         const electronRadius = (size / 2) * scale;
         let finalX = ex + dx;
         let finalY = ey + dy;
-        
+
         // 겹침 방지: 다른 입자들과의 충돌 감지 및 회피
         const minDistance = electronRadius * 2.2;
         let attempts = 0;
         const maxAttempts = 10;
-        
+
         while (attempts < maxAttempts) {
           let collision = false;
           for (const existingParticle of allParticlesRef.current) {
             if (existingParticle.studentId === studentId) continue;
-            
+
             const distance = Math.hypot(finalX - existingParticle.x, finalY - existingParticle.y);
             const requiredDistance = Math.max(minDistance, electronRadius + existingParticle.radius);
-            
+
             if (distance < requiredDistance && distance > 0) {
               collision = true;
               const angleToParticle = Math.atan2(finalY - existingParticle.y, finalX - existingParticle.x);
@@ -856,11 +856,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               break;
             }
           }
-          
+
           if (!collision) break;
           attempts++;
         }
-        
+
         // 최종 위치 저장
         allParticlesRef.current.push({
           x: finalX,
@@ -868,7 +868,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           radius: electronRadius,
           studentId: studentId
         });
-        
+
         particles.push({ electron, x: finalX, y: finalY, scale, originalIndex: electronIndex });
       }
 
@@ -901,11 +901,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         const images = electron.images || (electron.imageData ? [electron.imageData] : []);
         const primaryIndex = electron.primaryImageIndex !== undefined ? electron.primaryImageIndex : (images.length > 0 ? 0 : -1);
         const displayImage = primaryIndex >= 0 && primaryIndex < images.length ? images[primaryIndex] : null;
-        
+
         if (displayImage) {
           const cache = imageCacheRef.current;
           let cached = cache.get(displayImage);
-          
+
           if (!cached) {
             // 캐시에 없으면 새로 로드
             const newImage = new Image();
@@ -926,7 +926,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             cached = newImage;
             cache.set(displayImage, newImage);
           }
-          
+
           if (cached && cached.complete && cached.naturalWidth > 0) {
             // 이미지가 완전히 로드되었으면 그리기
             try {
@@ -936,21 +936,21 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
               ctx.fillStyle = orbit.color;
               ctx.fill();
-              
+
               // 원형 클리핑
               ctx.beginPath();
               ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
               ctx.clip();
-              
+
               // 이미지 그리기
               const drawX = electronX - electronRadius;
               const drawY = electronY - electronRadius;
               const drawWidth = electronRadius * 2;
               const drawHeight = electronRadius * 2;
               ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
-              
+
               ctx.restore();
-              
+
               // 테두리 다시 그리기
               ctx.beginPath();
               ctx.arc(electronX, electronY, electronRadius, 0, 2 * Math.PI);
@@ -993,7 +993,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const drawShape = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, shape: string) => {
     // 이모티콘 모양들을 텍스트로 렌더링
     const emojiShapes = ['smile', 'fire', 'sun', 'moon', 'rainbow', 'flower', 'butterfly', 'cat', 'dog', 'panda'];
-    
+
     if (emojiShapes.includes(shape)) {
       // 이모티콘을 텍스트로 렌더링
       const emojiMap: { [key: string]: string } = {
@@ -1008,7 +1008,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         'dog': '🐶',
         'panda': '🐼'
       };
-      
+
       const emoji = emojiMap[shape];
       if (emoji) {
         ctx.font = `${size * 2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
@@ -1018,10 +1018,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         return;
       }
     }
-    
+
     // 기본 모양들 (원, 사각형, 삼각형, 별, 하트)
     ctx.beginPath();
-    
+
     switch (shape) {
       case 'circle':
         ctx.arc(x, y, size, 0, 2 * Math.PI);
@@ -1059,7 +1059,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       default:
         ctx.arc(x, y, size, 0, 2 * Math.PI);
     }
-    
+
     ctx.fill();
   };
 
@@ -1068,7 +1068,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
-    
+
     switch (pattern) {
       case 'stripes':
         for (let i = -size; i <= size; i += 4) {
@@ -1122,7 +1122,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.stroke();
         break;
     }
-    
+
     ctx.restore();
   };
 
@@ -1130,21 +1130,21 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const shouldConnectByExistence = (student1: Student, student2: Student): boolean => {
     const existence1 = student1.existence;
     const existence2 = student2.existence;
-    
+
     if (!existence1 || !existence2) return false;
-    
+
     // 같은 활동
     if (existence1.activity === existence2.activity) return true;
-    
+
     // 비슷한 에너지 레벨 (20 이내)
     if (Math.abs(existence1.energy - existence2.energy) <= 20) return true;
-    
+
     // 같은 개성
     if (existence1.personality === existence2.personality) return true;
-    
+
     // 같은 패턴
     if (existence1.pattern === existence2.pattern) return true;
-    
+
     return false;
   };
 
@@ -1153,7 +1153,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     ctx.beginPath();
     ctx.moveTo(fromNode.x, fromNode.y);
     ctx.lineTo(toNode.x, toNode.y);
-    
+
     if (type === 'direct') {
       ctx.strokeStyle = color;
       ctx.lineWidth = 3;
@@ -1163,7 +1163,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       ctx.lineWidth = 1;
       ctx.setLineDash([5, 5]); // 점선
     }
-    
+
     ctx.stroke();
     ctx.setLineDash([]); // 점선 초기화
   };
@@ -1174,10 +1174,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
     ];
-    
+
     const personalities = ['active', 'calm', 'creative', 'friendly', 'energetic', 'thoughtful'];
     const seed = (name && name.length > 0 ? name.charCodeAt(0) : 0) + (id || 0);
-    
+
     return {
       color: baseColors[seed % baseColors.length],
       shape: 'circle',
@@ -1259,18 +1259,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 고해상도 렌더링을 위한 DPI 스케일링
     const devicePixelRatio = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    
+
     // 캔버스 크기를 실제 픽셀 크기로 설정
     canvas.width = rect.width * devicePixelRatio;
     canvas.height = rect.height * devicePixelRatio;
-    
+
     // CSS 크기는 원래 크기로 유지
     canvas.style.width = rect.width + 'px';
     canvas.style.height = rect.height + 'px';
-    
+
     // 컨텍스트 스케일링
     ctx.scale(devicePixelRatio, devicePixelRatio);
-    
+
     // 텍스트 렌더링 품질 향상
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -1285,18 +1285,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 학생 노드 계산
     const { groups, groupColors } = findConnectedGroups(students);
     setStudentGroups(groups);
-    
+
     const nodes = students.map((student, index) => {
       const existence = student.existence || generateStudentExistence(student.name, student.id);
       const position = studentPositions.get(student.id);
       const groupId = groups.get(student.id) || student.id;
       const groupColor = groupColors.get(groupId);
-      
+
       const baseSize = 50;
       const activityInfluence = existence?.activities?.length ? Math.min(15, existence.activities.length * 2) : 0;
       const connectionInfluence = student.connections ? Math.min(15, student.connections.length * 1.5) : 0;
       const finalSize = baseSize + activityInfluence + connectionInfluence;
-      
+
       return {
         id: student.id,
         name: student.name,
@@ -1316,7 +1316,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 노드 그리기 (학생 커스터마이징 반영)
     nodes.forEach(node => {
       const existence = node.existence;
-      
+
       // 드래그/호버 효과
       if (draggedStudent === node.id) {
         ctx.fillStyle = '#FFD700';
@@ -1335,16 +1335,16 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           ctx.shadowBlur = 0;
         }
       }
-      
+
       // 이미지가 있으면 이미지를 우선 그리기
       const imageData = existence?.imageData;
       const hasImage = !!imageData && imageData.length > 0;
       let imageDrawn = false; // 이미지가 성공적으로 그려졌는지 추적
-      
+
       if (hasImage && imageData) {
         // 이미지 데이터가 유효한지 확인 (base64 Data URL 형식 체크)
         const isValidDataUrl = imageData.startsWith('data:image/');
-        
+
         if (!isValidDataUrl) {
           console.warn(`⚠️ 학생 ${node.id}의 이미지 데이터가 유효하지 않습니다:`, imageData.substring(0, 50));
           // 유효하지 않은 이미지 데이터면 기본 형태로 그리기
@@ -1352,7 +1352,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         } else {
           const cache = imageCacheRef.current;
           let cached = cache.get(imageData);
-          
+
           // 디버깅: 캐시 상태 확인
           if (cached) {
             console.log(`🔍 캐시 확인 (학생 ${node.id}):`, {
@@ -1364,13 +1364,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               src: cached.src.substring(0, 50) + '...'
             });
           }
-          
+
           // 이미지가 캐시에 없거나 아직 로드 중이면 새로 로드
           if (!cached || !cached.complete || cached.naturalWidth === 0) {
             if (!cached) {
               const newImage = new Image();
               cache.set(imageData, newImage);
-              
+
               newImage.onload = () => {
                 console.log(`✅ 이미지 로드 완료 (학생 ${node.id}):`, {
                   width: newImage.width,
@@ -1384,7 +1384,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   drawGraph();
                 });
               };
-              
+
               newImage.onerror = (error) => {
                 console.error(`❌ 이미지 로드 실패 (학생 ${node.id}):`, error);
                 // 이미지 로드 실패 시 캐시에서 제거
@@ -1394,7 +1394,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   drawGraph();
                 });
               };
-              
+
               console.log(`📸 이미지 로드 시작 (학생 ${node.id}):`, imageData.substring(0, 50) + '...');
               newImage.src = imageData;
               cached = newImage; // cached 변수 업데이트
@@ -1405,14 +1405,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 naturalWidth: cached.naturalWidth
               });
             }
-            
+
             // 로딩 중에는 얇은 테두리만 표시
             ctx.beginPath();
             ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
             ctx.strokeStyle = node.color;
             ctx.lineWidth = 2;
             ctx.stroke();
-            
+
             // 로딩 표시 (선택사항)
             ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fill();
@@ -1425,7 +1425,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               nodeSize: node.size,
               position: `(${node.x}, ${node.y})`
             });
-            
+
             try {
               // 먼저 배경을 그려서 이미지가 보이도록 (투명도 문제 해결)
               ctx.save();
@@ -1433,18 +1433,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
               ctx.fillStyle = node.color;
               ctx.fill();
-              
+
               // 원형 클리핑: 이미지 가장자리를 둥글게
               ctx.beginPath();
               ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
               ctx.clip();
-              
+
               // 이미지 그리기
               const drawX = node.x - node.size;
               const drawY = node.y - node.size;
               const drawWidth = node.size * 2;
               const drawHeight = node.size * 2;
-              
+
               console.log(`🖼️ drawImage 호출 (학생 ${node.id}):`, {
                 image: cached,
                 x: drawX,
@@ -1452,9 +1452,9 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 width: drawWidth,
                 height: drawHeight
               });
-              
+
               ctx.drawImage(cached, drawX, drawY, drawWidth, drawHeight);
-              
+
               ctx.restore();
               imageDrawn = true; // 이미지가 성공적으로 그려짐
               console.log(`✅✅✅ 이미지 그리기 성공 (학생 ${node.id}):`, {
@@ -1483,19 +1483,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         // 형태에 따른 그리기
         drawShape(ctx, node.x, node.y, node.size, existence?.shape || 'circle');
       }
-      
+
       // 패턴 그리기 - 이미지가 있을 때는 패턴을 그리지 않음 (이미지를 덮지 않도록)
       if (!imageDrawn && existence?.pattern && existence.pattern !== 'solid') {
         drawPattern(ctx, node.x, node.y, node.size, existence.pattern, node.color);
       }
-      
+
       // 테두리 그리기 - 이미지가 있든 없든 항상 테두리는 그리기 (이미지 위에 표시)
       ctx.beginPath();
       ctx.arc(node.x, node.y, node.size, 0, 2 * Math.PI);
       const borderWidth = existence?.border === 'thick' ? 4 : 2;
       ctx.strokeStyle = imageDrawn ? node.color : node.color; // 이미지가 있을 때도 테두리 색상 유지
       ctx.lineWidth = draggedStudent === node.id ? borderWidth + 2 : borderWidth;
-      
+
       if (existence?.border === 'dotted') {
         ctx.setLineDash([2, 2]);
       } else if (existence?.border === 'dashed') {
@@ -1503,7 +1503,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       } else {
         ctx.setLineDash([]);
       }
-      
+
       ctx.stroke();
       ctx.setLineDash([]);
 
@@ -1550,19 +1550,19 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       // 원자 모델 그리기 (실제로 입자가 있을 때만)
       if (hasCustomization && existence?.atom) {
         const seed = sessionSeedRef.current + node.id;
-        
+
         // 양성자/중성자가 하나라도 있고, showProtonsNeutrons가 true일 때만 표시
         if ((hasProtons || hasNeutrons) && existence?.showProtonsNeutrons === true) {
           drawProtonNeutronSatellites(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed, node.id);
         }
-        
+
         // 전자가 하나라도 있고, showElectrons가 true일 때만 전자 궤도를 표시
         if (hasElectrons && existence?.showElectrons === true) {
           // 전자는 궤도에서 떠다니도록 표시
           drawElectronOrbits(ctx, node.x, node.y, existence.atom, node.size, Date.now(), seed, node.id);
         }
       }
-      
+
       // 번호 표시 (원 아래 텍스트는 제거, 초기 간단 원일 때만 원 안에 번호 표시)
       const displayNumber = node.id.toString();
       if (!isEmojiShape && !hasCustomization) {
@@ -1570,7 +1570,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         const simpleSize = baseNodeSize;
         const maxTextWidth = simpleSize * 1.6; // 원의 지름의 80%
         const maxTextHeight = simpleSize * 0.6; // 원의 높이의 60%
-        
+
         ctx.fillStyle = '#fff';
         const optimalFontSize = getOptimalFontSize(ctx, displayNumber, maxTextWidth, maxTextHeight);
         ctx.font = `bold ${optimalFontSize}px "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
@@ -1578,7 +1578,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         ctx.textBaseline = 'middle';
         ctx.fillText(displayNumber, node.x, node.y);
       }
-      
+
       // 활동 기록 이모티콘을 달처럼 한 궤도로 표시 (records 기반, 중복 제거)
       if (existence?.records && existence.records.length > 0) {
         const activities = existence.records.map(record => record.activity);
@@ -1609,7 +1609,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           ctx.fillText(emoji, moonX, moonY);
         });
       }
-      
+
       // 그림자 초기화
       ctx.shadowBlur = 0;
     });
@@ -1617,7 +1617,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     // 해시태그 기반 전자 연결선 그리기
     // 모든 전자의 해시태그를 수집하고 같은 해시태그를 가진 전자들 사이에 연결선 그리기
     const hashtagGroups = new Map<string, Array<{ x: number; y: number; studentId: number; electron: any }>>();
-    
+
     // particlePositionsRef에서 전자 정보 수집
     particlePositionsRef.current.forEach(particle => {
       if (particle.type === 'electron' && particle.data && particle.data.hashtags && Array.isArray(particle.data.hashtags)) {
@@ -1646,7 +1646,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           for (let j = i + 1; j < electronList.length; j++) {
             const from = electronList[i];
             const to = electronList[j];
-            
+
             // 검정색 점선으로 연결
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
@@ -1670,10 +1670,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const getCanvasCoordinates = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
-    
+
     const rect = canvas.getBoundingClientRect();
     const devicePixelRatio = window.devicePixelRatio || 1;
-    
+
     return {
       x: (clientX - rect.left) * (canvas.width / (rect.width * devicePixelRatio)),
       y: (clientY - rect.top) * (canvas.height / (rect.height * devicePixelRatio))
@@ -1684,20 +1684,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handlePointerDown = (clientX: number, clientY: number) => {
     const coords = getCanvasCoordinates(clientX, clientY);
     if (!coords) return;
-    
+
     const { x, y } = coords;
-    
+
     // 드래그 시작 위치 저장
     setDragStartPos({ x, y });
     setHasDragged(false);
 
     // 원 크기 고정 (모바일에서도 동일)
     const nodeSize = 50;
-    
+
     const clickedStudent = students.find((student) => {
       const position = studentPositions.get(student.id);
       if (!position) return false;
-      
+
       const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
       return distance <= nodeSize;
     });
@@ -1733,7 +1733,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handlePointerMove = (clientX: number, clientY: number) => {
     const coords = getCanvasCoordinates(clientX, clientY);
     if (!coords) return;
-    
+
     const { x, y } = coords;
 
     // 피시아이/호버 효과용 마우스 위치 저장 (데스크톱만)
@@ -1746,17 +1746,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const dragDistance = Math.sqrt(
         (x - dragStartPos.x) ** 2 + (y - dragStartPos.y) ** 2
       );
-      
+
       if (dragDistance > 5) {
         setHasDragged(true);
       }
-      
+
       // 드래그 중인 경우 위치 업데이트
       const newPosition = {
         x: x - dragOffset.x,
         y: y - dragOffset.y
       };
-      
+
       setStudentPositions(prev => {
         const newPositions = new Map(prev);
         newPositions.set(draggedStudent, newPosition);
@@ -1765,11 +1765,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
     } else {
       // 호버 효과 (데스크톱만)
       const nodeSize = 50; // 고정 크기
-      
+
       const hoveredNode = students.find((student) => {
         const position = studentPositions.get(student.id);
         if (!position) return false;
-        
+
         const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
         return distance <= nodeSize;
       });
@@ -1801,14 +1801,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 터치 종료 이벤트
   const handleTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
-    
+
     // 실제 드래그 거리 확인
     const actualDragged = hasDragged;
     const currentDraggedStudent = draggedStudent;
-    
+
     // 먼저 마우스 업 처리 (드래그 종료)
     handleMouseUp();
-    
+
     // 클릭 이벤트 처리 (드래그가 아닌 경우)
     // 실제로 드래그가 발생하지 않았고, 학생이 선택되어 있었던 경우 클릭으로 처리
     if (!actualDragged && e.changedTouches.length === 1) {
@@ -1816,17 +1816,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       const coords = getCanvasCoordinates(touch.clientX, touch.clientY);
       if (coords) {
         const { x, y } = coords;
-        
+
         // 학생 클릭 확인
         const nodeSize = 50; // 고정 크기
         const clickedStudent = students.find((student) => {
           const position = studentPositions.get(student.id);
           if (!position) return false;
-          
+
           const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
           return distance <= nodeSize;
         });
-        
+
         if (clickedStudent) {
           // 드래그가 발생했고, 클릭한 학생이 드래그한 학생과 같을 때만 처리
           // 또는 드래그가 발생하지 않았을 때 처리
@@ -1853,11 +1853,11 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         // 위치를 데이터베이스에 저장
         saveStudentPosition(draggedStudent, currentPos.x, currentPos.y);
       }
-      
+
       setIsDragging(false);
       setDraggedStudent(null);
       setDragOffset({ x: 0, y: 0 });
-      
+
       // 드래그 상태 초기화는 약간의 지연 후에 (클릭 이벤트 처리 후)
       setTimeout(() => {
         setHasDragged(false);
@@ -1883,18 +1883,18 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handleCanvasClick = (e: React.MouseEvent) => {
     // 실제 드래그가 발생했으면 클릭 이벤트 무시
     if (hasDragged) return;
-    
+
     const coords = getCanvasCoordinates(e.clientX, e.clientY);
     if (!coords) return;
-    
+
     const { x, y } = coords;
-    
+
     // 학생 클릭 확인
     const nodeSize = 50; // 고정 크기
     const clickedStudent = students.find((student) => {
       const position = studentPositions.get(student.id);
       if (!position) return false;
-      
+
       const distance = Math.sqrt((x - position.x) ** 2 + (y - position.y) ** 2);
       return distance <= nodeSize;
     });
@@ -1908,7 +1908,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
 
   const handleStudentClick = (student: Student) => {
     setSelectedStudent(student);
-    
+
     // 관리자 모드가 아닌 경우 비밀번호 입력 요구
     if (!isAdmin) {
       setShowPasswordModal(true);
@@ -1943,25 +1943,25 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   // 리셋 함수 (관리자 전용)
   const handleReset = async () => {
     if (!isAdmin) return;
-    
+
     if (window.confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       try {
         // 모든 학생 위치 초기화
         setStudentPositions(new Map());
-        
+
         // 모든 학생 데이터 초기화 (existence 제외하고 기본값으로)
         const resetStudents = students.map(student => ({
           ...student,
           existence: generateStudentExistence(student.name, student.id)
         }));
-        
+
         setStudents(resetStudents);
-        
+
         // 서버에서도 위치 데이터 삭제
         await fetch(`${getApiUrl()}/api/classes/${classId}/positions`, {
           method: 'DELETE'
         });
-        
+
         // 각 학생의 existence 데이터도 서버에서 초기화
         for (const student of resetStudents) {
           await fetch(`${getApiUrl()}/api/students/${student.id}`, {
@@ -1972,7 +1972,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             body: JSON.stringify(student),
           });
         }
-        
+
         alert('모든 데이터가 초기화되었습니다.');
       } catch (error) {
         console.error('Error resetting data:', error);
@@ -1997,7 +1997,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       console.log('💾 학생 저장 시작:', updatedStudent.id, updatedStudent.name);
       console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
       console.log('📏 크기:', updatedStudent.existence?.size);
-      
+
       const response = await fetch(`${getApiUrl()}/api/students/${updatedStudent.id}`, {
         method: 'PUT',
         headers: {
@@ -2005,26 +2005,26 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
         },
         body: JSON.stringify(updatedStudent),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ 저장 실패:', response.status, errorText);
         alert(`저장 실패: ${response.status} ${errorText}`);
         return;
       }
-      
+
       const savedStudent = await response.json();
       console.log('✅ 학생 저장 완료:', savedStudent.id);
       console.log('📸 저장된 이미지 데이터:', savedStudent.existence?.imageData ? `있음 (${(savedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
       console.log('📏 저장된 크기:', savedStudent.existence?.size);
-      
+
       setStudents(students.map(student => student.id === savedStudent.id ? savedStudent : student));
-      
+
       // 학생 정보 업데이트 이벤트 발생 (홈 화면 모달 동기화를 위해)
       window.dispatchEvent(new CustomEvent('studentUpdated', {
         detail: { student: savedStudent }
       }));
-      
+
       // 모달 상태에 따라 적절한 모달 닫기
       if (showDetailsModal) {
         handleCloseDetailsModal();
@@ -2052,7 +2052,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
       }
       setStudents([...students, ...newStudents]);
       setShowAddModal(false);
-      
+
       // 자동 배치 업데이트
       setTimeout(() => {
         updateAutoLayout([...students, ...newStudents]);
@@ -2104,10 +2104,22 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
               <span className="btn-text">초기화</span>
             </button>
           )}
+          {isAdmin && onOpenAIModal && (
+            <button className="modern-btn ai-btn" onClick={onOpenAIModal} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', border: 'none' }}>
+              <span className="btn-icon">🤖</span>
+              <span className="btn-text">질문</span>
+            </button>
+          )}
+          {!isAdmin && onOpenAdminLogin && (
+            <button className="modern-btn login-btn" onClick={onOpenAdminLogin} style={{ background: '#f8f9fa', color: '#3c4043', border: '1px solid #dadce0' }}>
+              <span className="btn-icon">🔒</span>
+              <span className="btn-text">관리자 로그인</span>
+            </button>
+          )}
         </div>
       </div>
       <h2 className="class-title">{classNameLoaded ? className : ''}</h2>
-      
+
       <div className="graph-container" ref={containerRef}>
         <canvas
           ref={canvasRef}
@@ -2124,12 +2136,12 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           className="graph-canvas"
           style={{ touchAction: 'none' }} // 스크롤 방지
         />
-        
-        
+
+
       </div>
       <StudentDetailsModal student={selectedStudent} show={showDetailsModal} onHide={handleCloseDetailsModal} onSave={handleSaveStudent} onDelete={handleDeleteStudent} />
       <AddStudentModal show={showAddModal} onHide={() => setShowAddModal(false)} onSave={handleAddStudent} />
-      
+
       {/* 입자 설명 모달 */}
       {particleInfo && (
         <div className="particle-info-modal-overlay" onClick={() => { setParticleInfo(null); setIsEditingParticle(false); }}>
@@ -2143,8 +2155,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 {/* 왼쪽: 사진 또는 이모티콘 */}
                 <div className="particle-info-left">
                   {particleInfo.imageData ? (
-                    <img 
-                      src={particleInfo.imageData} 
+                    <img
+                      src={particleInfo.imageData}
                       alt="입자 사진"
                     />
                   ) : particleInfo.emoji ? (
@@ -2153,7 +2165,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                     </div>
                   ) : null}
                 </div>
-                
+
                 {/* 오른쪽: 설명 */}
                 <div className="particle-info-right">
                   {isEditingParticle ? (
@@ -2171,7 +2183,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                             if (particleInfo.studentId && particleInfo.particleIndex !== undefined && particleInfo.particleIndex >= 0) {
                               const student = students.find(s => s.id === particleInfo.studentId);
                               if (student && student.existence?.atom) {
-                                const updatedStudent: Student = { 
+                                const updatedStudent: Student = {
                                   ...student,
                                   existence: {
                                     ...student.existence,
@@ -2180,13 +2192,13 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                                     }
                                   }
                                 };
-                                
+
                                 // TypeScript 타입 가드 - existence와 atom이 확실히 존재하는지 확인
                                 if (!updatedStudent.existence || !updatedStudent.existence.atom) {
                                   console.error('입자 데이터 구조 오류');
                                   return;
                                 }
-                                
+
                                 if (particleInfo.type === 'proton' && updatedStudent.existence.atom.protons && Array.isArray(updatedStudent.existence.atom.protons)) {
                                   updatedStudent.existence.atom.protons[particleInfo.particleIndex].description = editingDescription;
                                 } else if (particleInfo.type === 'neutron' && updatedStudent.existence.atom.neutrons && Array.isArray(updatedStudent.existence.atom.neutrons)) {
@@ -2197,7 +2209,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                                     electrons[particleInfo.particleIndex].description = editingDescription;
                                   }
                                 }
-                                
+
                                 await handleSaveStudent(updatedStudent);
                                 setParticleInfo({
                                   ...particleInfo,
@@ -2242,14 +2254,14 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
         </div>
       )}
-      
-      <StudentCustomizeModal 
-        student={selectedStudent} 
-        show={showCustomizeModal} 
-        onHide={() => setShowCustomizeModal(false)} 
-        onSave={handleSaveStudent} 
+
+      <StudentCustomizeModal
+        student={selectedStudent}
+        show={showCustomizeModal}
+        onHide={() => setShowCustomizeModal(false)}
+        onSave={handleSaveStudent}
       />
-      
+
       {/* 작은 원들 목록 모달 */}
       {showParticleListModal && selectedStudentForParticles && (
         <div className="particle-list-modal-overlay" onClick={() => { setShowParticleListModal(false); setSelectedStudentForParticles(null); }}>
@@ -2271,8 +2283,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                 <>
                   {/* 양성자 */}
                   {selectedStudentForParticles.existence.atom.protons && selectedStudentForParticles.existence.atom.protons.map((proton: any, idx: number) => (
-                    <div 
-                      key={`proton-${idx}`} 
+                    <div
+                      key={`proton-${idx}`}
                       className="particle-list-item"
                       onClick={() => {
                         const images = proton.images || (proton.imageData ? [proton.imageData] : []);
@@ -2309,8 +2321,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   ))}
                   {/* 중성자 */}
                   {selectedStudentForParticles.existence.atom.neutrons && selectedStudentForParticles.existence.atom.neutrons.map((neutron: any, idx: number) => (
-                    <div 
-                      key={`neutron-${idx}`} 
+                    <div
+                      key={`neutron-${idx}`}
                       className="particle-list-item"
                       onClick={() => {
                         const images = neutron.images || (neutron.imageData ? [neutron.imageData] : []);
@@ -2349,8 +2361,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   {selectedStudentForParticles.existence.atom.electrons && (
                     <>
                       {selectedStudentForParticles.existence.atom.electrons.kShell && selectedStudentForParticles.existence.atom.electrons.kShell.map((electron: any, idx: number) => (
-                        <div 
-                          key={`electron-k-${idx}`} 
+                        <div
+                          key={`electron-k-${idx}`}
                           className="particle-list-item"
                           onClick={() => {
                             const images = electron.images || (electron.imageData ? [electron.imageData] : []);
@@ -2400,8 +2412,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.lShell && selectedStudentForParticles.existence.atom.electrons.lShell.map((electron: any, idx: number) => (
-                        <div 
-                          key={`electron-l-${idx}`} 
+                        <div
+                          key={`electron-l-${idx}`}
                           className="particle-list-item"
                           onClick={() => {
                             const images = electron.images || (electron.imageData ? [electron.imageData] : []);
@@ -2451,8 +2463,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.mShell && selectedStudentForParticles.existence.atom.electrons.mShell.map((electron: any, idx: number) => (
-                        <div 
-                          key={`electron-m-${idx}`} 
+                        <div
+                          key={`electron-m-${idx}`}
                           className="particle-list-item"
                           onClick={() => {
                             const images = electron.images || (electron.imageData ? [electron.imageData] : []);
@@ -2502,8 +2514,8 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                         </div>
                       ))}
                       {selectedStudentForParticles.existence.atom.electrons.valence && selectedStudentForParticles.existence.atom.electrons.valence.map((electron: any, idx: number) => (
-                        <div 
-                          key={`electron-v-${idx}`} 
+                        <div
+                          key={`electron-v-${idx}`}
                           className="particle-list-item"
                           onClick={() => {
                             const images = electron.images || (electron.imageData ? [electron.imageData] : []);
@@ -2568,20 +2580,20 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                       const statsConfig = knownSport ? sportStats[sportId] : null;
                       const statEntries = statsConfig
                         ? statsConfig
-                            .map(stat => ({
-                              key: stat.key,
-                              label: stat.label,
-                              emoji: stat.emoji,
-                              value: gameRecord.stats?.[stat.key] || 0
-                            }))
-                            .filter(entry => entry.value > 0)
+                          .map(stat => ({
+                            key: stat.key,
+                            label: stat.label,
+                            emoji: stat.emoji,
+                            value: gameRecord.stats?.[stat.key] || 0
+                          }))
+                          .filter(entry => entry.value > 0)
                         : Object.entries(gameRecord.stats || {}).map(([key, value]) => ({
-                            key,
-                            label: key,
-                            emoji: '•',
-                            value: value as number
-                          }));
-                      
+                          key,
+                          label: key,
+                          emoji: '•',
+                          value: value as number
+                        }));
+
                       return (
                         <div key={`game-record-${recordIndex}`} className="game-record-card">
                           <div className="game-record-card-header">
@@ -2616,21 +2628,21 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
         </div>
       )}
-      
+
       {/* 입자 상세 보기 모달 */}
       {selectedParticleDetail && (
-        <div 
-          className="particle-detail-modal-overlay" 
+        <div
+          className="particle-detail-modal-overlay"
           onClick={() => setSelectedParticleDetail(null)}
         >
-          <div 
-            className="particle-detail-modal" 
+          <div
+            className="particle-detail-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="particle-detail-header">
               <h3>{selectedParticleDetail.name || 'Circle'}</h3>
-              <button 
-                className="close-btn" 
+              <button
+                className="close-btn"
                 onClick={() => setSelectedParticleDetail(null)}
               >
                 ×
@@ -2682,15 +2694,15 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                   const displayImages = images.slice(currentImageIndex, currentImageIndex + 4);
                   const canGoPrev = currentImageIndex > 0;
                   const canGoNext = currentImageIndex + 4 < images.length;
-                  
+
                   if (hasImages) {
                     if (images.length === 1) {
                       // 이미지가 1개일 때는 전체 크기로 표시
                       return (
                         <div className="particle-detail-single-image">
-                          <img 
-                            src={images[0]} 
-                            alt="Particle" 
+                          <img
+                            src={images[0]}
+                            alt="Particle"
                             className="particle-detail-image-full"
                           />
                         </div>
@@ -2700,10 +2712,10 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                       return (
                         <div className="particle-detail-images-grid-two">
                           {images.map((img, idx) => (
-                            <img 
+                            <img
                               key={idx}
-                              src={img} 
-                              alt={`Particle ${idx + 1}`} 
+                              src={img}
+                              alt={`Particle ${idx + 1}`}
                               className="particle-detail-image-item"
                             />
                           ))}
@@ -2714,17 +2726,17 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                       return (
                         <div className="particle-detail-images-grid">
                           {displayImages.map((img, idx) => (
-                            <img 
+                            <img
                               key={idx}
-                              src={img} 
-                              alt={`Particle ${currentImageIndex + idx + 1}`} 
+                              src={img}
+                              alt={`Particle ${currentImageIndex + idx + 1}`}
                               className="particle-detail-image-item"
                             />
                           ))}
                           {images.length > 4 && (
                             <>
                               {canGoPrev && (
-                                <button 
+                                <button
                                   className="particle-detail-nav-btn particle-detail-nav-prev"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -2735,7 +2747,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
                                 </button>
                               )}
                               {canGoNext && (
-                                <button 
+                                <button
                                   className="particle-detail-nav-btn particle-detail-nav-next"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -2770,7 +2782,7 @@ const ClassDetails = ({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
         </div>
       )}
-      
+
       {/* 비밀번호 입력 모달 */}
       <div className={`password-modal-overlay ${showPasswordModal ? 'show' : ''}`} onClick={handlePasswordModalClose}>
         <div className="password-modal" onClick={(e) => e.stopPropagation()}>

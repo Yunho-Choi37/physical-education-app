@@ -138,9 +138,9 @@ const PurposePage = () => {
         }
       }
     };
-    
+
     loadGoals();
-    
+
     return () => {
       mounted = false;
     };
@@ -151,7 +151,7 @@ const PurposePage = () => {
     const verifyAdminToken = async () => {
       const token = localStorage.getItem('purposeAdminToken');
       const expiresAt = localStorage.getItem('purposeAdminTokenExpires');
-      
+
       if (!token) {
         setIsAdmin(false);
         return;
@@ -215,19 +215,19 @@ const PurposePage = () => {
         description: newGoal.description.trim(),
         items: newGoal.items.filter(item => item.trim() !== '')
       };
-      
+
       console.log('목표 생성 요청:', goalData);
       const apiUrl = getApiUrl();
       console.log('API URL:', apiUrl);
-      
+
       const response = await fetch(`${apiUrl}/api/goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(goalData)
       });
-      
+
       console.log('응답 상태:', response.status);
-      
+
       if (response.ok) {
         const newGoalData = await response.json();
         console.log('생성된 목표:', newGoalData);
@@ -359,7 +359,7 @@ const PurposePage = () => {
       console.log('🔐 관리자 로그인 시도:', apiUrl);
       console.log('🌐 현재 호스트:', window.location.hostname);
       console.log('🔗 전체 URL:', window.location.href);
-      
+
       // 먼저 간단한 연결 테스트
       try {
         const healthCheckUrl = `${getApiUrl()}/api/health`;
@@ -369,7 +369,7 @@ const PurposePage = () => {
       } catch (healthError: any) {
         console.warn('⚠️ Health check 실패 (계속 진행):', healthError);
       }
-      
+
       // 타임아웃을 위한 AbortController 생성
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
@@ -421,11 +421,11 @@ const PurposePage = () => {
         // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('purposeAdminToken', data.token);
         localStorage.setItem('purposeAdminTokenExpires', data.expiresAt.toString());
-      setIsAdmin(true);
+        setIsAdmin(true);
         setAdminPassword(''); // 비밀번호 필드 초기화
-      setShowAdminLogin(false);
+        setShowAdminLogin(false);
         console.log('✅ 관리자 모드 활성화 완료');
-    } else {
+      } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
         setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
@@ -459,7 +459,7 @@ const PurposePage = () => {
 
     setAiLoading(true);
     setAiAnswer('');
-    
+
     try {
       const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
         method: 'POST',
@@ -487,9 +487,9 @@ const PurposePage = () => {
   return (
     <div className="existence-home">
       <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '40px',
           width: '100%',
@@ -522,11 +522,11 @@ const PurposePage = () => {
             )}
           </div>
           {!isAdmin ? (
-            <Button 
-              variant="outline-primary" 
+            <Button
+              variant="outline-primary"
               onClick={() => setShowAdminLogin(true)}
               className="admin-login-btn"
-              style={{ 
+              style={{
                 background: '#f8f9fa',
                 border: '1px solid #f8f9fa',
                 borderRadius: '4px',
@@ -554,7 +554,7 @@ const PurposePage = () => {
             </Button>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ 
+              <span style={{
                 background: '#191970',
                 color: '#ffffff',
                 padding: '6px 14px',
@@ -588,8 +588,8 @@ const PurposePage = () => {
             <p style={{ fontSize: '1rem', margin: 0 }}>로딩 중...</p>
           </div>
         ) : goals.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
+          <div style={{
+            textAlign: 'center',
             padding: '80px 20px',
             background: '#ffffff',
             borderRadius: '8px',
@@ -617,16 +617,16 @@ const PurposePage = () => {
             )}
           </div>
         ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
             gap: '24px',
             width: '100%'
           }}>
             {goals.map((goal) => (
-              <div 
-                key={goal.id} 
-                style={{ 
+              <div
+                key={goal.id}
+                style={{
                   background: '#ffffff',
                   borderRadius: '8px',
                   boxShadow: '0 1px 6px rgba(32, 33, 36, 0.28)',
@@ -641,17 +641,17 @@ const PurposePage = () => {
                   e.currentTarget.style.boxShadow = '0 1px 6px rgba(32, 33, 36, 0.28)';
                 }}
               >
-                <div style={{ 
-                  display: 'flex', 
+                <div style={{
+                  display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   marginBottom: '16px',
                   paddingBottom: '16px',
                   borderBottom: '1px solid #e8eaed'
                 }}>
-                  <h3 style={{ 
-                    margin: 0, 
-                    fontSize: '1.25rem', 
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.25rem',
                     fontWeight: 500,
                     color: '#202124',
                     fontFamily: 'Roboto, sans-serif',
@@ -664,7 +664,7 @@ const PurposePage = () => {
                       type="button"
                       className="existence-button"
                       onClick={() => handleEditClick(goal)}
-                      style={{ 
+                      style={{
                         padding: '6px 16px',
                         fontSize: '14px',
                         minWidth: 'auto',
@@ -677,7 +677,7 @@ const PurposePage = () => {
                       type="button"
                       className="existence-button"
                       onClick={() => handleDeleteGoal(goal.id)}
-                      style={{ 
+                      style={{
                         padding: '6px 16px',
                         fontSize: '14px',
                         minWidth: 'auto',
@@ -698,8 +698,8 @@ const PurposePage = () => {
                   </div>
                 </div>
                 {goal.description && (
-                  <p style={{ 
-                    color: '#5f6368', 
+                  <p style={{
+                    color: '#5f6368',
                     marginBottom: '16px',
                     fontSize: '0.9rem',
                     lineHeight: '1.5',
@@ -709,8 +709,8 @@ const PurposePage = () => {
                   </p>
                 )}
                 {goal.items && goal.items.length > 0 && (
-                  <ul style={{ 
-                    margin: 0, 
+                  <ul style={{
+                    margin: 0,
                     paddingLeft: '20px',
                     color: '#202124',
                     fontSize: '0.9rem',
@@ -782,9 +782,9 @@ const PurposePage = () => {
                       type="button"
                       className="existence-button"
                       onClick={() => removeItemFromNewGoal(index)}
-                      style={{ 
-                        padding: '6px 16px', 
-                        fontSize: '14px', 
+                      style={{
+                        padding: '6px 16px',
+                        fontSize: '14px',
                         minWidth: 'auto',
                         backgroundColor: '#f8f9fa',
                         borderColor: '#dadce0',
@@ -872,9 +872,9 @@ const PurposePage = () => {
                         type="button"
                         className="existence-button"
                         onClick={() => removeItemFromEditingGoal(index)}
-                        style={{ 
-                          padding: '6px 16px', 
-                          fontSize: '14px', 
+                        style={{
+                          padding: '6px 16px',
+                          fontSize: '14px',
                           minWidth: 'auto',
                           backgroundColor: '#f8f9fa',
                           borderColor: '#dadce0',
@@ -945,8 +945,8 @@ const PurposePage = () => {
             </Form.Group>
 
             {aiLoading && (
-              <div style={{ 
-                textAlign: 'center', 
+              <div style={{
+                textAlign: 'center',
                 padding: '20px',
                 color: '#5f6368'
               }}>
@@ -1056,7 +1056,7 @@ function App() {
   const [classExistence, setClassExistence] = useState<Record<number, ClassExistence>>({});
   const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(null);
   const [showClassCustomizeModal, setShowClassCustomizeModal] = useState(false);
-  const [classPositions, setClassPositions] = useState<Array<{x: number, y: number}>>([]);
+  const [classPositions, setClassPositions] = useState<Array<{ x: number, y: number }>>([]);
   const [classImageLoaded, setClassImageLoaded] = useState<Record<number, boolean>>({});
   const classImageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const [screenSize, setScreenSize] = useState({ width: typeof window !== 'undefined' ? window.innerWidth : 1920, height: typeof window !== 'undefined' ? window.innerHeight : 1080 });
@@ -1084,7 +1084,7 @@ function App() {
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [newClassName, setNewClassName] = useState('');
   const [showStudentManageModal, setShowStudentManageModal] = useState<number | null>(null);
-  const [classStudents, setClassStudents] = useState<Array<{id: number, name: string}>>([]);
+  const [classStudents, setClassStudents] = useState<Array<{ id: number, name: string }>>([]);
   const [showAIModal, setShowAIModal] = useState(false);
   const [aiQuestion, setAiQuestion] = useState('');
   const [aiAnswer, setAiAnswer] = useState('');
@@ -1105,7 +1105,7 @@ function App() {
       console.log('🔐 관리자 로그인 시도:', apiUrl);
       console.log('🌐 현재 호스트:', window.location.hostname);
       console.log('🔗 전체 URL:', window.location.href);
-      
+
       // 먼저 간단한 연결 테스트
       try {
         const healthCheckUrl = `${getApiUrl()}/api/health`;
@@ -1115,7 +1115,7 @@ function App() {
       } catch (healthError: any) {
         console.warn('⚠️ Health check 실패 (계속 진행):', healthError);
       }
-      
+
       // 타임아웃을 위한 AbortController 생성
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
@@ -1167,11 +1167,11 @@ function App() {
         // 상태 업데이트 순서 중요: 먼저 localStorage 저장, 그 다음 상태 업데이트
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminTokenExpires', data.expiresAt.toString());
-      setIsAdmin(true);
+        setIsAdmin(true);
         setAdminPassword(''); // 비밀번호 필드 초기화
-      setShowAdminLogin(false);
+        setShowAdminLogin(false);
         console.log('✅ 관리자 모드 활성화 완료');
-    } else {
+      } else {
         console.error('❌ 로그인 실패:', data);
         alert(data.error || '비밀번호가 올바르지 않습니다.');
         setAdminPassword(''); // 실패 시에도 비밀번호 필드 초기화
@@ -1206,7 +1206,7 @@ function App() {
 
     setAiLoading(true);
     setAiAnswer('');
-    
+
     try {
       const response = await fetch(`${getApiUrl()}/api/ai/ask`, {
         method: 'POST',
@@ -1260,18 +1260,18 @@ function App() {
     // 고해상도 렌더링을 위한 DPI 스케일링
     const devicePixelRatio = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    
+
     // 캔버스 크기를 실제 픽셀 크기로 설정
     canvas.width = rect.width * devicePixelRatio;
     canvas.height = rect.height * devicePixelRatio;
-    
+
     // CSS 크기는 원래 크기로 유지
     canvas.style.width = rect.width + 'px';
     canvas.style.height = rect.height + 'px';
-    
+
     // 컨텍스트 스케일링
     ctx.scale(devicePixelRatio, devicePixelRatio);
-    
+
     // 텍스트 렌더링 품질 향상
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -1306,7 +1306,7 @@ function App() {
       if (existence?.imageData) {
         const cache = classImageCacheRef.current;
         let cachedImage = cache.get(existence.imageData);
-        
+
         if (!cachedImage) {
           const img = new Image();
           let loadHandled = false;
@@ -1346,7 +1346,7 @@ function App() {
           imageDrawn = true;
         }
       }
-      
+
       // 이미지가 없거나 로드되지 않았으면 색상으로 그리기
       if (!imageDrawn) {
         const color = existence?.color || '#667eea';
@@ -1417,7 +1417,7 @@ function App() {
               const angle = (time * 0.00005 + pIdx * (2 * Math.PI / numP)) % (2 * Math.PI);
               const px = x + Math.cos(angle) * protonOrbit;
               const py = y + Math.sin(angle) * protonOrbit;
-              
+
               ctx.beginPath();
               ctx.arc(px, py, particleSize, 0, 2 * Math.PI);
               ctx.fillStyle = proton.color || '#FF6B6B';
@@ -1425,7 +1425,7 @@ function App() {
               ctx.strokeStyle = '#ffffff';
               ctx.lineWidth = 1.5;
               ctx.stroke();
-              
+
               // 이모티콘 표시
               if (proton.emoji) {
                 ctx.font = `${particleSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
@@ -1442,7 +1442,7 @@ function App() {
               const angle = (time * 0.00003 + Math.PI / 6 + nIdx * (2 * Math.PI / numN)) % (2 * Math.PI);
               const nx = x + Math.cos(angle) * neutronOrbit;
               const ny = y + Math.sin(angle) * neutronOrbit;
-              
+
               ctx.beginPath();
               ctx.arc(nx, ny, particleSize, 0, 2 * Math.PI);
               ctx.fillStyle = neutron.color || '#4ECDC4';
@@ -1450,7 +1450,7 @@ function App() {
               ctx.strokeStyle = '#ffffff';
               ctx.lineWidth = 1.5;
               ctx.stroke();
-              
+
               // 이모티콘 표시
               if (neutron.emoji) {
                 ctx.font = `${particleSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
@@ -1480,7 +1480,7 @@ function App() {
               const ex = x + Math.cos(angle) * orbit.radius;
               const ey = y + Math.sin(angle) * orbit.radius;
               const electronSize = Math.max(6, radius * 0.12);
-              
+
               ctx.beginPath();
               ctx.arc(ex, ey, electronSize, 0, 2 * Math.PI);
               ctx.fillStyle = orbit.color;
@@ -1488,7 +1488,7 @@ function App() {
               ctx.strokeStyle = '#ffffff';
               ctx.lineWidth = 1.5;
               ctx.stroke();
-              
+
               // 이모티콘 표시
               if (electron.emoji) {
                 ctx.font = `${electronSize * 1.2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Arial, sans-serif`;
@@ -1507,12 +1507,12 @@ function App() {
             const time = Date.now();
             const gameRecordOrbit = radius * 3.5; // 전자보다 바깥쪽
             const gameRecordSize = Math.max(8, radius * 0.14);
-            
+
             gameRecords.forEach((record, rIdx: number) => {
               const angle = (time * 0.00002 + rIdx * (2 * Math.PI / gameRecords.length)) % (2 * Math.PI);
               const gx = x + Math.cos(angle) * gameRecordOrbit;
               const gy = y + Math.sin(angle) * gameRecordOrbit;
-              
+
               // 경기 기록 아이콘 그리기
               ctx.beginPath();
               ctx.arc(gx, gy, gameRecordSize, 0, 2 * Math.PI);
@@ -1521,7 +1521,7 @@ function App() {
               ctx.strokeStyle = '#ffffff';
               ctx.lineWidth = 2;
               ctx.stroke();
-              
+
               // 경기 기록 이모티콘 (스포츠별)
               const sportEmojis: Record<string, string> = {
                 'soccer': '⚽',
@@ -1549,14 +1549,14 @@ function App() {
   // drawClasses를 useEffect로 호출 (애니메이션을 위한 반복 호출)
   useEffect(() => {
     if (!classesLoaded || classPositions.length === 0) return;
-    
+
     let animationFrameId: number;
     const animate = () => {
       drawClasses();
       animationFrameId = requestAnimationFrame(animate);
     };
     animate();
-    
+
     return () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -1577,10 +1577,10 @@ function App() {
   const getClassesCanvasCoordinates = useCallback((clientX: number, clientY: number) => {
     const canvas = classesCanvasRef.current;
     if (!canvas) return null;
-    
+
     const rect = canvas.getBoundingClientRect();
     const devicePixelRatio = window.devicePixelRatio || 1;
-    
+
     return {
       x: (clientX - rect.left) * (canvas.width / (rect.width * devicePixelRatio)),
       y: (clientY - rect.top) * (canvas.height / (rect.height * devicePixelRatio))
@@ -1649,7 +1649,7 @@ function App() {
     const dragDistance = Math.sqrt(
       (x - classDragStartPos.x) ** 2 + (y - classDragStartPos.y) ** 2
     );
-    
+
     if (dragDistance > 5) {
       setHasDraggedClass(true);
     }
@@ -1718,7 +1718,7 @@ function App() {
 
   const handleClassesTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
-    
+
     // 드래그가 없었으면 클릭으로 처리
     if (!hasDraggedClass && e.changedTouches.length > 0) {
       const touch = e.changedTouches[0];
@@ -1726,7 +1726,7 @@ function App() {
         handleClassesTouchEndClick(touch.clientX, touch.clientY);
       }, 100);
     }
-    
+
     handleClassesPointerUp();
   };
 
@@ -1820,7 +1820,7 @@ function App() {
     const verifyAdminToken = async () => {
       const token = localStorage.getItem('adminToken');
       const expiresAt = localStorage.getItem('adminTokenExpires');
-      
+
       if (!token) {
         setIsAdmin(false);
         return;
@@ -1887,7 +1887,7 @@ function App() {
           setClasses(processedClassNames);
           const existence = classesData.classExistence || {};
           setClassExistence(existence);
-          
+
           // 클래스 이미지 사전 로드
           Object.keys(existence).forEach((classIdStr) => {
             const classId = parseInt(classIdStr, 10);
@@ -1908,7 +1908,7 @@ function App() {
               }
             }
           });
-          
+
           setClassesLoaded(true);
           // localStorage에도 백업 저장
           localStorage.setItem('classNames', JSON.stringify(processedClassNames));
@@ -1941,12 +1941,12 @@ function App() {
         setClassesLoaded(true);
       }
     };
-    
+
     fetchClasses();
-    
+
     // 주기적으로 클래스 목록 갱신 (다른 기기 동기화를 위한 안전장치)
     const interval = setInterval(fetchClasses, 5000);
-    
+
     return () => {
       clearInterval(interval);
     };
@@ -1958,15 +1958,15 @@ function App() {
       const savedName = editingClassName.trim();
       // "."인 경우 기본 이름으로 저장
       const nameToSave = savedName === '.' ? `${index + 1}반` : savedName;
-      
+
       // API에 저장할 때는 원본 이름 저장
       const allClassNames = await fetch(`${getApiUrl()}/api/classes`).then(r => r.json()).catch(() => classes.map((name, i) => name === '.' ? `${i + 1}반` : name));
       allClassNames[index] = nameToSave;
-      
+
       // 화면에 표시할 때는 "." 처리
       newClasses[index] = nameToSave === `${index + 1}반` ? '.' : savedName;
       setClasses(newClasses);
-      
+
       // API에 저장
       try {
         await fetch(`${getApiUrl()}/api/classes`, {
@@ -1976,10 +1976,10 @@ function App() {
           },
           body: JSON.stringify({ classNames: allClassNames }),
         });
-        
+
         // localStorage에도 백업 저장 (원본 저장)
         localStorage.setItem('classNames', JSON.stringify(allClassNames));
-        
+
         // 커스텀 이벤트 발생 (같은 탭에서도 동기화되도록)
         window.dispatchEvent(new CustomEvent('classNamesUpdated', {
           detail: { classNames: allClassNames }
@@ -1988,7 +1988,7 @@ function App() {
         console.error('Error saving class name:', error);
         alert('Error occurred while saving class name.');
       }
-      
+
       setEditingClassIndex(null);
       setEditingClassName('');
     }
@@ -2003,7 +2003,7 @@ function App() {
     if (newClassName.trim()) {
       const newClasses = [...classes, newClassName.trim()];
       setClasses(newClasses);
-      
+
       // API에 저장
       try {
         await fetch(`${getApiUrl()}/api/classes`, {
@@ -2013,10 +2013,10 @@ function App() {
           },
           body: JSON.stringify({ classNames: newClasses }),
         });
-        
+
         // localStorage에도 백업 저장
         localStorage.setItem('classNames', JSON.stringify(newClasses));
-        
+
         window.dispatchEvent(new CustomEvent('classNamesUpdated', {
           detail: { classNames: newClasses }
         }));
@@ -2025,7 +2025,7 @@ function App() {
         alert('Error occurred while adding class.');
         return;
       }
-      
+
       setNewClassName('');
       setShowAddClassModal(false);
     }
@@ -2034,12 +2034,12 @@ function App() {
   const handleDeleteClass = async (index: number) => {
     if (window.confirm(`Are you sure you want to delete ${classes[index]}? All students in this class will also be deleted.`)) {
       const classId = index + 1;
-      
+
       // 해당 클래스의 모든 학생 삭제
       try {
         const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`);
         const students = await response.json();
-        
+
         for (const student of students) {
           await fetch(`${getApiUrl()}/api/students/${student.id}`, {
             method: 'DELETE'
@@ -2048,11 +2048,11 @@ function App() {
       } catch (error) {
         console.error('Error deleting students:', error);
       }
-      
+
       // 클래스 목록에서 제거
       const newClasses = classes.filter((_, i) => i !== index);
       setClasses(newClasses);
-      
+
       // API에 저장
       try {
         await fetch(`${getApiUrl()}/api/classes`, {
@@ -2062,10 +2062,10 @@ function App() {
           },
           body: JSON.stringify({ classNames: newClasses }),
         });
-        
+
         // localStorage에도 백업 저장
         localStorage.setItem('classNames', JSON.stringify(newClasses));
-        
+
         window.dispatchEvent(new CustomEvent('classNamesUpdated', {
           detail: { classNames: newClasses }
         }));
@@ -2093,7 +2093,7 @@ function App() {
     const classId = classIndex + 1;
     try {
       const students = [...classStudents];
-      
+
       for (let i = 0; i < count; i++) {
         const response = await fetch(`${getApiUrl()}/api/classes/${classId}/students`, {
           method: 'POST',
@@ -2105,7 +2105,7 @@ function App() {
         const newStudent = await response.json();
         students.push(newStudent);
       }
-      
+
       setClassStudents(students);
     } catch (error) {
       console.error('Error adding student:', error);
@@ -2142,10 +2142,10 @@ function App() {
         }
       }
     };
-    
+
     // 커스텀 이벤트 리스너 추가
     window.addEventListener('studentUpdated', handleStudentUpdated);
-    
+
     return () => {
       window.removeEventListener('studentUpdated', handleStudentUpdated);
     };
@@ -2156,46 +2156,46 @@ function App() {
     const handleResize = () => {
       setScreenSize({ width: window.innerWidth, height: window.innerHeight });
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // 겹치지 않는 위치 생성 함수 (그리드 레이아웃)
   const generateCircularLayout = useCallback(() => {
-    const positions: Array<{x: number, y: number}> = [];
-    
+    const positions: Array<{ x: number, y: number }> = [];
+
     // 화면 크기에 따라 버튼 크기 조정
     const screenWidth = screenSize.width;
     const isMobile = screenWidth < 768;
-    
+
     // 기본 사이즈
     const baseSize = isMobile ? 100 : screenWidth < 1024 ? 130 : 150;
     const buttonSize = baseSize;
-    
+
     // 그리드 설정: 가로로 배치할 원의 개수
     const itemsPerRow = isMobile ? 2 : screenWidth < 1024 ? 3 : 4;
     const spacing = buttonSize * 1.2; // 원 사이 간격
-    
+
     // 모바일에서는 좌측 상단부터 시작, 데스크톱에서는 중앙 정렬
     const containerWidth = isMobile ? screenWidth : 1200;
     const totalWidth = itemsPerRow * spacing;
-    
+
     // 시작 위치: 모바일은 좌측 상단부터, 데스크톱은 중앙 정렬
     const startX = isMobile ? spacing : (containerWidth - totalWidth) / 2 + spacing / 2;
     const startY = spacing;
-    
+
     // 각 클래스를 그리드로 배치
     for (let i = 0; i < classes.length; i++) {
       const col = i % itemsPerRow;
       const row = Math.floor(i / itemsPerRow);
-      
+
       const x = startX + col * spacing;
       const y = startY + row * spacing;
-      
+
       positions.push({ x, y });
     }
-    
+
     return positions;
   }, [classes, screenSize]);
 
@@ -2206,17 +2206,17 @@ function App() {
         const container = classesContainerRef.current;
         const isMobile = window.innerWidth < 768;
         const containerWidth = container.clientWidth || window.innerWidth;
-        const containerHeight = isMobile 
+        const containerHeight = isMobile
           ? window.innerHeight - 200
           : Math.max(600, window.innerHeight * 0.6);
-        
+
         const newSize = {
           width: Math.min(containerWidth - (isMobile ? 20 : 40), isMobile ? window.innerWidth : 1200),
           height: Math.min(containerHeight, isMobile ? window.innerHeight - 150 : 800)
         };
-        
+
         setClassesCanvasSize(newSize);
-        
+
         const canvas = classesCanvasRef.current;
         if (canvas) {
           const devicePixelRatio = window.devicePixelRatio || 1;
@@ -2268,7 +2268,7 @@ function App() {
     };
 
     window.addEventListener('resize', handleResize);
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
     };
@@ -2283,10 +2283,10 @@ function App() {
 
     // 사용자 제공 이미지
     const userIllustrationImage = "/강박이.png";
-    
+
     // 일러스트레이션 스타일 메모이제이션 (깜빡임 방지)
     const isMobile = screenSize.width < 768;
-    
+
     const illustrationStyle = useMemo(() => ({
       position: 'absolute' as const,
       left: '50%',
@@ -2302,8 +2302,8 @@ function App() {
     }), [isMobile]);
 
     return (
-      <div className="existence-home" style={{ 
-        backgroundColor: '#f5f2ee', 
+      <div className="existence-home" style={{
+        backgroundColor: '#f5f2ee',
         width: '100%',
         height: '100vh',
         minHeight: '100vh',
@@ -2312,9 +2312,9 @@ function App() {
         overflowX: 'hidden'
       }}>
         {/* 가운데 일러스트레이션 */}
-        <img 
-          src={userIllustrationImage} 
-          alt="Illustration" 
+        <img
+          src={userIllustrationImage}
+          alt="Illustration"
           style={illustrationStyle}
           loading="eager"
           decoding="async"
@@ -2336,8 +2336,8 @@ function App() {
           boxSizing: 'border-box'
         }}>
           {/* Existence 타이틀 */}
-          <h1 
-            className="existence-logo" 
+          <h1
+            className="existence-logo"
             onClick={handleLogoClick}
             style={{
               fontFamily: "'Young Serif', serif",
@@ -2360,7 +2360,7 @@ function App() {
           >
             Existence
           </h1>
-          
+
           {/* 서브타이틀 */}
           <p style={{
             fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -2378,7 +2378,7 @@ function App() {
           }}>
             Reflect deeply, Record consistently, Collaborate together!
           </p>
-          
+
           {/* 버튼들 */}
           <div className="existence-buttons" style={{
             position: 'relative',
@@ -2499,7 +2499,7 @@ function App() {
         }}>
           <p style={{ margin: 0, wordBreak: 'break-word' }}>Made by Yunho Choi</p>
         </div>
-        
+
         <div style={{
           position: 'absolute',
           bottom: screenSize.width < 768 ? '5px' : '10px',
@@ -2528,9 +2528,9 @@ function App() {
           <div className="existence-home">
             <div className="existence-search-container" style={{ width: '100%', maxWidth: '1200px', position: 'relative', minHeight: '80vh' }}>
               {/* 네비게이션 및 관리자 컨트롤 */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '40px',
                 width: '100%',
@@ -2563,11 +2563,11 @@ function App() {
                   )}
                 </div>
                 {!isAdmin ? (
-                  <Button 
-                    variant="outline-primary" 
+                  <Button
+                    variant="outline-primary"
                     onClick={() => setShowAdminLogin(true)}
                     className="admin-login-btn"
-                    style={{ 
+                    style={{
                       background: '#f8f9fa',
                       border: '1px solid #f8f9fa',
                       borderRadius: '4px',
@@ -2595,7 +2595,7 @@ function App() {
                   </Button>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ 
+                    <span style={{
                       background: '#191970',
                       color: '#ffffff',
                       padding: '6px 14px',
@@ -2626,8 +2626,8 @@ function App() {
               </div>
 
               {/* 원들 컨테이너 - 캔버스로 전환 */}
-              <div 
-                className="floating-classes-container" 
+              <div
+                className="floating-classes-container"
                 ref={classesContainerRef}
                 style={{ position: 'relative', width: '100%', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
               >
@@ -2644,15 +2644,15 @@ function App() {
                   onTouchStart={handleClassesTouchStart}
                   onTouchMove={handleClassesTouchMove}
                   onTouchEnd={handleClassesTouchEnd}
-                      style={{
-                        border: 'none',
-                    borderRadius: '8px', 
+                  style={{
+                    border: 'none',
+                    borderRadius: '8px',
                     cursor: isDraggingClass ? 'grabbing' : 'pointer',
                     touchAction: 'none',
                     maxWidth: '100%',
                     height: 'auto'
-                      }}
-                    />
+                  }}
+                />
                 {/* 관리자 모드에서 모든 원에 편집 버튼 항상 표시 */}
                 {isAdmin && !isDraggingClass && classesLoaded && classes.map((_, index) => {
                   const position = classPositions[index];
@@ -2667,167 +2667,167 @@ function App() {
                   const scaleY = rect.height / (canvas.height / devicePixelRatio);
                   const screenX = rect.left + position.x * scaleX;
                   const screenY = rect.top + position.y * scaleY;
-                  
-                    // 버튼들의 총 너비 계산 (4개 버튼 + 3개 gap)
-                    const buttonWidth = 32;
-                    const gapSize = 6;
-                    const totalButtonsWidth = (buttonWidth * 4) + (gapSize * 3);
-                    
-                    return (
-                      <div
-                        key={`edit-buttons-${index}`}
-                        style={{
-                          position: 'fixed',
-                          left: screenX - (totalButtonsWidth / 2), // 원의 중앙에 버튼들 배치
-                          top: screenY + radius + 10, // 원의 아래에 배치
-                          display: 'flex',
-                          gap: '6px',
-                          zIndex: 1000,
-                          pointerEvents: 'auto'
+
+                  // 버튼들의 총 너비 계산 (4개 버튼 + 3개 gap)
+                  const buttonWidth = 32;
+                  const gapSize = 6;
+                  const totalButtonsWidth = (buttonWidth * 4) + (gapSize * 3);
+
+                  return (
+                    <div
+                      key={`edit-buttons-${index}`}
+                      style={{
+                        position: 'fixed',
+                        left: screenX - (totalButtonsWidth / 2), // 원의 중앙에 버튼들 배치
+                        top: screenY + radius + 10, // 원의 아래에 배치
+                        display: 'flex',
+                        gap: '6px',
+                        zIndex: 1000,
+                        pointerEvents: 'auto'
+                      }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClassName(index);
                         }}
+                        style={{
+                          background: '#424242',
+                          border: '1px solid #616161',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: '#e0e0e0',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                          transition: 'all 0.3s ease',
+                          padding: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#616161';
+                          e.currentTarget.style.borderColor = '#757575';
+                          e.currentTarget.style.transform = 'scale(1.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#424242';
+                          e.currentTarget.style.borderColor = '#616161';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        title="원 이름 수정"
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditClassName(index);
-                          }}
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            padding: 0
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 이름 수정"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenStudentManage(index);
-                          }}
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            padding: 0
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="학생 관리"
-                        >
-                          👥
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedClassIndex(index);
-                            setShowClassCustomizeModal(true);
-                          }}
-                          style={{
-                            background: 'rgba(255, 193, 7, 0.9)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: 'white',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-                            transition: 'all 0.3s ease',
-                            padding: 0
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 193, 7, 1)';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 편집"
-                        >
-                          🎨
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClass(index);
-                          }}
-                          style={{
-                            background: '#424242',
-                            border: '1px solid #616161',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#e0e0e0',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                            transition: 'all 0.3s ease',
-                            padding: 0
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#616161';
-                            e.currentTarget.style.borderColor = '#757575';
-                            e.currentTarget.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#424242';
-                            e.currentTarget.style.borderColor = '#616161';
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                          title="원 삭제"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    );
-                  }).filter(Boolean)}
+                        ✏️
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenStudentManage(index);
+                        }}
+                        style={{
+                          background: '#424242',
+                          border: '1px solid #616161',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: '#e0e0e0',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                          transition: 'all 0.3s ease',
+                          padding: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#616161';
+                          e.currentTarget.style.borderColor = '#757575';
+                          e.currentTarget.style.transform = 'scale(1.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#424242';
+                          e.currentTarget.style.borderColor = '#616161';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        title="학생 관리"
+                      >
+                        👥
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedClassIndex(index);
+                          setShowClassCustomizeModal(true);
+                        }}
+                        style={{
+                          background: 'rgba(255, 193, 7, 0.9)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: 'white',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                          transition: 'all 0.3s ease',
+                          padding: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 193, 7, 1)';
+                          e.currentTarget.style.transform = 'scale(1.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 193, 7, 0.9)';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        title="원 편집"
+                      >
+                        🎨
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClass(index);
+                        }}
+                        style={{
+                          background: '#424242',
+                          border: '1px solid #616161',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: '#e0e0e0',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                          transition: 'all 0.3s ease',
+                          padding: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#616161';
+                          e.currentTarget.style.borderColor = '#757575';
+                          e.currentTarget.style.transform = 'scale(1.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#424242';
+                          e.currentTarget.style.borderColor = '#616161';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                        title="원 삭제"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  );
+                }).filter(Boolean)}
                 {/* 우클릭 컨텍스트 메뉴 */}
                 {contextMenu && isAdmin && (
                   <div
@@ -2938,9 +2938,9 @@ function App() {
                       }}
                     >
                       🗑️ 삭제
-                        </button>
-                      </div>
-                    )}
+                    </button>
+                  </div>
+                )}
                 {/* 관리자 모드에서 편집 버튼들을 위한 오버레이 (필요시) */}
                 {isAdmin && editingClassIndex !== null && (
                   <div style={{
@@ -2959,7 +2959,7 @@ function App() {
           </div>
         } />
         <Route path="/purpose" element={<PurposePage />} />
-        <Route path="/class/:classId" element={<ClassDetails isAdmin={isAdmin} />} />
+        <Route path="/class/:classId" element={<ClassDetails isAdmin={isAdmin} onOpenAdminLogin={() => setShowAdminLogin(true)} onOpenAIModal={() => setShowAIModal(true)} />} />
       </Routes>
 
       {/* 관리자 로그인 모달 */}
@@ -3030,8 +3030,8 @@ function App() {
           </Form.Group>
 
           {aiLoading && (
-            <div style={{ 
-              textAlign: 'center', 
+            <div style={{
+              textAlign: 'center',
               padding: '20px',
               color: '#5f6368'
             }}>
@@ -3130,9 +3130,9 @@ function App() {
       </Modal>
 
       {/* 원 이름 관리 모달 */}
-      <Modal 
-        show={showStudentManageModal !== null} 
-        onHide={() => setShowStudentManageModal(null)} 
+      <Modal
+        show={showStudentManageModal !== null}
+        onHide={() => setShowStudentManageModal(null)}
         centered
         size="lg"
       >
@@ -3174,11 +3174,11 @@ function App() {
                   </div>
                 </Form.Group>
               </div>
-              
+
               <div>
                 <strong>현재 원 목록 ({classStudents.length})</strong>
-                <div style={{ 
-                  maxHeight: '400px', 
+                <div style={{
+                  maxHeight: '400px',
                   overflowY: 'auto',
                   marginTop: '10px',
                   border: '1px solid #ddd',
@@ -3229,9 +3229,9 @@ function App() {
       {selectedClassIndex !== null && (() => {
         const currentExistence = classExistence[selectedClassIndex + 1];
         const studentData = {
-            id: selectedClassIndex + 1,
-            name: classes[selectedClassIndex],
-            classId: selectedClassIndex + 1,
+          id: selectedClassIndex + 1,
+          name: classes[selectedClassIndex],
+          classId: selectedClassIndex + 1,
           existence: currentExistence ? {
             color: currentExistence.color,
             shape: currentExistence.shape,
@@ -3239,172 +3239,172 @@ function App() {
             size: currentExistence.size,
             glow: currentExistence.glow,
             border: currentExistence.border,
-              activity: '',
-              activities: [],
-              energy: 60,
-              personality: 'active',
+            activity: '',
+            activities: [],
+            energy: 60,
+            personality: 'active',
             customName: currentExistence.customName,
             imageData: currentExistence.imageData || '',
-              records: currentExistence.records || [],
+            records: currentExistence.records || [],
             showElectrons: currentExistence.showElectrons || false,
             showProtonsNeutrons: currentExistence.showProtonsNeutrons || false,
             showGameRecords: currentExistence.showGameRecords !== false,
             atom: currentExistence.atom || {
-                protons: [],
-                neutrons: [],
-                electrons: {
-                  kShell: [],
-                  lShell: [],
-                  mShell: [],
-                  valence: []
-                }
+              protons: [],
+              neutrons: [],
+              electrons: {
+                kShell: [],
+                lShell: [],
+                mShell: [],
+                valence: []
               }
-            } : undefined
+            }
+          } : undefined
         };
         return (
           <StudentCustomizeModal
             key={`class-${selectedClassIndex}`}
             student={studentData}
-          show={showClassCustomizeModal}
-          onHide={() => {
-            setShowClassCustomizeModal(false);
-            setSelectedClassIndex(null);
-          }}
-          onSave={async (updatedStudent) => {
-            const classId = selectedClassIndex !== null ? selectedClassIndex + 1 : null;
-            if (!classId) {
-              console.error('클래스 ID가 없습니다.');
-              return;
-            }
+            show={showClassCustomizeModal}
+            onHide={() => {
+              setShowClassCustomizeModal(false);
+              setSelectedClassIndex(null);
+            }}
+            onSave={async (updatedStudent) => {
+              const classId = selectedClassIndex !== null ? selectedClassIndex + 1 : null;
+              if (!classId) {
+                console.error('클래스 ID가 없습니다.');
+                return;
+              }
 
-            console.log('💾 클래스 저장 시작:', classId);
-            console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
-            console.log('⚛️ 원자 모델:', updatedStudent.existence?.atom ? '있음' : '없음');
-            console.log('🔬 전자 표시:', updatedStudent.existence?.showElectrons);
-            console.log('🔬 양성자/중성자 표시:', updatedStudent.existence?.showProtonsNeutrons);
+              console.log('💾 클래스 저장 시작:', classId);
+              console.log('📸 이미지 데이터:', updatedStudent.existence?.imageData ? `있음 (${(updatedStudent.existence.imageData.length / 1024).toFixed(2)}KB)` : '없음');
+              console.log('⚛️ 원자 모델:', updatedStudent.existence?.atom ? '있음' : '없음');
+              console.log('🔬 전자 표시:', updatedStudent.existence?.showElectrons);
+              console.log('🔬 양성자/중성자 표시:', updatedStudent.existence?.showProtonsNeutrons);
 
-            const existence: ClassExistence = {
-              color: updatedStudent.existence?.color || '#667eea',
-              shape: updatedStudent.existence?.shape || 'circle',
-              pattern: updatedStudent.existence?.pattern || 'solid',
-              size: updatedStudent.existence?.size || 1.0,
-              glow: updatedStudent.existence?.glow || false,
-              border: updatedStudent.existence?.border || 'normal',
-              customName: updatedStudent.existence?.customName,
-              imageData: updatedStudent.existence?.imageData || '',
-              showElectrons: updatedStudent.existence?.showElectrons || false,
-              showProtonsNeutrons: updatedStudent.existence?.showProtonsNeutrons || false,
-              showGameRecords: updatedStudent.existence?.showGameRecords !== false,
-              records: updatedStudent.existence?.records || [],
-              atom: updatedStudent.existence?.atom || {
-                protons: [],
-                neutrons: [],
-                electrons: {
-                  kShell: [],
-                  lShell: [],
-                  mShell: [],
-                  valence: []
+              const existence: ClassExistence = {
+                color: updatedStudent.existence?.color || '#667eea',
+                shape: updatedStudent.existence?.shape || 'circle',
+                pattern: updatedStudent.existence?.pattern || 'solid',
+                size: updatedStudent.existence?.size || 1.0,
+                glow: updatedStudent.existence?.glow || false,
+                border: updatedStudent.existence?.border || 'normal',
+                customName: updatedStudent.existence?.customName,
+                imageData: updatedStudent.existence?.imageData || '',
+                showElectrons: updatedStudent.existence?.showElectrons || false,
+                showProtonsNeutrons: updatedStudent.existence?.showProtonsNeutrons || false,
+                showGameRecords: updatedStudent.existence?.showGameRecords !== false,
+                records: updatedStudent.existence?.records || [],
+                atom: updatedStudent.existence?.atom || {
+                  protons: [],
+                  neutrons: [],
+                  electrons: {
+                    kShell: [],
+                    lShell: [],
+                    mShell: [],
+                    valence: []
+                  }
                 }
-              }
-            };
-            
-            try {
-              const response = await fetch(`${getApiUrl()}/api/classes/${classId}/existence`, {
-                method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ existence }),
-              });
-              
-              if (!response.ok) {
-                const errorText = await response.text();
-                console.error('❌ 저장 실패:', response.status, errorText);
-                const error = new Error(`저장 실패: ${response.status} ${errorText}`);
-                alert(`저장 실패: ${response.status} ${errorText}\n\n모달은 열려있으니 다시 시도해주세요.`);
-                throw error; // 저장 실패 시 reject하여 StudentCustomizeModal에서 처리하도록 함
-              }
-              
-              const result = await response.json();
-              console.log('✅ 클래스 저장 완료:', classId);
-              
-              // 저장 성공 후 상태 업데이트는 모달이 닫힌 후에 수행 (모달 리셋 방지)
-              // 모달이 닫힌 후에 상태를 업데이트하기 위해 setTimeout 사용
-              setTimeout(() => {
-              const updatedClassExistence = {
-                ...classExistence,
-                [classId]: existence
               };
-              
-              setClassExistence(updatedClassExistence);
-                
-                // customName이 있으면 클래스 이름도 업데이트
-                if (existence.customName && selectedClassIndex !== null) {
-                  const newClasses = [...classes];
-                  newClasses[selectedClassIndex] = existence.customName;
-                  setClasses(newClasses);
-                  
-                  // 클래스 이름도 API에 저장
-                  fetch(`${getApiUrl()}/api/classes`)
-                    .then(classesResponse => {
-                      if (classesResponse.ok) {
-                        return classesResponse.json();
-                      }
-                      return null;
-                    })
-                    .then(classesData => {
-                      if (classesData) {
-                        const allClassNames = classesData.classNames || classes;
-                        allClassNames[selectedClassIndex] = existence.customName;
-                        
-                        return fetch(`${getApiUrl()}/api/classes`, {
-                          method: 'PUT',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({ classNames: allClassNames }),
-                        });
-                      }
-                    })
-                    .catch(error => {
-                      console.error('클래스 이름 저장 오류:', error);
-                    });
+
+              try {
+                const response = await fetch(`${getApiUrl()}/api/classes/${classId}/existence`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ existence }),
+                });
+
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('❌ 저장 실패:', response.status, errorText);
+                  const error = new Error(`저장 실패: ${response.status} ${errorText}`);
+                  alert(`저장 실패: ${response.status} ${errorText}\n\n모달은 열려있으니 다시 시도해주세요.`);
+                  throw error; // 저장 실패 시 reject하여 StudentCustomizeModal에서 처리하도록 함
                 }
-              }, 100);
-              
-              // 이미지가 있으면 사전 로드
-              const imageData = existence.imageData;
-              if (imageData && imageData.startsWith('data:image')) {
-                const cache = classImageCacheRef.current;
-                if (!cache.has(imageData)) {
-                  const img = new Image();
-                  img.onload = () => {
-                    cache.set(imageData, img);
+
+                const result = await response.json();
+                console.log('✅ 클래스 저장 완료:', classId);
+
+                // 저장 성공 후 상태 업데이트는 모달이 닫힌 후에 수행 (모달 리셋 방지)
+                // 모달이 닫힌 후에 상태를 업데이트하기 위해 setTimeout 사용
+                setTimeout(() => {
+                  const updatedClassExistence = {
+                    ...classExistence,
+                    [classId]: existence
+                  };
+
+                  setClassExistence(updatedClassExistence);
+
+                  // customName이 있으면 클래스 이름도 업데이트
+                  if (existence.customName && selectedClassIndex !== null) {
+                    const newClasses = [...classes];
+                    newClasses[selectedClassIndex] = existence.customName;
+                    setClasses(newClasses);
+
+                    // 클래스 이름도 API에 저장
+                    fetch(`${getApiUrl()}/api/classes`)
+                      .then(classesResponse => {
+                        if (classesResponse.ok) {
+                          return classesResponse.json();
+                        }
+                        return null;
+                      })
+                      .then(classesData => {
+                        if (classesData) {
+                          const allClassNames = classesData.classNames || classes;
+                          allClassNames[selectedClassIndex] = existence.customName;
+
+                          return fetch(`${getApiUrl()}/api/classes`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ classNames: allClassNames }),
+                          });
+                        }
+                      })
+                      .catch(error => {
+                        console.error('클래스 이름 저장 오류:', error);
+                      });
+                  }
+                }, 100);
+
+                // 이미지가 있으면 사전 로드
+                const imageData = existence.imageData;
+                if (imageData && imageData.startsWith('data:image')) {
+                  const cache = classImageCacheRef.current;
+                  if (!cache.has(imageData)) {
+                    const img = new Image();
+                    img.onload = () => {
+                      cache.set(imageData, img);
+                      setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                      // 이미지 로드 후 캔버스 다시 그리기 (애니메이션 루프가 자동으로 처리)
+                    };
+                    img.onerror = () => {
+                      console.error(`이미지 로드 실패: 클래스 ${classId}`);
+                      setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
+                    };
+                    img.src = imageData;
+                  } else {
                     setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
-                    // 이미지 로드 후 캔버스 다시 그리기 (애니메이션 루프가 자동으로 처리)
-                  };
-                  img.onerror = () => {
-                    console.error(`이미지 로드 실패: 클래스 ${classId}`);
-                    setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
-                  };
-                  img.src = imageData;
+                  }
                 } else {
-                  setClassImageLoaded(prev => ({ ...prev, [classId]: true }));
+                  setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
                 }
-              } else {
-                setClassImageLoaded(prev => ({ ...prev, [classId]: false }));
+
+                // 저장 성공 - 모달은 StudentCustomizeModal의 handleSave에서 닫음
+              } catch (error) {
+                console.error('❌ Error saving class existence:', error);
+                const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+                alert(`저장 중 오류가 발생했습니다: ${errorMessage}\n\n모달은 열려있으니 다시 시도해주세요.`);
+                // 에러 발생 시 reject하여 StudentCustomizeModal에서 처리하도록 함
+                throw error;
               }
-              
-              // 저장 성공 - 모달은 StudentCustomizeModal의 handleSave에서 닫음
-            } catch (error) {
-              console.error('❌ Error saving class existence:', error);
-              const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-              alert(`저장 중 오류가 발생했습니다: ${errorMessage}\n\n모달은 열려있으니 다시 시도해주세요.`);
-              // 에러 발생 시 reject하여 StudentCustomizeModal에서 처리하도록 함
-              throw error;
-            }
-          }}
-        />
+            }}
+          />
         );
       })()}
 
