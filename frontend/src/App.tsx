@@ -3405,8 +3405,6 @@ function App() {
         }
         .App.landing-view {
           min-height: 100vh;
-          background: url(/gangbak.png) no-repeat center center fixed;
-          background-size: cover;
           display: flex;
           justify-content: center;
           align-items: flex-start;
