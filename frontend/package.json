@@ -13,6 +13,7 @@
     "@types/react-dom": "^19.2.2",
     "bootstrap": "^5.3.8",
     "firebase": "^10.14.1",
+    "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
