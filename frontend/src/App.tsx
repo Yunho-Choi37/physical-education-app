@@ -5,6 +5,7 @@ import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import ClassDetails from './ClassDetails';
 import StudentCustomizeModal from './StudentCustomizeModal';
 import { getApiUrl } from './config';
+import { KeyRound } from 'lucide-react';
 
 interface ClassExistence {
   color: string;
@@ -2281,176 +2282,220 @@ function App() {
       }
     };
 
-    const isMobile = screenSize.width < 768;
+    // Background Image
+    const backgroundImage = "/gangbak_v2.png";
 
     return (
       <div className="existence-home" style={{
-        backgroundColor: '#f5f2ee',
-        width: '100%',
-        height: '100vh',
         minHeight: '100vh',
         position: 'relative',
-        overflow: 'hidden',
-        overflowX: 'hidden'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden'
       }}>
-        {/* 가운데 일러스트레이션 */}
+        {/* Background Image */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '77%'
+          }}
+        />
 
+        {/* Admin Toggle Button (top-right) */}
+        <button
+          onClick={() => {
+            if (isAdmin) {
+              // If already admin, maybe logout or just toggle state? 
+              // The user request just says setIsAdmin(!isAdmin), but we have a login flow.
+              // For now, let's stick to the requested UI behavior but trigger the login modal if not admin.
+              if (isAdmin) {
+                // Optional: handle logout or just toggle off
+                // For this specific request, I'll just toggle the state as per the code snippet provided, 
+                // but since we have a real auth system, I should probably just open the login modal if !isAdmin.
+                // However, the user's code snippet explicitly does `setIsAdmin(!isAdmin)`. 
+                // I will adapt this to: if !isAdmin -> open login modal. If isAdmin -> maybe logout?
+                // Actually, the user's snippet is a standalone example. In our app, `isAdmin` is a global state.
+                // I will make the button open the login modal if not admin.
+                // If admin, I'll let it toggle off (logout).
+                // Wait, the user snippet says `setIsAdmin(!isAdmin)`. 
+                // I will implement a simple toggle for the UI demo, but strictly speaking we should use the auth flow.
+                // Let's use the existing `handleAdminLogin` flow.
+                // If !isAdmin, show login modal. If isAdmin, logout.
+                // But to match the visual exactly, I will use the button to trigger the login modal.
+                // If logged in, maybe show a logout option?
+                // The user's snippet is simple: `setIsAdmin(!isAdmin)`.
+                // I will map this to: Click -> if !isAdmin, setShowAdminLogin(true). If isAdmin, setIsAdmin(false).
+                setIsAdmin(false);
+              } else {
+                setShowAdminLogin(true);
+              }
+            } else {
+              setShowAdminLogin(true);
+            }
+          }}
+          style={{
+            position: 'absolute',
+            top: '24px',
+            right: '24px',
+            padding: '8px',
+            borderRadius: '9999px',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            border: 'none',
+            cursor: 'pointer',
+            zIndex: 10,
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            transition: 'background-color 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'}
+          title={isAdmin ? "관리자 모드 해제" : "관리자 로그인"}
+        >
+          <KeyRound
+            size={24}
+            color={isAdmin ? '#2563eb' : '#9ca3af'}
+          />
+        </button>
 
-        {/* 메인 콘텐츠 */}
-        <div className="existence-search-container" style={{
+        {/* Main Content */}
+        <div style={{
           position: 'relative',
           zIndex: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100vh',
-          minHeight: '100vh',
-          padding: '0',
-          margin: '0',
-          boxSizing: 'border-box'
+          textAlign: 'center',
+          padding: '0 16px'
         }}>
-          {/* Existence 타이틀 */}
-          <h1
-            className="existence-logo"
-            onClick={handleLogoClick}
-            style={{
-              fontFamily: "'Young Serif', serif",
-              fontSize: screenSize.width < 768 ? 'clamp(50px, 10vw, 100px)' : 'clamp(100px, 12vw, 180px)',
-              fontWeight: 400,
-              lineHeight: '1.066',
-              color: '#2d2d2d',
-              textAlign: 'center',
-              letterSpacing: screenSize.width < 768 ? 'clamp(-2px, -1vw, -4px)' : '-8.3041px',
-              margin: '0 0 10px 0',
-              cursor: 'pointer',
-              position: 'relative',
-              zIndex: 10,
-              width: '100%',
-              padding: screenSize.width < 768 ? '0 10px' : '0',
-              boxSizing: 'border-box',
-              wordBreak: 'keep-all',
-              whiteSpace: 'nowrap'
-            }}
-          >
+          {/* Title */}
+          <h1 style={{
+            marginBottom: '32px',
+            fontSize: '72px',
+            fontFamily: 'Georgia, "Noto Serif KR", serif',
+            letterSpacing: '0.025em',
+            color: 'white',
+            textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)',
+            margin: '0 0 32px 0'
+          }}>
             Existence
           </h1>
 
-          {/* 서브타이틀 */}
+          {/* Subtitle */}
           <p style={{
-            fontFamily: "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            fontWeight: 700,
-            fontSize: 'clamp(16px, 1.8vw, 22px)',
-            lineHeight: 'normal',
-            color: '#2d2d2d',
-            textAlign: 'center',
-            letterSpacing: '1.2px',
-            margin: '0 0 20px 0',
-            maxWidth: '824px',
-            position: 'relative',
-            zIndex: 10,
-            padding: screenSize.width < 768 ? '0 10px' : '0'
+            marginBottom: '48px',
+            fontSize: '28px',
+            fontFamily: 'Georgia, "Noto Serif KR", serif',
+            letterSpacing: '0.025em',
+            color: 'white',
+            textShadow: '1px 1px 6px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.5)',
+            margin: '0 0 48px 0'
           }}>
             Reflect deeply, Record consistently, Collaborate together!
           </p>
 
-          {/* 버튼들 */}
-          <div className="existence-buttons" style={{
-            position: 'relative',
-            zIndex: 10,
-            marginTop: '10px'
+          {/* Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
           }}>
             <button
-              type="button"
-              className="existence-button"
               onClick={() => navigate('/being')}
               style={{
-                backgroundColor: '#ffffff',
-                border: '2px solid #2d2d2d',
-                borderRadius: '8px',
-                color: '#2d2d2d',
-                padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
-                fontSize: screenSize.width < 768 ? '16px' : '18px',
-                fontWeight: 600,
+                minWidth: '140px',
+                height: '48px',
+                border: '2px solid white',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(4px)',
+                color: 'black',
+                fontSize: '18px',
+                fontFamily: 'Georgia, "Noto Serif KR", serif',
+                borderRadius: '6px', // default radius for shadcn button is usually small
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: '1'
+                justifyContent: 'center'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2d2d2d';
-                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.color = 'black';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.color = '#2d2d2d';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                e.currentTarget.style.color = 'black';
               }}
             >
               존재
             </button>
+
             <button
-              type="button"
-              className="existence-button"
               onClick={() => navigate('/purpose')}
               style={{
-                backgroundColor: '#ffffff',
-                border: '2px solid #2d2d2d',
-                borderRadius: '8px',
-                color: '#2d2d2d',
-                padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
-                fontSize: screenSize.width < 768 ? '16px' : '18px',
-                fontWeight: 600,
+                minWidth: '140px',
+                height: '48px',
+                border: '2px solid white',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(4px)',
+                color: 'black',
+                fontSize: '18px',
+                fontFamily: 'Georgia, "Noto Serif KR", serif',
+                borderRadius: '6px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: '1'
+                justifyContent: 'center'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2d2d2d';
-                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.color = 'black';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.color = '#2d2d2d';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                e.currentTarget.style.color = 'black';
               }}
             >
               목적
             </button>
+
+            {/* Admin Only Button */}
             {isAdmin && (
               <button
-                type="button"
-                className="existence-button"
                 onClick={() => setShowAIModal(true)}
                 style={{
-                  backgroundColor: '#ffffff',
-                  border: '2px solid #2d2d2d',
-                  borderRadius: '8px',
-                  color: '#2d2d2d',
-                  padding: screenSize.width < 768 ? '10px 20px' : '12px 32px',
-                  fontSize: screenSize.width < 768 ? '16px' : '18px',
-                  fontWeight: 600,
+                  minWidth: '140px',
+                  height: '48px',
+                  border: '2px solid white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(4px)',
+                  color: '#2563eb', // text-blue-600
+                  fontSize: '18px',
+                  fontFamily: 'Georgia, "Noto Serif KR", serif',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  margin: screenSize.width < 768 ? '0 4px' : '0 8px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.2s',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  lineHeight: '1'
+                  justifyContent: 'center'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2d2d2d';
-                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.backgroundColor = '#3b82f6'; // hover:bg-blue-500
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.borderColor = '#3b82f6';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                  e.currentTarget.style.color = '#2d2d2d';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                  e.currentTarget.style.color = '#2563eb';
+                  e.currentTarget.style.borderColor = 'white';
                 }}
               >
                 질문
@@ -2458,9 +2503,6 @@ function App() {
             )}
           </div>
         </div>
-
-        {/* 하단 텍스트 */}
-
       </div>
     );
   };
