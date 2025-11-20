@@ -2302,7 +2302,8 @@ function App() {
             backgroundImage: `url(${backgroundImage})`,
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            backgroundSize: '77%'
+            backgroundSize: '77%',
+            zIndex: 0
           }}
         />
 
