@@ -497,7 +497,16 @@ const PurposePage = () => {
           flexWrap: 'wrap',
           gap: '16px'
         }}>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <img
+              src={process.env.PUBLIC_URL + '/gangbak.png'}
+              alt="Logo"
+              style={{
+                height: '40px',
+                marginRight: '8px',
+                objectFit: 'contain'
+              }}
+            />
             <button
               type="button"
               className="existence-button"
